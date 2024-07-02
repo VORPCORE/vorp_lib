@@ -1,6 +1,8 @@
 # vorp_lib
 A library to be used for RedM  by vorp
 
+THIS IS WIP ANYTHING IN THIS REPO IS SUBJECTED TO CHANGES, FOLDERS, FILES, LOGIC, NOTHING IS EXPECTED TO WORK DO NOT USE IT ANYWHERE.
+
 ### Features
 
 #### Import
