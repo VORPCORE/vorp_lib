@@ -1,4 +1,14 @@
---THIS ARE JUST STATIC FUNCTIONS THAT THAT CAN BE REUSED ACROSS THE SCRIPT
+---@class Streaming
+---@field LoadModel fun(model: string | integer, timeout: integer?)
+---@field LoadTextureDict fun(dict: string, timeout: integer?)
+---@field LoadParticleFx fun(dict: string, timeout: integer?)
+---@field LoadAnimDict fun(dict: string, timeout: integer?)
+---@field LoadWeaponAsset fun(weapon: string | integer, p1: integer, p2: boolean, timeout: number?)
+---@field RequestCollisionAtCoord fun(coords: vector3 | {x: number, y: number, z: number})
+---@field RequestCollisionForModel fun(model: string | integer)
+---@field RequestIpl fun(ipl: string | integer)
+---@field LoadMoveNetworkDef fun(netDef: string, timeout: number?)
+---@field LoadClipSet fun(clipSet: string, timeout: number?)
 local Streaming = {}
 
 ---@param model string | integer Model name or hash
