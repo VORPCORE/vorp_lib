@@ -19,6 +19,13 @@ local inputTypes = {
     Release = 'IsControlJustReleased'
 }
 
+--todo: add more keys
+
+---@static
+local inputKeys = {
+    W = "",
+}
+
 function Pad:New(key, callback, type, state)
     ---@constructor
     local properties = { key = key, callback = callback, inputType = type, state = state }
@@ -27,10 +34,10 @@ end
 
 ---@methods
 function Pad:Init()
-    Citizen.CreateThreadNow(function()
+    Citizen.CreateThread(function()
         while self.state do
             Wait(0)
-            if self.inputType(self.key) then
+            if self.inputType(0, self.key) then
                 self.callback(self)
             end
         end
@@ -60,23 +67,11 @@ end
 ---@param type string
 function Pad.RegisterInput(key, callback, type, state)
     if not inputTypes[type] then return error(('input type %s does not exist, available types are %s'):format(type, table.concat(inputTypes, ', '))) end
+    if inputKeys[key] then key = inputKeys[key] end
     local instance = Pad:New(key, callback, inputTypes[type], state)
     return instance
 end
 
---return {
---    Pad = Pad
---}
-
---EXAMPLE
---local LIB = Import('multiple')
-
---local options = { key = 'W', type = 'Press', state = false, text = 'Press W' }
---local Key = LIB.Pad.RegisterInput(options, function(instance)
---    print("W pressed")
---    instance:Pause()
---end)
---
---Key:Resume()
---Key:Pause()
---Key:Destroy()
+return {
+    Pad = Pad
+}
