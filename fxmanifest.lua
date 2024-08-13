@@ -1,12 +1,13 @@
 fx_version 'cerulean'
 game 'rdr3'
 rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aware my resources *will* become incompatible once RedM ships.'
-lua54 'yes'
 
 name 'VORP Library'
 author 'VORP @outsider'
 description 'A library to use with RedM scripts'
 repository 'https://github.com/VORPCORE/vorp_library'
+
+lua54 'yes'
 
 files {
     'import.lua',

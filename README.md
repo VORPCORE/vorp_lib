@@ -1,7 +1,7 @@
 # vorp_lib
 A library to be used for RedM  by vorp
 
-THIS IS WIP ANYTHING IN THIS REPO IS SUBJECTED TO CHANGES, FOLDERS, FILES, LOGIC, NOTHING IS EXPECTED TO WORK DO NOT USE IT ANYWHERE.
+THIS IS WIP ANYTHING IN THIS REPO IS SUBJECTED TO CHANGES, FOLDERS, FILES, LOGIC.
 
 ### Features
 
@@ -39,3 +39,5 @@ THIS IS WIP ANYTHING IN THIS REPO IS SUBJECTED TO CHANGES, FOLDERS, FILES, LOGIC
   - structured to use them like "Real OOP" with automatic setters and getters 
   - inheritance
 
+### WIP
+more will be added in time like register prompts for example and event handlers
