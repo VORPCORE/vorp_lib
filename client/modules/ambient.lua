@@ -1,1 +1,0 @@
--- allow to set ambient spawn trafffic add setters and getters as well this should be in vorp core? or here running at all times with exports ?
