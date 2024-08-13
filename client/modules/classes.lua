@@ -46,5 +46,3 @@ end
 return {
     Class = Class,
 }
--- example 
-
