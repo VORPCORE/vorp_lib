@@ -166,23 +166,23 @@ function Map.Blip:InnitializeBlip(handle, params)
 end
 
 function Map.Blip:AddBlipForEntity(params)
-    if not params.Entity then error('No handle provided', 2) end
+    if not params.Entity or DoesEntityExist(params.Entity) then error('No handle provided OR Entity does not exist', 2) end
     local handle = BlipAddForEntity(params.Blip, params.Entity)
     return Map.Blip:InnitializeBlip(handle, params)
 end
 
 function Map.Blip:AddBlipForCoords(params)
-    local handle = BlipAddForCoords(params.Blip, params.Pos?.x, params.Pos?.y, params.Pos?.z)
+    local handle = BlipAddForCoords(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z)
     return Map.Blip:InnitializeBlip(handle, params)
 end
 
 function Map.Blip:AddBlipForArea(params)
-    local handle = BlipAddForArea(params.Blip, params.Pos?.x, params.Pos?.y, params.Pos?.z, params.Scale?.x or 0.0, params.Scale?.y or 0.0, params.Scale?.z or 0.0, params.P7 or 0)
+    local handle = BlipAddForArea(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Scale?.x or 0.0, params.Scale?.y or 0.0, params.Scale?.z or 0.0, params.P7 or 0)
     return Map.Blip:InnitializeBlip(handle, params)
 end
 
 function Map.Blip:AddBlipForRadius(params)
-    local handle = BlipAddForRadius(params.Blip, params.Pos?.x, params.Pos?.y, params.Pos?.z, params.Radius)
+    local handle = BlipAddForRadius(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Radius or 0.5)
     return Map.Blip:InnitializeBlip(handle, params)
 end
 
@@ -216,21 +216,5 @@ end)
 
 
 return {
-    Map = Map
+    Map = Map.Blip
 }
-
--- local LIB = import 'vorp_lib'
---local blip = LIB.Blip:AddBlipForCoords({
---    Blip = 1,
---    Pos = vector(0, 0, 0),
---    Options = {
---        Sprite = 1,
---        Name = "Blip",
---        Style = 1,
---        Scale = 1.0,
---        Modifier = "BLIP_MODIFIER_MP_COLOR_1"
---    }
---})
----- change blip name
---
---blip:SetName("New Na")
