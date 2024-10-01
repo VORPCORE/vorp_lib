@@ -22,14 +22,23 @@ importModules.__call  = function()
 end
 
 function importModules:GetPath(file)
-    local path, resource
+    local resource, path
+
     if file:sub(1, 1) == "@" then
         resource = file:match("@(.-)/")
         path = file:match("@.-/(.+)")
+    elseif string.find(file, "/") then
+        resource = GetCurrentResourceName()
+        path = file
     else
-        path = ("%s/modules/%s.lua"):format(side, file)
         resource = "vorp_lib"
+        path = ("%s/modules/%s.lua"):format(side, file)
     end
+
+    if not path:match("%.lua$") then
+        path = path .. ".lua"
+    end
+
     return resource, path
 end
 
