@@ -1,12 +1,13 @@
-local Class = {}
-function Class.Create(base)
-    local cls = {}
+local class <const> = {}
+
+function class.Create(base)
+    local cls   = {}
     cls.__index = cls
     setmetatable(cls, { __index = base })
 
     function cls:new(o)
         o = o or {}
-        local instance = setmetatable(o, cls)
+        local instance <const> = setmetatable(o, cls)
         if instance.constructor then
             instance:constructor(o)
         elseif cls.constructor then
@@ -22,11 +23,13 @@ function Class.Create(base)
     end
 
     cls.__index = function(self, key)
-        local val = rawget(cls, key)
+        local val <const> = rawget(cls, key)
         if val then
             return val
         elseif cls.get and cls.get[key] then
-            return cls.get[key](self)
+            return function(_, ...)
+                return cls.get[key](self, ...)
+            end
         else
             return base and base[key]
         end
@@ -44,5 +47,5 @@ function Class.Create(base)
 end
 
 return {
-    Class = Class,
+    Class = class,
 }
