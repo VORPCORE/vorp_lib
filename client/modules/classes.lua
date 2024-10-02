@@ -23,12 +23,16 @@ function class.Create(base)
     end
 
     cls.__index = function(self, key)
-        local val <const> = rawget(cls, key)
+        local val = rawget(cls, key)
         if val then
             return val
         elseif cls.get and cls.get[key] then
             return function(_, ...)
                 return cls.get[key](self, ...)
+            end
+        elseif cls.set and cls.set[key] then
+            return function(_, ...)
+                return cls.set[key](self, ...)
             end
         else
             return base and base[key]

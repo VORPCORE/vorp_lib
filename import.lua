@@ -1,8 +1,8 @@
 local function canProcceed()
-    local version <const>      = _VERSION
-    local resourceName         = GetCurrentResourceName() ~= "vorp_lib"
-    local isLibStarted         = GetResourceState("vorp_lib") == 'started'
-    isLibStarted               = resourceName and isLibStarted
+    local version <const> = _VERSION
+    local resourceName    = GetCurrentResourceName() ~= "vorp_lib"
+    local isLibStarted    = GetResourceState("vorp_lib") == 'started'
+    isLibStarted          = resourceName and isLibStarted
     if not isLibStarted then return false, 'vorp_lib must must be ensured before this resource' end
     if not version:find("5.4") then return false, "This library requires lua 5.4 enable it in your fxmanifest" end
     return true
