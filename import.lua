@@ -8,6 +8,7 @@ local function canProcceed()
     return true
 end
 
+
 local result, message = canProcceed()
 if not result then
     return error(("^1[ERROR] ^3%s^0"):format(message))
@@ -86,14 +87,9 @@ function importModules:New(moduels)
     return import:GetModules(moduels)
 end
 
----@alias modules
----|> "single"  # Import "module1"
----|> "multiple"  # Import({ "module1", "module2" })
----|>"@resources" # Import("@resource/module1/file.lua") specify @resource/folder(if any)/file.lua
-
 --- [documentation]() **learn how to use it**
----@param modules modules Import a module or multiple modules from the library or any resource localy **see examples below**
-local function Import(modules)
+---@param modules table| string Import a module or multiple modules from the library or any resource localy **see examples below**
+function Import(modules)
     return importModules:New(modules)
 end
 

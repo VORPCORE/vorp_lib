@@ -80,8 +80,6 @@ local function setInterval(callback, delay)
 end
 
 return {
-    Functions = {
-        Switch = switch,
-        SetInterval = setInterval
-    }
+    Switch = switch,
+    SetInterval = setInterval
 }
