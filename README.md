@@ -1,43 +1,64 @@
-# vorp_lib
-A library to be used for RedM  by vorp
+# VORP Library
 
-THIS IS WIP ANYTHING IN THIS REPO IS SUBJECTED TO CHANGES, FOLDERS, FILES, LOGIC.
+A comprehensive library for RedM development by VORP.
 
-### Features
+**Note:** This project is a work in progress. All content in this repository is subject to change, including folders, files, and logic.
 
-#### Import
-- able to import modules without declaring them in your fxmanifest , this eliminates global polution
-  - import modules either from the lib, from another resource or from  your own resource eliminating  global polution like config files
-  - cache system only loads the file once and you can use them in other files of your resource this enables having all that info localy
-  - every import will run by that script, eliminating the overhead of other scripts using the same code, functions etc, it's all instanced.
+## Features
 
-#### Creation 
-- creation of entities with multiple options using metatables and ability to use predefined methods
-  - peds /animals / horses
-  - objects
-  - vehicles
+### Import System
+- Import modules without declaring them in your `fxmanifest.lua`
+- Reduce global pollution by importing modules from:
+  - This library
+  - Other resources
+  - Your own resource
+- Efficient caching system:
+  - Loads files only once
+  - Allows local usage of imported data across your resource
+- Instance-based execution:
+  - Each import runs independently within its script
+  - Eliminates overhead from shared code usage
 
-#### Creation of bips 
-- creation of blips with multiple options and ability to use predefined methods
-  - blip for coords
-  - blip for entity
-  - blip for area
+### Entity Creation
+Create entities with multiple options using metatables and predefined methods:
+- Peds (including animals and horses)
+- Objects
+- Vehicles
 
-#### Usefull Functions
-- eleminates code repetion through out your scripts
-  - RequestModel
-  - RequestDict
-  - RequestIpl
-  
-#### Data
-- get data easily like inputs events etc
+### Blip Management
+Create and manage blips with various options and predefined methods:
+- Coordinate-based blips
+- Entity-attached blips
+- Area blips
 
-#### Class system OOP
+### Utility Functions
+Reduce code repetition with helpful functions:
+- `RequestModel`
+- `RequestDict`
+- `RequestIpl`
 
-- allows for object-oriented programming in Lua, providing a way to define classes, handle inheritance, and manage properties with custom logic
-  - with traditional lua methods 
-  - structured to use them like "Real OOP" with automatic setters and getters 
-  - inheritance
+### Data Handling
+Easily access and manage data such as inputs and events
 
-### WIP
-more will be added in time like register prompts for example and event handlers
+### Object-Oriented Programming (OOP) System
+Implement OOP in Lua with:
+- Class definitions
+- Inheritance
+- Property management with custom logic
+- Traditional Lua methods
+- Structured "Real OOP" approach with automatic setters and getters
+
+## Work in Progress
+Future additions may include:
+- Prompt registration
+- Event handlers
+- And more!
+
+## Contributing
+We welcome contributions to the VORP Library. Please see our [Contributing Guidelines](CONTRIBUTING.md) for more information.
+
+## License
+This project is licensed under the [MIT License](LICENSE.md).
+
+## Contact
+For questions or support, please [open an issue](https://github.com/VORP-Core/vorp_lib/issues) on our GitHub repository.
