@@ -1,5 +1,5 @@
 -- todo WIP
-local inputs = { -- should we return hash or string? there seems to be a problem though because G for example can have many other hashs so we are only going to add the basic ones
+local keys <const> = { -- should we return hash or string? there seems to be a problem though because G for example can have many other hashs so we are only going to add the basic ones
     A = `INPUT_MOVE_LEFT_ONLY`,
     B = `INPUT_OPEN_SATCHEL_MENU`,
     C = `INPUT_LOOK_BEHIND`,
@@ -58,13 +58,5 @@ local inputs = { -- should we return hash or string? there seems to be a problem
 
 
 return {
-    Data = {
-        Input = inputs
-
-    }
+    Key = keys
 }
-
--- EXAMPLE
---local LIB = Import 'data'
---local data = LIB.Data.Input
---print(data.A, data.B, data.C)

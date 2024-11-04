@@ -1,3 +1,4 @@
+--todo WIP this file might not be needed to be imported most of these are probably not used, either allow exports or separate them into their own module
 ---@class Streaming
 ---@field LoadModel fun(model: string | integer, timeout: integer?)
 ---@field LoadTextureDict fun(dict: string, timeout: integer?)
@@ -21,9 +22,9 @@ function Streaming.LoadModel(model, timeout)
     if not HasModelLoaded(model) then
         RequestModel(model, false)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasModelLoaded(model) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasModelLoaded(model) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(("Failed to load model: %s"):format(model), 2)
         end
     end
@@ -45,9 +46,9 @@ function Streaming.LoadTextureDict(dict, timeout)
     if not HasStreamedTextureDictLoaded(dict) then
         RequestStreamedTextureDict(dict, false)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasStreamedTextureDictLoaded(dict) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasStreamedTextureDictLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(("Failed to load texture dictionary: %s"):format(dict), 2)
         end
     end
@@ -65,9 +66,9 @@ function Streaming.LoadParticleFx(dict, timeout)
     if not HasNamedPtfxAssetLoaded(dict) then
         RequestNamedPtfxAsset(dict)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasNamedPtfxAssetLoaded(dict) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasNamedPtfxAssetLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(("Failed to load particle fx: %s"):format(dict), 2)
         end
     end
@@ -88,9 +89,9 @@ function Streaming.LoadAnimDict(dict, timeout)
     if not HasAnimDictLoaded(dict) then
         RequestAnimDict(dict)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasAnimDictLoaded(dict) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasAnimDictLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load animation dictionary: %s'):format(dict), 1)
         end
     end
@@ -114,9 +115,9 @@ function Streaming.LoadWeaponAsset(weapon, p1, p2, timeout)
     if not HasWeaponAssetLoaded(weapon) then
         RequestWeaponAsset(weapon, p1, p2)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasWeaponAssetLoaded(weapon) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasWeaponAssetLoaded(weapon) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error('Failed to load weapon asset: ' .. weapon, 1)
         end
     end
@@ -146,9 +147,9 @@ function Streaming.RequestCollisionForModel(model)
     if not HasCollisionForModelLoaded(model) then
         RequestCollisionForModel(model)
         local startTime = GetGameTimer()
-        repeat Wait(0) until HasCollisionForModelLoaded(model) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until HasCollisionForModelLoaded(model) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load collision for model: %s'):format(tostring(model)), 2)
         end
     end
@@ -160,9 +161,9 @@ function Streaming.RequestIpl(ipl)
     if not IsIplActiveHash(ipl) then
         RequestIplHash(ipl)
         local startTime = GetGameTimer()
-        repeat Wait(0) until IsIplActiveHash(ipl) or (GetGameTimer() - startTime) > 2000
+        repeat Wait(0) until IsIplActiveHash(ipl) or (GetGameTimer() - startTime) > 5000
 
-        if (GetGameTimer() - startTime) > 2000 then
+        if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load Ipl: %s'):format(tostring(ipl)), 2)
         end
     end
@@ -172,8 +173,8 @@ function Streaming.LoadMoveNetworkDef(netDef, timeout)
     local startTime = GetGameTimer()
     if HasMoveNetworkDefLoaded(netDef) == 0 then
         RequestMoveNetworkDef(netDef)
-        repeat Wait(0) until HasMoveNetworkDefLoaded(netDef) == 1 or (GetGameTimer() - startTime) > 2000
-        if (GetGameTimer() - startTime) > 2000 then
+        repeat Wait(0) until HasMoveNetworkDefLoaded(netDef) == 1 or (GetGameTimer() - startTime) > 5000
+        if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load move network def: %s'):format(netDef), 1)
         end
     end
@@ -188,8 +189,8 @@ function Streaming.LoadClipSet(clipSet, timeout)
     local startTime = GetGameTimer()
     if HasClipSetLoaded(clipSet) == 0 then
         RequestClipSet(clipSet)
-        repeat Wait(0) until HasClipSetLoaded(clipSet) == 1 or (GetGameTimer() - startTime) > 2000
-        if (GetGameTimer() - startTime) > 2000 then
+        repeat Wait(0) until HasClipSetLoaded(clipSet) == 1 or (GetGameTimer() - startTime) > 5000
+        if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load clip set: %s'):format(clipSet), 1)
         end
     end

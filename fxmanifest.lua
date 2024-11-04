@@ -4,8 +4,7 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 
 name 'vorp library'
 author 'VORP @outsider'
-description 'A library to use with RedM scripts'
-repository 'https://github.com/VORPCORE/vorp_library'
+description 'A library to use for RedM scripts'
 
 lua54 'yes'
 
@@ -13,8 +12,6 @@ files {
     'import.lua',
     'client/modules/*.lua'
 }
-
---shared_scripts
 
 -- base scripts
 client_scripts {

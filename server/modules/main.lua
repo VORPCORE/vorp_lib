@@ -1,4 +1,5 @@
---DELETE ENTITY SERVERSIDE
+--DELETE ENTITY SERVER SIDE
+-- doesnt require request control to delete
 RegisterNetEvent('vorp_library:Server:DeleteEntity', function(netid)
     local _source = source
     local entity = NetworkGetEntityFromNetworkId(netid)
@@ -9,8 +10,7 @@ end)
 
 
 --TODO WIP
-LIB = {}
-
+--LIB = {}
 
 --LIB.TriggerClientEvent(2, GetCurrentResourceName(), "setPedDensity", {})
 
@@ -43,3 +43,20 @@ LIB = {}
 --        return func(_source, t)
 --    end)
 --end
+
+
+-- add to its own module ?
+--------------------------------------------------------------------------------------------------------------------------------
+--exports('SetDefaultDensityMultipliers', function(source,name, value, enable)
+--    TriggerClientEvent('vorp_lib:Client:SetDefaultDensityMultiplier', source, name, value, enable)
+--end)
+--
+---- this allows to set temporary density multipliers wihtout changing the default values so we can use the getters
+--exports('SetTemporaryDensityMultipliers', function(source, name, value, enable)
+--    TriggerClientEvent('vorp_lib:Client:SetTemporaryDensityMultiplier',source, name, value, enable)
+--end)
+--
+--exports('RemoveTemporayDensityMultipliers', function(source, name)
+--    TriggerClientEvent('vorp_lib:Client:RemoveTemporaryDensityMultiplier', source, name)
+--end)
+--------------------------------------------------------------------------------------------------------------------------------

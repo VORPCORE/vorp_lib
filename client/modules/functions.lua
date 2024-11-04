@@ -1,8 +1,8 @@
 local LIB = Import 'classes'
 
 ---@class Switch
----@field cases table
----@field value any
+---@field private cases table
+---@field public value any
 ---@field public default fun(self:Switch, value:any):any
 ---@field public execute fun(self:Switch):any
 local Switch = {}
@@ -31,11 +31,10 @@ local switchs = LIB.Class:Create({
 
 
 ---@class Interval
----@field callback fun(self:Interval):any
----@field delay integer
----@field id string
----@field state boolean
----@field customArgs table
+---@field public callback fun(self:Interval):any
+---@field public delay integer
+---@field private state boolean
+---@field public customArgs table
 ---@field private execute fun(self:Interval):any
 ---@field public Pause fun(self:Interval)
 ---@field public Resume fun(self:Interval, ...:any)
@@ -59,9 +58,9 @@ local intervals = LIB.Class:Create({
         end)
     end,
     Destroy = function(self)
+        self.state = nil
         self.callback = nil
         self.delay = nil
-        self.state = nil
         self.customArgs = nil
     end,
     Pause = function(self)
@@ -84,6 +83,7 @@ local intervals = LIB.Class:Create({
 local function switch(value)
     return switchs:new(value)
 end
+
 local function setInterval(callback, delay, customArgs)
     local interval = intervals:new(callback, delay, customArgs)
     return interval
