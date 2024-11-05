@@ -1,4 +1,4 @@
-local LIB <const> = Import "classes"
+local LIB <const> = Import "class"
 
 ---@class Prompts
 local Prompts = {}

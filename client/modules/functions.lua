@@ -1,4 +1,4 @@
-local LIB = Import 'classes'
+local LIB = Import 'class'
 
 ---@class Switch
 ---@field private cases table
