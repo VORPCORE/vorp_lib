@@ -23,6 +23,8 @@ importModules.__call        = function()
     return "importModules"
 end
 
+local shared                = { class = true }
+
 function importModules:GetPath(file)
     local resource, path
 
@@ -34,7 +36,11 @@ function importModules:GetPath(file)
         path = file
     else
         resource = "vorp_lib"
-        path = ("%s/modules/%s"):format(side, file)
+        if shared[file] then
+            path = ("shared/%s"):format(file)
+        else
+            path = ("%s/modules/%s"):format(side, file)
+        end
     end
 
     return resource, path .. ".lua"
