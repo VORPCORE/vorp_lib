@@ -1,4 +1,4 @@
-local LIB = Import { "dataview", "classes" }
+local LIB = Import { "dataview", "class" }
 local DataView = LIB.DataView
 
 ---@class Notify
@@ -298,8 +298,20 @@ local class = LIB.Class:Create({
 
 })
 
+local notification = class:new()
+
+CreateThread(function()
+    local strings = { "Left", "Tip", "Top", "RightTip", "Objective", "SimpleTop", "RightAdvanced", "BasicTop", "Center", "BottomRight", "Fail", "Dead", "Update", "Warning", "LeftRank" }
+    for _, string in ipairs(strings) do
+        RegisterNetEvent(("vorp_lib:client:%s"):format(string), function(...)
+            notification[string](...)
+        end)
+    end
+end)
+
+
 return {
-    Notify = class:new()
+    Notify = notification
 }
 
 -- example
