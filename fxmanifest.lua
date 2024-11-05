@@ -10,7 +10,9 @@ lua54 'yes'
 
 files {
     'import.lua',
-    'client/modules/*.lua'
+    'client/modules/*.lua',
+    'server/modules/*.lua',
+    'shared/*.lua'
 }
 
 -- base scripts
