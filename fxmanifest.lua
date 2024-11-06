@@ -8,13 +8,6 @@ description 'A library to use for RedM scripts'
 
 lua54 'yes'
 
-files {
-    'import.lua',
-    'client/modules/*.lua',
-    'server/modules/*.lua',
-    'shared/*.lua'
-}
-
 -- base scripts
 client_scripts {
     'client/main/*.lua'
@@ -24,8 +17,16 @@ client_scripts {
 --   'server/**/*', -- this will be removed as its to use in other scripts
 --}
 
-version '0.1'
+files {
+    'import.lua',
+    'client/modules/*.lua',
+    'server/modules/*.lua',
+    'shared/*.lua',
+    'web/**/*',
+}
+ui_page 'web/index.html'
 
+version '0.1'
 vorp_checker 'yes'
 vorp_name '^4Resource version Check^3'
 vorp_github 'https://github.com/VORPCORE/vorp_lib'
