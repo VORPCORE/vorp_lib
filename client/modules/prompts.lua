@@ -270,16 +270,19 @@ local prompt = LIB.Class:Create({
         self.groupLabel = nil
         self.customParams = {}
     end,
+
     Pause         = function(self)
         if not self.isRunning then return end
         self.isRunning = false
     end,
+
     Resume        = function(self, ...)
-        self:Update(...) -- constantly update the thread with new key and value this allows for use to ket these values in the callback
+        self:Update(...) -- constantly update the thread with new key and value this allows for use to update these values in the callback
         if self.isRunning then return end
         self.isRunning = false
         self:Start(self)
     end,
+
     Start         = function(self, ...)
         if self.isRunning then return end
         self.isRunning = true
@@ -290,9 +293,11 @@ local prompt = LIB.Class:Create({
             self:StartSingle(...)
         end
     end,
+
     Update        = function(self, ...)
         self.customParams = { ... }
     end,
+
     StartSingle   = function(self)
         CreateThread(function()
             while self.isRunning do
@@ -305,6 +310,7 @@ local prompt = LIB.Class:Create({
             end
         end)
     end,
+
     StartMultiple = function(self)
         CreateThread(function()
             while self.isRunning do
@@ -340,18 +346,21 @@ function Prompts:isArrayOfTables(t)
 end
 
 function Prompts:IsSingleString(data, isArray)
+    --! dont think this is needed you can just loop over the register? either way it will stay here for future decisions
     if isArray then
         for key, value in ipairs(data) do
             if not promptTypes[value.promptType] then
                 error(('prompt type %s does not exist, available types are %s'):format(value.promptType, table.concat(promptTypes, ', ')))
             end
 
+            -- if type is a hash then no need to convert
             if type(value.promptKey) == 'string' then
                 if not promptKeys[value.promptKey] then
-                    local sub = string.sub(value.promptKey, 1, 1) -- is it a single letter?
-                    if #sub == 1 then
+                    local containsUnderscore = string.find(value.promptKey, '_')
+                    if not containsUnderscore then
                         error(('prompt key %s does not exist, available keys are %s'):format(value.promptKey, table.concat(promptKeys, ', ')))
                     else
+                        -- contains undersocre is a string
                         value.promptKey = joaat(value.promptKey)
                     end
                 else
@@ -378,8 +387,8 @@ function Prompts:IsSingleString(data, isArray)
 
     if type(data.promptKey) == 'string' then
         if not promptKeys[data.promptKey] then
-            local sub = string.sub(data.promptKey, 1, 1) -- is it a single letter?
-            if #sub == 1 then
+            local containsUnderscore = string.find(data.promptKey, '_')
+            if not containsUnderscore then
                 error(('prompt key %s does not exist, available keys are %s'):format(data.promptKey, table.concat(promptKeys, ', ')))
             else
                 data.promptKey = joaat(data.promptKey)
@@ -452,6 +461,9 @@ prompt:Resume(...)
 -------------------------------------------------------------------------------------------------------------------
 --* register multiple prompts without being in the same group
 local prompts = {}
+local data = {
+    { promptType = 'Press', promptKey = 'G', promptLabel = 'Standard Prompt', promptMode = 'Standard' },
+}
 for _, value in ipairs(data) do
     prompts[#prompts + 1] = Prompts:Register(value, "group label", function(input, prompt, key,value)
         if input.promptKey == 'G' then
