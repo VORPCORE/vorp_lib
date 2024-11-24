@@ -1,3 +1,4 @@
+--* player selector module to allow selecting players with a ui where is more intuitive than using a command or input
 local isInSelection = false
 local playerSelected = 0
 
@@ -39,7 +40,7 @@ local function selector(allow_self, amount_of_players)
     SetNuiFocus(true, true)
 
     local playersNeeded = {}
-    amount_of_players = amount_of_players or 4
+    amount_of_players = amount_of_players or 4 -- fallback to default value
 
     for _, player in ipairs(activePlayers) do
         if #playersNeeded < amount_of_players then
@@ -71,8 +72,7 @@ local function selector(allow_self, amount_of_players)
             local targetPos <const> = GetEntityCoords(targetPed)
             local playerPos <const> = GetEntityCoords(playerPed) -- who used item
             local coords <const> = GetWorldPositionOfEntityBone(targetPed, GetPedBoneIndex(targetPed, 21030))
-            local onScreen <const>, _x <const>, _y <const> = GetScreenCoordFromWorldCoord(coords.x, coords.y,
-                coords.z + .5)
+            local onScreen <const>, _x <const>, _y <const> = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z + .5)
             if onScreen then
                 table.insert(players, {
                     id = GetPlayerServerId(player),
@@ -98,7 +98,7 @@ local function selector(allow_self, amount_of_players)
     SetNuiFocus(false, false)
     isInSelection = false
 
-    -- was cancelled
+    -- was cancelled pressed ESC
     if playerSelected == -1 then
         return false
     end
@@ -110,5 +110,6 @@ RegisterNUICallback("selector", function(data, cb)
     playerSelected = data.id
     cb("ok")
 end)
+
 
 exports("Select", selector)

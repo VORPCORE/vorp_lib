@@ -1,4 +1,5 @@
 local LIB = Import "class"
+--! only works if the client side is loaded might need to make this and the client a shared module so only loads once
 
 ---@class Notify
 local Notify = {}

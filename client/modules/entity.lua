@@ -1,3 +1,5 @@
+--TODO: use the lib class and get streaming module to load the models
+
 --- parent class / Superclass / Parent class
 ---@class Entity
 ---@field private New fun(self: Entity, handle: integer, netid: integer, data: table): Entity
@@ -18,7 +20,7 @@ Entity.__call = function()
     return "Entity"
 end
 
---- Derived classes / Subclasses / Child classes
+--- Derived class / Subclass / Child class
 ---@class Entity.Ped : Entity
 ---@field private New fun(self: Entity.Ped, handle: integer, netid: integer, data: table): Entity.Ped
 ---@field public Create fun(self: Entity.Ped, data: table): Entity.Ped
@@ -138,8 +140,10 @@ function Entity.LoadModel(data)
 end
 
 function Entity.TrackEntity(handle)
+    -- might need to check if entities are networked or not and have a separated table for networked entities.
     entityTracker[handle] = handle
-    TriggerEvent('vorp_lib:OnPedCreated', handle)
+    -- not sure this is needed since the ids vary from clients.
+    -- TriggerEvent('vorp_lib:OnPedCreated', handle) -- listen for the event, note that this entity is only valid for the client who created
 end
 
 function Entity.GetTrackedEntities()
@@ -261,16 +265,18 @@ function Entity.Vehicle:Delete()
     self.parent:DeleteEntity()
 end
 
+-- support for deleting entities created by this resource
 AddEventHandler('onResourceStop', function(resource)
-    if resource ~= GetCurrentResourceName() then
-        return
-    end
+    if resource ~= GetCurrentResourceName() then return end
 
     for key, value in pairs(entityTracker) do
         if DoesEntityExist(value) then
             DeleteEntity(value)
         end
     end
+
+    if not next(entityTracker) then return end
+    print('Deleted all entities created by this resource')
 end)
 
 

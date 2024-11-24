@@ -1,5 +1,5 @@
 --todo: this file cant be imported it will run with the library and manage the density multipliers at runtime allowing other scripts to change the density multipliers, like changing values temporary without affecting your default values
--- add a config for these values
+--* add a config for these values
 local multipliers = {
     AnimalDensity         = {
         enable = false, -- enable disable them
