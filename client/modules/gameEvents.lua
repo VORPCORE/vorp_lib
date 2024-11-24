@@ -1,31 +1,28 @@
 ---@class GameEvents
 local GameEvents = {
 
-    [1385704366] = {
+    [`EVENT_NETWORK_PICKUP_RESPAWNED`] = {
         name = "EVENT_NETWORK_PICKUP_RESPAWNED",
         hash = "0x52982BAE",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "pickup entity id" },
+            [1] = { type = "int", data = "unknown" },
         }
     },
-    [-818205375] = {
+    [`EVENT_STAT_VALUE_CHANGED`] = {
         name = "EVENT_STAT_VALUE_CHANGED",
         hash = "0xCF3B2D41",
         datasize = 2,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "stat value type hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/stat_values.lua) )" },
             [1] = { type = "int", data = "unknown" },
-            [0] = {
-                type = "int",
-                data =
-                "stat value type hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/stat_values.lua) )"
-            },
+
         }
     },
-    [1658389497] = {
+    [`EVENT_NETWORK_SESSION_EVENT`] = {
         name = "EVENT_NETWORK_SESSION_EVENT",
         hash = "0x62D903F9",
         datasize = 10,
@@ -44,89 +41,87 @@ local GameEvents = {
 
         }
     },
-    [676208328] = {
+    [`EVENT_NETWORK_INCAPACITATED_ENTITY`] = {
         name = "EVENT_NETWORK_INCAPACITATED_ENTITY",
         hash = "0x284E1EC8",
         datasize = 4,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "VictimEntityId" },
             [1] = { type = "int", data = "Damager entity id" },
             [2] = { type = "int", data = "WeaponUsed hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
             [3] = { type = "float", data = "Damage" },
-            [0] = { type = "int", data = "VictimEntityId" },
         }
     },
-    [-745090075] = {
+    [`EVENT_IMPENDING_SAMPLE_PROMPT`] = {
         name = "EVENT_IMPENDING_SAMPLE_PROMPT",
         hash = "0xD396D3E5",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "inventory item hash" },
             [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "inventory item hash" },
         }
     },
-    [347157807] = {
+    [`EVENT_RAN_OVER_PED`] = {
         name = "EVENT_RAN_OVER_PED",
         hash = "0x14B1352F",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "ped id that was ran over" },
             [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "ped id that was ran over" },
         }
     },
-    [1376140891] = {
+    [`EVENT_LOOT_COMPLETE`] = {
         name = "EVENT_LOOT_COMPLETE",
         hash = "0x52063E5B",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "looterId" },
             [1] = { type = "int", data = "Looted entity id" },
             [2] = { type = "int", data = "isLootSuccess" },
-            [0] = { type = "int", data = "looterId" },
         }
     },
-    [1741908893] = {
+    [`EVENT_NETWORK_AWARD_CLAIMED`] = {
         name = "EVENT_NETWORK_AWARD_CLAIMED",
         hash = "0x67D36B9D",
         datasize = 12,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "request id" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown (??? result code [list](#award-claimed-result-codes))" },
-            [5] = {
-                type = "int",
-                data =
-                "unknown (??? award hash [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/awards.lua))"
-            },
+            [5] = { type = "int", data = "unknown (??? award hash [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/awards.lua))" },
             [6] = { type = "int", data = "unknown (??? awarded xp amount)" },
             [7] = { type = "int", data = "unknown (??? awarded rank amount)" },
             [8] = { type = "int", data = "unknown (??? awarded cash amount)" },
             [9] = { type = "int", data = "unknown (??? awarded gold amount)" },
             [10] = { type = "int", data = "unknown" },
             [11] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "request id" },
+
         }
     },
-    [-843555838] = {
+    [`EVENT_SCENARIO_DESTROY_PROP`] = {
         name = "EVENT_SCENARIO_DESTROY_PROP",
         hash = "0xCDB85C02",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "iScriptUID" },
+            [1] = { type = "int", data = "unknown" },
         }
     },
-    [-2091944374] = {
+    [`EVENT_CALCULATE_LOOT`] = {
         name = "EVENT_CALCULATE_LOOT",
         hash = "0x834F764A",
         datasize = 26,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "inventory item hash" },
             [3] = { type = "int", data = "consumable action hash" },
@@ -152,15 +147,16 @@ local GameEvents = {
             [23] = { type = "int", data = "looter entity id" },
             [24] = { type = "int", data = "looted entity id" },
             [25] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
+
         }
     },
-    [-2020006491] = {
+    [`EVENT_NETWORK_POSSE_EX_ADMIN_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_EX_ADMIN_DISBANDED",
         hash = "0x879925A5",
         datasize = 9,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -169,121 +165,109 @@ local GameEvents = {
             [6] = { type = "int", data = "unknown" },
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
+
         }
     },
-    [1559647390] = {
+    [`EVENT_NETWORK_PICKUP_COLLECTION_FAILED`] = {
         name = "EVENT_NETWORK_PICKUP_COLLECTION_FAILED",
         hash = "0x5CF6549E",
         datasize = 3,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "player id" },
-            [2] = {
-                type = "int",
-                data =
-                "pickup type hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/pickup_list.lua))"
-            },
             [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "player id" },
+            [2] = { type = "int", data = "pickup type hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/pickup_list.lua))" },
         }
     },
     --TODO: START FROM HERE: https://github.com/femga/rdr3_discoveries/tree/master/AI/EVENTS
 
     -------------- NEED TO GET DATASIZE AND DATAELEMENTS
-    [-655347668] = {
+    [`EVENT_SHOCKING_WITNESS_REPORTING`] = {
         name = "EVENT_SHOCKING_WITNESS_REPORTING",
         hash = "0xD8F0302C",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
         }
     },
-    [-412084084] = {
+    [`EVENT_CRIME_WITNESSED`] = {
         name = "EVENT_CRIME_WITNESSED",
         hash = "0xE770188C",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "witness entity id" },
             [1] = { type = "int", data = "crime type hash" },
             [2] = { type = "int", data = "criminal entity id" },
-            [0] = { type = "int", data = "witness entity id" },
         }
     },
-    [178452260] = {
+    [`EVENT_PED_SEEN_DEAD_PED`] = {
         name = "EVENT_PED_SEEN_DEAD_PED",
         hash = "0x0AA2F724",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "dead ped entity id" },
             [0] = { type = "int", data = "witness entity id" },
+            [1] = { type = "int", data = "dead ped entity id" },
         }
     },
-    [-981629276] = {
+    [`EVENT_PLAYER_DEATH`] = {
         name = "EVENT_PLAYER_DEATH",
         hash = "0xC57D86A4",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "killer entity id" },
             [0] = { type = "int", data = "victim entity id" },
+            [1] = { type = "int", data = "killer entity id" },
         }
     },
-    [-830063453] = {
+    [`EVENT_CRIME_REPORTED`] = {
         name = "EVENT_CRIME_REPORTED",
         hash = "0xCE863CA3",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "witness entity id" },
             [1] = { type = "int", data = "crime type hash" },
             [2] = { type = "int", data = "criminal entity id" },
-            [0] = { type = "int", data = "witness entity id" },
         }
     },
     -----------------------------------------------------------
 
 
-    [867155253] = {
+    [`EVENT_CARRIABLE_VEHICLE_STOW_COMPLETE`] = {
         name = "EVENT_CARRIABLE_VEHICLE_STOW_COMPLETE",
         hash = "0x33AFBD35",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "vehicle entity id" },
             [2] = { type = "int", data = "isItemToAddCancelled" },
-            [0] = { type = "int", data = "unknown" },
         }
     },
-    [1351025667] = {
+    [`EVENT_CHALLENGE_GOAL_COMPLETE`] = {
         name = "EVENT_CHALLENGE_GOAL_COMPLETE",
         hash = "0x50870403",
         datasize = 1,
         group = 0,
         dataelements = {
-            [0] = {
-                type = "int",
-                data =
-                "challenge goal hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/challenge_goals.lua))"
-            }
+            [0] = { type = "int", data = "challenge goal hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/challenge_goals.lua))" }
         }
     },
-    [1669410864] = {
+    [`EVENT_CHALLENGE_GOAL_UPDATE`] = {
         name = "EVENT_CHALLENGE_GOAL_UPDATE",
         hash = "0x63813030",
         datasize = 1,
         group = 0,
         dataelements = {
-            [0] = {
-                type = "int",
-                data =
-                "challenge goal hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/challenge_goals.lua))"
-            }
+            [0] = { type = "int", data = "challenge goal hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/challenge_goals.lua))" }
         }
     },
-    [-1682387274] = {
+    [`EVENT_PLAYER_MOUNT_WILD_HORSE`] = {
         name = "EVENT_PLAYER_MOUNT_WILD_HORSE",
         hash = "0x9BB8CEB6",
         datasize = 1,
@@ -292,44 +276,45 @@ local GameEvents = {
             [0] = { type = "int", data = "wild horse ped id" }
         }
     },
-    [1208357138] = {
+    [`EVENT_CARRIABLE_UPDATE_CARRY_STATE`] = {
         name = "EVENT_CARRIABLE_UPDATE_CARRY_STATE",
         hash = "0x48061112",
         datasize = 5,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "CarriableEntityId" },
             [1] = { type = "int", data = "PerpitratorEntityId" },
             [2] = { type = "int", data = "CarrierEntityId" },
             [3] = { type = "int", data = "IsOnHorse" },
             [4] = { type = "int", data = "IsOnGround" },
-            [0] = { type = "int", data = "CarriableEntityId" },
         }
     },
-    [-346212524] = {
+    [`EVENT_UI_ITEM_INSPECT_ACTIONED`] = {
         name = "EVENT_UI_ITEM_INSPECT_ACTIONED",
         hash = "0xEB5D3754",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown (??? FitsSlot hash)" },
             [5] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
+
         }
     },
-    [2030961287] = {
+    [`EVENT_PED_HAT_KNOCKED_OFF`] = {
         name = "EVENT_PED_HAT_KNOCKED_OFF",
         hash = "0x790E0287",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "hat entity id" },
             [0] = { type = "int", data = "ped id" },
+            [1] = { type = "int", data = "hat entity id" },
         }
     },
-    [-1315570756] = {
+    [`EVENT_NETWORK_DAMAGE_ENTITY`] = {
         name = "EVENT_NETWORK_DAMAGE_ENTITY",
         hash = "0xB195FBBC",
         datasize = 32,
@@ -370,37 +355,30 @@ local GameEvents = {
 
         }
     },
-    [402722103] = {
+    [`EVENT_ENTITY_DAMAGED`] = {
         name = "EVENT_ENTITY_DAMAGED",
         hash = "0x18010D37",
         datasize = 9,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "damaged entity id" },
             [1] = { type = "int", data = "object (or ped id) that caused damage to the entity " },
-            [2] = {
-                type = "int",
-                data =
-                "weaponHash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
-            [3] = {
-                type = "int",
-                data =
-                "ammo hash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )"
-            },
+            [2] = { type = "int", data = "weaponHash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
+            [3] = { type = "int", data = "ammo hash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )" },
             [4] = { type = "float", data = "damage amount" },
             [5] = { type = "int", data = "unknown" },
             [6] = { type = "float", data = "entity coord x" },
             [7] = { type = "float", data = "entity coord y" },
             [8] = { type = "float", data = "entity coord z" },
-            [0] = { type = "int", data = "damaged entity id" },
         }
     },
-    [-1692828063] = {
+    [`EVENT_NETWORK_POSSE_MEMBER_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_DISBANDED",
         hash = "0x9B197E61",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -423,15 +401,15 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id}" },
         }
     },
-    [-437497832] = {
+    [`EVENT_NETWORK_PLAYER_LEFT_SCRIPT`] = {
         name = "EVENT_NETWORK_PLAYER_LEFT_SCRIPT",
         hash = "0xE5EC5018",
         datasize = 41,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? leaving PlayerName)" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -472,53 +450,49 @@ local GameEvents = {
             [38] = { type = "int", data = "unknown" },
             [39] = { type = "int", data = "unknown" },
             [40] = { type = "int", data = "participant id" },
-            [0] = { type = "int", data = "unknown (??? leaving PlayerName)" },
         }
     },
-    [1268264445] = {
+    [`EVENT_NETWORK_POSSE_JOINED`] = {
         name = "EVENT_NETWORK_POSSE_JOINED",
         hash = "0x4B982DFD",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "posse id" },
             [0] = { type = "int", data = "isSuccess" },
+            [1] = { type = "int", data = "posse id" },
         }
     },
-    [-1034120588] = {
+    [`EVENT_HELP_TEXT_REQUEST`] = {
         name = "EVENT_HELP_TEXT_REQUEST",
         hash = "0xC25C9274",
         datasize = 4,
         group = 0,
         dataelements = {
-            [1] = {
-                type = "int",
-                data =
-                "tutorial flag hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/tutorial_flags.lua) )"
-            },
+            [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "tutorial flag hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/tutorial_flags.lua) )" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "inventory item hash" },
-            [0] = { type = "int", data = "unknown" },
         }
     },
-    [-1651585854] = {
+    [`EVENT_HITCH_ANIMAL`] = {
         name = "EVENT_HITCH_ANIMAL",
         hash = "0x9D8ECCC2",
         datasize = 4,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "rider ped id" },
             [1] = { type = "int", data = "mount ped id" },
             [2] = { type = "int", data = "isAnimalHitched" },
             [3] = { type = "int", data = "hitching type id" },
-            [0] = { type = "int", data = "rider ped id" },
         }
     },
-    [141007368] = {
+    [`EVENT_NETWORK_LOOT_CLAIMED`] = {
         name = "EVENT_NETWORK_LOOT_CLAIMED",
         hash = "0x08679A08",
         datasize = 9,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "request id" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -527,39 +501,37 @@ local GameEvents = {
             [6] = { type = "int", data = "unknown" },
             [7] = { type = "int", data = "status" },
             [8] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "request id" },
         }
     },
-    [-421353837] = {
+    [`EVENT_NETWORK_POSSE_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_DISBANDED",
         hash = "0xE6E2A693",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "posse id" },
             [0] = { type = "int", data = "isSuccess" },
+            [1] = { type = "int", data = "posse id" },
+
         }
     },
-    [1327216456] = {
+    [`EVENT_PED_WHISTLE`] = {
         name = "EVENT_PED_WHISTLE",
         hash = "0x4F1BB748",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = {
-                type = "int",
-                data =
-                "whistle type ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/aud_ped_whistle_types.lua))"
-            },
             [0] = { type = "int", data = "whistler ped id" },
+            [1] = { type = "int", data = "whistle type ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/aud_ped_whistle_types.lua))" },
+
         }
     },
-    [-2001102517] = {
+    [`EVENT_NETWORK_PLAYER_JOIN_SCRIPT`] = {
         name = "EVENT_NETWORK_PLAYER_JOIN_SCRIPT",
         hash = "0x88B9994B",
         datasize = 41,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? joining PlayerName)" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -600,47 +572,43 @@ local GameEvents = {
             [38] = { type = "int", data = "unknown" },
             [39] = { type = "int", data = "unknown" },
             [40] = { type = "int", data = "participant id" },
-            [0] = { type = "int", data = "unknown (??? joining PlayerName)" },
         }
     },
 
-    [2099179610] = {
+    [`EVENT_ITEM_PROMPT_INFO_REQUEST`] = {
         name = "EVENT_ITEM_PROMPT_INFO_REQUEST",
         hash = "0x7D1EF05A",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "entity id, requesting prompt info" },
             [0] = { type = "int", data = "inventory item hash" },
+            [1] = { type = "int", data = "entity id, requesting prompt info" },
+
         }
     },
-    [-687266558] = {
+    [`EVENT_PICKUP_CARRIABLE`] = {
         name = "EVENT_PICKUP_CARRIABLE",
         hash = "0xD7092502",
         datasize = 4,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "carrier ped id" },
             [1] = { type = "int", data = "carriable entity id" },
             [2] = { type = "int", data = "isPickupDoneFromParent" },
             [3] = { type = "int", data = "carrier mount ped id (parent id)" },
-            [0] = { type = "int", data = "carrier ped id" },
         }
     },
-    [2058130545] = {
+    [`EVENT_NETWORK_PROJECTILE_NO_DAMAGE_IMPACT`] = {
         name = "EVENT_NETWORK_PROJECTILE_NO_DAMAGE_IMPACT",
         hash = "0x7AAC9471",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = {
-                type = "int",
-                data =
-                "AmmoUsed hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua))"
-            },
             [0] = { type = "int", data = "ped id" },
+            [1] = { type = "int", data = "AmmoUsed hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua))" },
         }
     },
-    [-308071988] = {
+    [`EVENT_NETWORK_POSSE_LEFT`] = {
         name = "EVENT_NETWORK_POSSE_LEFT",
         hash = "0xEDA331CC",
         datasize = 1,
@@ -649,7 +617,7 @@ local GameEvents = {
             [0] = { type = "int", data = "posse id" },
         }
     },
-    [-1231347001] = {
+    [`EVENT_VEHICLE_DESTROYED`] = {
         name = "EVENT_VEHICLE_DESTROYED",
         hash = "0xB69B22C7",
         datasize = 1,
@@ -658,37 +626,34 @@ local GameEvents = {
             [0] = { type = "int", data = "unknown (??? destroyed vehicle id)" },
         }
     },
-    [1342634267] = {
+    [`EVENT_NETWORK_PED_HAT_SHOT_OFF`] = {
         name = "EVENT_NETWORK_PED_HAT_SHOT_OFF",
         hash = "0x5006F91B",
         datasize = 3,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "DamagerEntityId" },
-            [2] = {
-                type = "int",
-                data =
-                "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))"
-            },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "DamagerEntityId" },
+            [2] = { type = "int", data = "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))" },
         }
     },
-    [-1509407906] = {
+    [`EVENT_LOOT_VALIDATION_FAIL`] = {
         name = "EVENT_LOOT_VALIDATION_FAIL",
         hash = "0xA608435E",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "looted_entity" },
             [0] = { type = "int", data = "fail reason id ( [list](#event_loot_validation_fail-fail-reason-ids) )" },
+            [1] = { type = "int", data = "looted_entity" },
         }
     },
-    [1047667690] = {
+    [`EVENT_NETWORK_POSSE_MEMBER_LEFT`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_LEFT",
         hash = "0x3E7223EA",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -711,15 +676,15 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id" },
         }
     },
-    [1830788491] = {
+    [`EVENT_NETWORK_POSSE_MEMBER_JOINED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_JOINED",
         hash = "0x6D1F9D8B",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -742,10 +707,10 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id" },
+
         }
     },
-    [-857756425] = {
+    [`EVENT_NETWORK_SESSION_MERGE_START`] = {
         name = "EVENT_NETWORK_SESSION_MERGE_START",
         hash = "0xCCDFACF7",
         datasize = 1,
@@ -754,108 +719,98 @@ local GameEvents = {
             [0] = { type = "int", data = "session message id ( [list](#event_network_session_merge_start-message-ids))" },
         }
     },
-    [-454144443] = {
+    [`EVENT_NETWORK_PLAYER_COLLECTED_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_COLLECTED_PICKUP",
         hash = "0xE4EE4E45",
         datasize = 8,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "collector player id" },
-            [2] = {
-                type = "int",
-                data =
-                "pickup type hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/pickup_list.lua) )"
-            },
-            [3] = { type = "int", data = "unknown" },
-            [4] = {
-                type = "int",
-                data =
-                "pickup entity model hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/object_list.lua) )"
-            },
-            [5] = { type = "int", data = "pickup ammo amount" },
-            [6] = {
-                type = "int",
-                data =
-                "pickup ammo type hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )"
-            },
-            [7] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "collected entity id" },
+            [1] = { type = "int", data = "collector player id" },
+            [2] = { type = "int", data = "pickup type hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/pickup_list.lua) )" },
+            [3] = { type = "int", data = "unknown" },
+            [4] = { type = "int", data = "pickup entity model hash  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/objects/object_list.lua) )" },
+            [5] = { type = "int", data = "pickup ammo amount" },
+            [6] = { type = "int", data = "pickup ammo type hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )" },
+            [7] = { type = "int", data = "unknown" },
         }
     },
-    [-1267317510] = {
+    [`EVENT_UI_QUICK_ITEM_USED`] = {
         name = "EVENT_UI_QUICK_ITEM_USED",
         hash = "0xB47644FA",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown (??? FitsSlot hash)" },
             [5] = { type = "int", data = "entity id, item was used for" },
-            [0] = { type = "int", data = "unknown" },
+
         }
     },
-    [-1286831256] = {
+    [`EVENT_PLAYER_HAT_KNOCKED_OFF`] = {
         name = "EVENT_PLAYER_HAT_KNOCKED_OFF",
         hash = "0xB34C8368",
         datasize = 5,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "player ped id" },
             [1] = { type = "int", data = "ped id who threw off player hat" },
             [2] = { type = "int", data = "hat entity id" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "player ped id" },
         }
     },
-    [1655597605] = {
+    [`EVENT_PLAYER_HORSE_AGITATED_BY_ANIMAL`] = {
         name = "EVENT_PLAYER_HORSE_AGITATED_BY_ANIMAL",
         hash = "0x62AE6A25",
         datasize = 4,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "horse ped id" },
             [1] = { type = "int", data = "agitated animal" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "horse ped id" },
         }
     },
-    [-1500256914] = {
+    [`EVENT_NETWORK_PERMISSION_CHECK_RESULT`] = {
         name = "EVENT_NETWORK_PERMISSION_CHECK_RESULT",
         hash = "0xA693E56E",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown (??? check result)" },
             [0] = { type = "int", data = "unknown (??? PermissionsRequestID)" },
+            [1] = { type = "int", data = "unknown (??? check result)" },
         }
     },
-    [-2117667982] = {
+    [`EVENT_NETWORK_LASSO_DETACH`] = {
         name = "EVENT_NETWORK_LASSO_DETACH",
         hash = "0x81C6F372",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "PerpitratorEntityId" },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "PerpitratorEntityId" },
+
         }
     },
-    [1082572570] = {
+    [`EVENT_PLACE_CARRIABLE_ONTO_PARENT`] = {
         name = "EVENT_PLACE_CARRIABLE_ONTO_PARENT",
         hash = "0x4086BF1A",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "perpitrator entity id" },
             [1] = { type = "int", data = "carriable entity id" },
             [2] = { type = "int", data = "carrier id(parent id)" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "isCarriedEntityAPelt" },
             [5] = { type = "int", data = "inventory item hash" },
-            [0] = { type = "int", data = "perpitrator entity id" },
         }
     },
-    [1924269094] = {
+    [`EVENT_CRIME_CONFIRMED`] = {
         name = "EVENT_CRIME_CONFIRMED",
         hash = "0x72B20426",
         datasize = 3,
@@ -867,18 +822,18 @@ local GameEvents = {
 
         }
     },
-    [-1246119244] = {
+    [`EVENT_PED_ANIMAL_INTERACTION`] = {
         name = "EVENT_PED_ANIMAL_INTERACTION",
         hash = "0xB5B9BAB4",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "ped id" },
             [1] = { type = "int", data = "animal ped id" },
             [2] = { type = "int", data = "interaction type hash" },
-            [0] = { type = "int", data = "ped id" },
         }
     },
-    [735942751] = {
+    [`EVENT_PED_CREATED`] = {
         name = "EVENT_PED_CREATED",
         hash = "0x2BDD985F",
         datasize = 1,
@@ -887,7 +842,7 @@ local GameEvents = {
             [0] = { type = "int", data = "ped id that was created" },
         }
     },
-    [1626561060] = {
+    [`EVENT_PED_DESTROYED`] = {
         name = "EVENT_PED_DESTROYED",
         hash = "0x60F35A24",
         datasize = 1,
@@ -896,12 +851,13 @@ local GameEvents = {
             [0] = { type = "int", data = "??? destroyed ped id" },
         }
     },
-    [176872144] = {
+    [`EVENT_NETWORK_POSSE_MEMBER_KICKED`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_KICKED",
         hash = "0x0A8ADAD0",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -924,15 +880,16 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id" },
+
         }
     },
-    [-1578459229] = {
+    [`EVENT_NETWORK_POSSE_MEMBER_SET_ACTIVE`] = {
         name = "EVENT_NETWORK_POSSE_MEMBER_SET_ACTIVE",
         hash = "0xA1EA9FA3",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -955,20 +912,17 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id" },
+
         }
     },
-    [-1511724297] = {
+    [`EVENT_LOOT`] = {
         name = "EVENT_LOOT",
         hash = "0xA5E4EAF7",
         datasize = 36,
         group = 0,
         dataelements = {
-            [1] = {
-                type = "int",
-                data =
-                "nRewardHash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/loot_rewards.lua) )"
-            },
+            [0] = { type = "int", data = "nNumGivenRewards" },
+            [1] = { type = "int", data = "nRewardHash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/loot_rewards.lua) )" },
             [2] = { type = "int", data = "inventory item hash" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown" },
@@ -989,11 +943,7 @@ local GameEvents = {
             [19] = { type = "int", data = "unknown" },
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
-            [22] = {
-                type = "int",
-                data =
-                "weaponhash( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
+            [22] = { type = "int", data = "weaponhash( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
             [23] = { type = "int", data = "unknown" },
             [24] = { type = "int", data = "unknown" },
             [25] = { type = "int", data = "unknown" },
@@ -1007,36 +957,38 @@ local GameEvents = {
             [33] = { type = "int", data = "unknown" },
             [34] = { type = "int", data = "unknown" },
             [35] = { type = "int", data = "unknown " },
-            [0] = { type = "int", data = "nNumGivenRewards" },
+
         }
     },
-    [-1816722641] = {
+    [`EVENT_PLAYER_ESCALATED_PED`] = {
         name = "EVENT_PLAYER_ESCALATED_PED",
         hash = "0x93B7032F",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "escalated ped id" },
             [0] = { type = "int", data = "player ped id" },
+            [1] = { type = "int", data = "escalated ped id" },
+
         }
     },
-    [-885048077] = {
+    [`EVENT_NETWORK_VEHICLE_LOOTED`] = {
         name = "EVENT_NETWORK_VEHICLE_LOOTED",
         hash = "0xCB3F3CF3",
         datasize = 3,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "looter ped id" },
             [1] = { type = "int", data = "looted vehicle id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "looter ped id" },
         }
     },
-    [-313265754] = {
+    [`EVENT_ENTITY_BROKEN`] = {
         name = "EVENT_ENTITY_BROKEN",
         hash = "0xED53F1A6",
         datasize = 9,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "broken entity id" },
             [1] = { type = "int", data = "unknown " },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1045,62 +997,59 @@ local GameEvents = {
             [6] = { type = "float", data = "entity coord x" },
             [7] = { type = "float", data = "entity coord y" },
             [8] = { type = "float", data = "entity coord z" },
-            [0] = { type = "int", data = "broken entity id" },
         }
     },
-    [-45008988] = {
+    [`EVENT_SCENARIO_ADD_PED`] = {
         name = "EVENT_SCENARIO_ADD_PED",
         hash = "0xFD5137A4",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "iScriptUID" },
+            [1] = { type = "int", data = "unknown" },
         }
     },
-    [218595333] = {
+    [`EVENT_HORSE_BROKEN`] = {
         name = "EVENT_HORSE_BROKEN",
         hash = "0x0D078005",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "rider ped id" },
             [1] = { type = "int", data = "broken horse ped id" },
             [2] = { type = "int", data = "HorseBrokenEventTypeId ( [list](#horse-broken-event-type-ids))" },
-            [0] = { type = "int", data = "rider ped id" },
         }
     },
-    [-617453104] = {
+    [`EVENT_CHALLENGE_REWARD`] = {
         name = "EVENT_CHALLENGE_REWARD",
         hash = "0xDB3269D0",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "challenge reward hash" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "challenge reward hash" },
         }
     },
-    [1793200955] = {
+    [`EVENT_NETWORK_PED_DISARMED`] = {
         name = "EVENT_NETWORK_PED_DISARMED",
         hash = "0x6AE2133B",
         datasize = 3,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "DamagerEntityId" },
-            [2] = {
-                type = "int",
-                data =
-                "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))"
-            },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "DamagerEntityId" },
+            [2] = { type = "int", data = "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))" },
+
         }
     },
-    [-648745775] = {
+    [`EVENT_NETWORK_GANG`] = {
         name = "EVENT_NETWORK_GANG",
         hash = "0xD954ECD1",
         datasize = 18,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? GangId)" },
             [1] = { type = "int", data = "GangEventType id  ( [list](#gangeventtype-ids) )" },
             [2] = { type = "int", data = "sender network GamerHandle" },
             [3] = { type = "int", data = "unknown" },
@@ -1118,41 +1067,38 @@ local GameEvents = {
             [15] = { type = "int", data = "unknown" },
             [16] = { type = "int", data = "unknown" },
             [17] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown (??? GangId)" },
         }
     },
-    [1194448728] = {
+    [`EVENT_NETWORK_CREW_LEFT`] = {
         name = "EVENT_NETWORK_CREW_LEFT",
         hash = "0x4731D758",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "left crew id" },
+            [1] = { type = "int", data = "unknown" },
+
         }
     },
-    [1832265142] = {
+    [`EVENT_NETWORK_VEHICLE_UNDRIVABLE`] = {
         name = "EVENT_NETWORK_VEHICLE_UNDRIVABLE",
         hash = "0x6D3625B6",
         datasize = 3,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "vehicle entity id" },
             [1] = { type = "int", data = "Damager entity id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "vehicle entity id" },
         }
     },
-    [1626145032] = {
+    [`EVENT_NETWORK_PLAYER_MISSED_SHOT`] = {
         name = "EVENT_NETWORK_PLAYER_MISSED_SHOT",
         hash = "0x60ED0108",
         datasize = 9,
         group = 1,
         dataelements = {
-            [1] = {
-                type = "int",
-                data =
-                "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
+            [0] = { type = "int", data = "shooter id" },
+            [1] = { type = "int", data = "UsedWeapon hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown" },
@@ -1160,15 +1106,15 @@ local GameEvents = {
             [6] = { type = "int", data = "unknown" },
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "shooter id" },
         }
     },
-    [-1482146560] = {
+    [`EVENT_NETWORK_PLAYER_JOIN_SESSION`] = {
         name = "EVENT_NETWORK_PLAYER_JOIN_SESSION",
         hash = "0xA7A83D00",
         datasize = 10,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? player name)" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1178,15 +1124,15 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "player id" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown (??? player name)" },
         }
     },
-    [-1308368394] = {
+    [`EVENT_NETWORK_CREW_RANK_CHANGE`] = {
         name = "EVENT_NETWORK_CREW_RANK_CHANGE",
         hash = "0xB203E1F6",
         datasize = 7,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "crew id" },
             [1] = { type = "int", data = "rank order" },
             [2] = { type = "int", data = "promotion" },
             [3] = { type = "int", data = "unknown" },
@@ -1194,51 +1140,46 @@ local GameEvents = {
             [5] = { type = "int", data = "unknown" },
             [6] = { type = "int", data = "unknown" },
             [7] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "crew id" },
         }
     },
-    [2013393302] = {
+    [`EVENT_NETWORK_BULLET_IMPACTED_MULTIPLE_PEDS`] = {
         name = "EVENT_NETWORK_BULLET_IMPACTED_MULTIPLE_PEDS",
         hash = "0x7801F196",
         datasize = 4,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "shooter ped id" },
             [1] = { type = "int", data = "NumImpacted" },
             [2] = { type = "int", data = "NumKilled" },
             [3] = { type = "int", data = "NumIncapacitated" },
-            [0] = { type = "int", data = "shooter ped id" },
         }
     },
-    [1794914733] = {
+    [`EVENT_ENTITY_HOGTIED`] = {
         name = "EVENT_ENTITY_HOGTIED",
         hash = "0x6AFC39AD",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "hogtied entity id" },
             [1] = { type = "int", data = "hogtier ped id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "hogtied entity id" },
         }
     },
-    [-2036121834] = {
+    [`EVENT_NETWORK_PROJECTILE_ATTACHED`] = {
         name = "EVENT_NETWORK_PROJECTILE_ATTACHED",
         hash = "0x86A33F16",
         datasize = 6,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "damager entity id" },
             [1] = { type = "int", data = "victim entity id" },
             [2] = { type = "float", data = "projectile hit coord x" },
             [3] = { type = "float", data = "projectile hit coord y" },
             [4] = { type = "float", data = "projectile hit coord z" },
-            [5] = {
-                type = "int",
-                data =
-                "weaponhash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))"
-            },
-            [0] = { type = "int", data = "damager entity id" },
+            [5] = { type = "int", data = "weaponhash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))" },
         }
     },
-    [453501714] = {
+    [`EVENT_NETWORK_HUB_UPDATE`] = {
         name = "EVENT_NETWORK_HUB_UPDATE",
         hash = "0x1B07E312",
         datasize = 1,
@@ -1247,30 +1188,27 @@ local GameEvents = {
             [0] = { type = "int", data = "updateHash" },
         }
     },
-    [1731288223] = {
+    [`EVENT_NETWORK_CASHINVENTORY_TRANSACTION`] = {
         name = "EVENT_NETWORK_CASHINVENTORY_TRANSACTION",
         hash = "0x67315C9F",
         datasize = 6,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "transaction id" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "failed" },
             [3] = { type = "int", data = "result code" },
             [4] = { type = "int", data = "items amount" },
-            [5] = {
-                type = "int",
-                data =
-                "action hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/cashinventory_transition_actions.lua))"
-            },
-            [0] = { type = "int", data = "transaction id" },
+            [5] = { type = "int", data = "action hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/cashinventory_transition_actions.lua))" },
         }
     },
-    [1640116056] = {
+    [`EVENT_LOOT_PLANT_START`] = {
         name = "EVENT_LOOT_PLANT_START",
         hash = "0x61C22F58",
         datasize = 36,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "NumGivenRewards" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1306,15 +1244,16 @@ local GameEvents = {
             [33] = { type = "int", data = "unknown" },
             [34] = { type = "int", data = "LootingBehaviorType" },
             [35] = { type = "int", data = "unknown " },
-            [0] = { type = "int", data = "NumGivenRewards" },
+
         }
     },
-    [1697477512] = {
+    [`EVENT_NETWORK_PLAYER_LEFT_SESSION`] = {
         name = "EVENT_NETWORK_PLAYER_LEFT_SESSION",
         hash = "0x652D7388",
         datasize = 10,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? player name)" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1324,10 +1263,9 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "player id" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown (??? player name)" },
         }
     },
-    [-1102089407] = {
+    [`EVENT_SHOT_FIRED_WHIZZED_BY`] = {
         name = "EVENT_SHOT_FIRED_WHIZZED_BY",
         hash = "0xBE4F7341",
         datasize = 1,
@@ -1336,17 +1274,17 @@ local GameEvents = {
             [0] = { type = "int", data = "entity id that was shot" },
         }
     },
-    [1784289253] = {
+    [`EVENT_TRIGGERED_ANIMAL_WRITHE`] = {
         name = "EVENT_TRIGGERED_ANIMAL_WRITHE",
         hash = "0x6A5A17E5",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "ped id who damaged animal" },
             [0] = { type = "int", data = "animal ped id" },
+            [1] = { type = "int", data = "ped id who damaged animal" },
         }
     },
-    [-1863021589] = {
+    [`EVENT_VEHICLE_CREATED`] = {
         name = "EVENT_VEHICLE_CREATED",
         hash = "0x90F48BEB",
         datasize = 1,
@@ -1355,43 +1293,46 @@ local GameEvents = {
             [0] = { type = "int", data = "vehicle id that was created" },
         }
     },
-    [415576404] = {
+    [`EVENT_NETWORK_POSSE_DATA_CHANGED`] = {
         name = "EVENT_NETWORK_POSSE_DATA_CHANGED",
         hash = "0x18C53154",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "unknown" },
+
         }
     },
-    [1553659161] = {
+    [`EVENT_REVIVE_ENTITY`] = {
         name = "EVENT_REVIVE_ENTITY",
         hash = "0x5C9AF519",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "VictimEntityId" },
             [1] = { type = "int", data = "reviver ped id" },
             [2] = { type = "int", data = "used inventory item hash" },
-            [0] = { type = "int", data = "VictimEntityId" },
         }
     },
-    [2114586158] = {
+    [`EVENT_NETWORK_CREW_DISBANDED`] = {
         name = "EVENT_NETWORK_CREW_DISBANDED",
         hash = "0x7E0A062E",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "isDisbandingSuccessful" },
+            [1] = { type = "int", data = "unknown" },
+
         }
     },
-    [-178091376] = {
+    [`EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP`] = {
         name = "EVENT_PLAYER_COLLECTED_AMBIENT_PICKUP",
         hash = "0xF5628A90",
         datasize = 8,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "pickup name hash" },
             [1] = { type = "int", data = "unknown (??? pickup entity id)" },
             [2] = { type = "int", data = "player id" },
             [3] = { type = "int", data = "pickup model hash" },
@@ -1399,61 +1340,63 @@ local GameEvents = {
             [5] = { type = "int", data = "unknown" },
             [6] = { type = "int", data = "collected inventory item quantity" },
             [7] = { type = "int", data = "inventory item hash" },
-            [0] = { type = "int", data = "pickup name hash" },
+
         }
     },
-    [-97516606] = {
+    [`EVENT_NETWORK_LASSO_ATTACH`] = {
         name = "EVENT_NETWORK_LASSO_ATTACH",
         hash = "0xFA3003C2",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "PerpitratorEntityId" },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "PerpitratorEntityId" },
+
         }
     },
-    [1274067014] = {
+    [`EVENT_NETWORK_PLAYER_COLLECTED_PORTABLE_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_COLLECTED_PORTABLE_PICKUP",
         hash = "0x4BF0B846",
         datasize = 3,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "collected pickup network id" },
             [1] = { type = "int", data = "player id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "collected pickup network id" },
         }
     },
-    [678947301] = {
+    [`EVENT_NETWORK_GANG_WAYPOINT_CHANGED`] = {
         name = "EVENT_NETWORK_GANG_WAYPOINT_CHANGED",
         hash = "0x2877E9E5",
         datasize = 3,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "Gang Waypoint Changing type id ( [list](#gang-waypoint-changing-type-ids) )" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "Gang Waypoint Changing type id ( [list](#gang-waypoint-changing-type-ids) )" },
         }
     },
-    [-582361627] = {
+    [`EVENT_CARRIABLE_PROMPT_INFO_REQUEST`] = {
         name = "EVENT_CARRIABLE_PROMPT_INFO_REQUEST",
         hash = "0xDD49DDE5",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "CarriableEntityId" },
             [1] = { type = "int", data = "carry action id ( [list](#carry-action-ids) )" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "vehicle entity id (parent id)" },
             [4] = { type = "int", data = "unknown" },
             [5] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "CarriableEntityId" },
         }
     },
-    [797969925] = {
+    [`EVENT_NETWORK_POSSE_EX_INACTIVE_DISBANDED`] = {
         name = "EVENT_NETWORK_POSSE_EX_INACTIVE_DISBANDED",
         hash = "0x2F900E05",
         datasize = 10,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1463,84 +1406,74 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "unknown" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
+
         }
     },
-    [-1171710795] = {
+    [`EVENT_NETWORK_REVIVED_ENTITY`] = {
         name = "EVENT_NETWORK_REVIVED_ENTITY",
         hash = "0xBA291CB5",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "Reviver entity id" },
             [0] = { type = "int", data = "Victim entity id" },
+            [1] = { type = "int", data = "Reviver entity id" },
+
         }
     },
-    [2145012826] = {
+    [`EVENT_ENTITY_DESTROYED`] = {
         name = "EVENT_ENTITY_DESTROYED",
         hash = "0x7FDA4C5A",
         datasize = 9,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "destroyed entity id" },
             [1] = { type = "int", data = "object (or ped id) that caused damage to the entity" },
-            [2] = {
-                type = "int",
-                data =
-                "weaponHash that damaged the entity  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
-            [3] = {
-                type = "int",
-                data =
-                "ammo hash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )"
-            },
+            [2] = { type = "int", data = "weaponHash that damaged the entity  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
+            [3] = { type = "int", data = "ammo hash that damaged the entity ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/ammo_types.lua) )" },
             [4] = { type = "float", data = "damage amount" },
             [5] = { type = "int", data = "unknown" },
             [6] = { type = "float", data = "entity coord x" },
             [7] = { type = "float", data = "entity coord y" },
             [8] = { type = "float", data = "entity coord z" },
-            [0] = { type = "int", data = "destroyed entity id" },
+
         }
     },
-    [1113682948] = {
+    [`EVENT_ENTITY_DISARMED`] = {
         name = "EVENT_ENTITY_DISARMED",
         hash = "0x42617404",
         datasize = 4,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "damager entity id" },
-            [2] = {
-                type = "int",
-                data =
-                "weaponHash that damaged the entity  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
-            [3] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "victim entity id" },
+            [1] = { type = "int", data = "damager entity id" },
+            [2] = { type = "int", data = "weaponHash that damaged the entity  ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
+            [3] = { type = "int", data = "unknown" },
         }
     },
-    [-1241852893] = {
+    [`EVENT_CARRIABLE_VEHICLE_STOW_START`] = {
         name = "EVENT_CARRIABLE_VEHICLE_STOW_START",
         hash = "0xB5FAD423",
         datasize = 5,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "unknown" },
             [1] = { type = "int", data = "carriable entity id" },
             [2] = { type = "int", data = "vehicle entity id" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "unknown" },
         }
     },
-    [-919500771] = {
+    [`EVENT_NETWORK_HOGTIE_END`] = {
         name = "EVENT_NETWORK_HOGTIE_END",
         hash = "0xC931881D",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "PerpitratorEntityId" },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "PerpitratorEntityId" },
         }
     },
-    [-2119801478] = {
+    [`EVENT_NETWORK_SESSION_MERGE_END`] = {
         name = "EVENT_NETWORK_SESSION_MERGE_END",
         hash = "0x81A6657A",
         datasize = 1,
@@ -1549,7 +1482,7 @@ local GameEvents = {
             [0] = { type = "int", data = "session message id ( [list](#event_network_session_merge_end-message-ids))" },
         }
     },
-    [-1507090758] = {
+    [`EVENT_SHOT_FIRED_BULLET_IMPACT`] = {
         name = "EVENT_SHOT_FIRED_BULLET_IMPACT",
         hash = "0xA62B9EBA",
         datasize = 1,
@@ -1558,18 +1491,18 @@ local GameEvents = {
             [0] = { type = "int", data = "entity id that bullet hit" },
         }
     },
-    [-843924932] = {
+    [`EVENT_NETWORK_PLAYER_DROPPED_PORTABLE_PICKUP`] = {
         name = "EVENT_NETWORK_PLAYER_DROPPED_PORTABLE_PICKUP",
         hash = "0xCDB2BA3C",
         datasize = 3,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "collected pickup network id" },
             [1] = { type = "int", data = "player id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "collected pickup network id" },
         }
     },
-    [1505348054] = {
+    [`EVENT_INVENTORY_ITEM_REMOVED`] = {
         name = "EVENT_INVENTORY_ITEM_REMOVED",
         hash = "0x59B9C9D6",
         datasize = 1,
@@ -1578,12 +1511,13 @@ local GameEvents = {
             [0] = { type = "int", data = "inventory item hash" },
         }
     },
-    [23105215] = {
+    [`EVENT_NETWORK_POSSE_LEADER_SET_ACTIVE`] = {
         name = "EVENT_NETWORK_POSSE_LEADER_SET_ACTIVE",
         hash = "0x01608EBF",
         datasize = 23,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "posse id" },
             [1] = { type = "int", data = "unknown (??? posse name)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1606,54 +1540,51 @@ local GameEvents = {
             [20] = { type = "int", data = "unknown" },
             [21] = { type = "int", data = "unknown" },
             [22] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "posse id" },
         }
     },
-    [1417095237] = {
+    [`EVENT_BUCKED_OFF`] = {
         name = "EVENT_BUCKED_OFF",
         hash = "0x54772845",
         datasize = 3,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "rider id" },
             [1] = { type = 'int', data = "mount id" },
             [2] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "rider id" },
         }
     },
-    [-1126217932] = {
+    [`EVENT_NETWORK_MINIGAME_REQUEST_COMPLETE`] = {
         name = "EVENT_NETWORK_MINIGAME_REQUEST_COMPLETE",
         hash = "0xBCDF4734",
         datasize = 6,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "seatRequestData0" },
             [1] = { type = "int", data = "seatRequestData1" },
             [2] = { type = "int", data = "seatRequestData2" },
             [3] = { type = "int", data = "seatRequestData3" },
             [4] = { type = "int", data = "isSuccess" },
-            [5] = {
-                type = "int",
-                data =
-                "MinigameErrorCodeHash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/minigame_error_codes.lua ))"
-            },
-            [0] = { type = "int", data = "seatRequestData0" },
+            [5] = { type = "int", data = "MinigameErrorCodeHash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/AI/EVENTS/minigame_error_codes.lua ))" },
+
         }
     },
-    [353377915] = {
+    [`EVENT_HOGTIED_ENTITY_PICKED_UP`] = {
         name = "EVENT_HOGTIED_ENTITY_PICKED_UP",
         hash = "0x15101E7B",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "carrier ped id" },
             [0] = { type = "int", data = "hogtied ped id" },
+            [1] = { type = "int", data = "carrier ped id" },
         }
     },
-    [-369170747] = {
+    [`EVENT_PLAYER_HAT_EQUIPPED`] = {
         name = "EVENT_PLAYER_HAT_EQUIPPED",
         hash = "0xE9FEE6C5",
         datasize = 10,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "player ped id" },
             [1] = { type = "int", data = "hat entity id" },
             [2] = { type = "int", data = "hat drawble hash" },
             [3] = { type = "int", data = "hat albedo hash" },
@@ -1663,29 +1594,30 @@ local GameEvents = {
             [7] = { type = "int", data = "hat tint1" },
             [8] = { type = "int", data = "hat tint2" },
             [9] = { type = "int", data = "hat tint3" },
-            [0] = { type = "int", data = "player ped id" },
         }
     },
-    [1694142010] = {
+    [`EVENT_NETWORK_BOUNTY_REQUEST_COMPLETE`] = {
         name = "EVENT_NETWORK_BOUNTY_REQUEST_COMPLETE",
         hash = "0x64FA8E3A",
         datasize = 7,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "unknown (??? request id)" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
             [4] = { type = "int", data = "Result code" },
             [5] = { type = "int", data = "Total Value" },
             [6] = { type = "int", data = "Pay Off Value" },
-            [0] = { type = "int", data = "unknown (??? request id)" },
+
         }
     },
-    [1234888675] = {
+    [`EVENT_NETWORK_CREW_CREATION`] = {
         name = "EVENT_NETWORK_CREW_CREATION",
         hash = "0x499AE7E3",
         datasize = 10,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "isCreationSuccessful" },
             [1] = { type = "int", data = "crew id" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1695,15 +1627,16 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "unknown" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "isCreationSuccessful" },
+
         }
     },
-    [1028782110] = {
+    [`EVENT_NETWORK_CREW_INVITE_RECEIVED`] = {
         name = "EVENT_NETWORK_CREW_INVITE_RECEIVED",
         hash = "0x3D51F81E",
         datasize = 11,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "id" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "unknown" },
@@ -1714,10 +1647,10 @@ local GameEvents = {
             [8] = { type = "int", data = "unknown" },
             [9] = { type = "int", data = "unknown" },
             [10] = { type = "int", data = "hasMessage" },
-            [0] = { type = "int", data = "id" },
+
         }
     },
-    [-1130756835] = {
+    [`EVENT_DAILY_CHALLENGE_STREAK_COMPLETED`] = {
         name = "EVENT_DAILY_CHALLENGE_STREAK_COMPLETED",
         hash = "0xBC9A051D",
         datasize = 1,
@@ -1726,35 +1659,37 @@ local GameEvents = {
             [0] = { type = "int", data = "unknown (???isDailyChallengeStreakCompleted)" },
         }
     },
-    [753021595] = {
+    [`EVENT_NETWORK_CREW_KICKED`] = {
         name = "EVENT_NETWORK_CREW_KICKED",
         hash = "0x2CE2329B",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "primary" },
             [0] = { type = "int", data = "crew id" },
+            [1] = { type = "int", data = "primary" },
         }
     },
-    [1081092949] = {
+    [`EVENT_INVENTORY_ITEM_PICKED_UP`] = {
         name = "EVENT_INVENTORY_ITEM_PICKED_UP",
         hash = "0x40702B55",
         datasize = 5,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "inventory item hash" },
             [1] = { type = "int", data = "picked up entity model " },
             [2] = { type = "int", data = "isItemWasUsed" },
             [3] = { type = "int", data = "isItemWasBought" },
             [4] = { type = "int", data = "picked up entity id" },
-            [0] = { type = "int", data = "inventory item hash" },
+
         }
     },
-    [1387172233] = {
+    [`EVENT_PLAYER_PROMPT_TRIGGERED`] = {
         name = "EVENT_PLAYER_PROMPT_TRIGGERED",
         hash = "0x52AE9189",
         datasize = 10,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "prompt type id ( [list](#prompt-type-ids) )" },
             [1] = { type = "int", data = "unknown" },
             [2] = { type = "int", data = "target entity id" },
             [3] = { type = "int", data = "unknown (??? discovered inventory item)" },
@@ -1763,35 +1698,29 @@ local GameEvents = {
             [6] = { type = "float", data = "player ped coord z" },
             [7] = { type = "int", data = "discoverable entity type id ( [list](#discoverable-entity-type-ids) )" },
             [8] = { type = "int", data = "unknown" },
-            [9] = {
-                type = "int",
-                data =
-                "kit_emote_action hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/animations/kit_emotes_list.lua))"
-            },
-            [0] = { type = "int", data = "prompt type id ( [list](#prompt-type-ids) )" },
+            [9] = { type = "int", data = "kit_emote_action hash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/animations/kit_emotes_list.lua))" },
+
         }
     },
-    [-569301261] = {
+    [`EVENT_MISS_INTENDED_TARGET`] = {
         name = "EVENT_MISS_INTENDED_TARGET",
         hash = "0xDE1126F3",
         datasize = 3,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "entity id that was shot" },
-            [2] = {
-                type = "int",
-                data =
-                "weaponhash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))"
-            },
             [0] = { type = "int", data = "shooter ped id" },
+            [1] = { type = "int", data = "entity id that was shot" },
+            [2] = { type = "int", data = "weaponhash ( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua))" },
+
         }
     },
-    [-231935285] = {
+    [`EVENT_NETWORK_POSSE_CREATED`] = {
         name = "EVENT_NETWORK_POSSE_CREATED",
         hash = "0xF22CF2CB",
         datasize = 10,
         group = 1,
         dataelements = {
+            [0] = { type = "int", data = "isSuccess" },
             [1] = { type = "int", data = "posse id" },
             [2] = { type = "int", data = "unknown (??? posse name)" },
             [3] = { type = "int", data = "unknown" },
@@ -1801,15 +1730,16 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "unknown" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "isSuccess" },
+
         }
     },
-    [-1730772208] = {
+    [`EVENT_OBJECT_INTERACTION`] = {
         name = "EVENT_OBJECT_INTERACTION",
         hash = "0x98D68310",
         datasize = 10,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "ped id" },
             [1] = { type = "int", data = "interaction entity id " },
             [2] = { type = "int", data = "inventory item hash" },
             [3] = { type = "int", data = "inventory item quantity" },
@@ -1819,116 +1749,101 @@ local GameEvents = {
             [7] = { type = "int", data = "unknown" },
             [8] = { type = "int", data = "scenario point id" },
             [9] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "ped id" },
         }
     },
-    [-456923784] = {
+    [`EVENT_SCENARIO_REMOVE_PED`] = {
         name = "EVENT_SCENARIO_REMOVE_PED",
         hash = "0xE4C3E578",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "iScriptUID" },
+            [1] = { type = "int", data = "unknown" },
+
         }
     },
-    -- TODO: RUN GetHashKey("EVENT_SHOCKING_ITEM_STOLEN") to get the hash
-    -- TODO: not sure how to get the id
-    -- [toBeFiguredOut] = {
-    --     name = "EVENT_SHOCKING_ITEM_STOLEN",
-    --     hash = "RUN GetHashKey("EVENT_SHOCKING_ITEM_STOLEN") to get the hash",
-    --     datasize = 3,
-    --     group = 0,
-    --     dataelements = {
-    --         [1] = {type = "int", data = "ped id"},
-    --         [2] = {type = "int", data = "carriable entity id"},
-    --         [0] = {type = "int", data = "ped id"},
-    --     }
-    -- },
-    [1165534493] = {
+    [`EVENT_HEADSHOT_BLOCKED_BY_HAT`] = {
         name = "EVENT_HEADSHOT_BLOCKED_BY_HAT",
         hash = "0x4578A51D",
         datasize = 2,
         group = 0,
         dataelements = {
-            [1] = { type = "int", data = "Inflictor entity id" },
             [0] = { type = "int", data = "Victim entity id" },
+            [1] = { type = "int", data = "Inflictor entity id" },
         }
     },
-    [1638298852] = {
+    [`EVENT_MOUNT_OVERSPURRED`] = {
         name = "EVENT_MOUNT_OVERSPURRED",
         hash = "0x61A674E4",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "rider id" },
             [1] = { type = "int", data = "mount id" },
             [2] = { type = "float", data = "unknown (??? horse rage amount)" },
             [3] = { type = "int", data = "the number of times the horse has overspurred" },
             [4] = { type = "int", data = "maximum number or times the horse can be overspurred before buck off rider" },
             [5] = { type = "int", data = "unknown" },
-            [0] = { type = "int", data = "rider id" },
+
         }
     },
-    [-1315453179] = {
+    [`EVENT_NETWORK_CREW_JOINED`] = {
         name = "EVENT_NETWORK_CREW_JOINED",
         hash = "0xB197C705",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "unknown" },
             [0] = { type = "int", data = "unknown" },
+            [1] = { type = "int", data = "unknown" },
         }
     },
-    [1352063587] = {
+    [`EVENT_CONTAINER_INTERACTION`] = {
         name = "EVENT_CONTAINER_INTERACTION",
         hash = "0x5096DA63",
         datasize = 4,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "searcher ped id" },
             [1] = { type = "int", data = "searched entity id" },
             [2] = { type = "int", data = "unknown" },
             [3] = { type = "int", data = "isContainerClosed after interaction" },
-            [0] = { type = "int", data = "searcher ped id" },
         }
     },
-    [-140551285] = {
+    [`EVENT_ENTITY_EXPLOSION`] = {
         name = "EVENT_ENTITY_EXPLOSION",
         hash = "0xF79F5B8B",
         datasize = 6,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "ped id who did explosion" },
             [1] = { type = "int", data = "unknown" },
-            [2] = {
-                type = "int",
-                data =
-                "weaponhash( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )"
-            },
+            [2] = { type = "int", data = "weaponhash( [list](https://github.com/femga/rdr3_discoveries/blob/master/weapons/weapons.lua) )" },
             [3] = { type = "float", data = "explosion coord x" },
             [4] = { type = "float", data = "explosion coord y" },
             [5] = { type = "float", data = "explosion coord z" },
-            [0] = { type = "int", data = "ped id who did explosion" },
         }
     },
-    [-1065733433] = {
+    [`EVENT_NETWORK_HOGTIE_BEGIN`] = {
         name = "EVENT_NETWORK_HOGTIE_BEGIN",
         hash = "0xC07A32C7",
         datasize = 2,
         group = 1,
         dataelements = {
-            [1] = { type = "int", data = "PerpitratorEntityId" },
             [0] = { type = "int", data = "VictimEntityId" },
+            [1] = { type = "int", data = "PerpitratorEntityId" },
         }
     },
-    [-1985279805] = {
+    [`EVENT_CALM_PED`] = {
         name = "EVENT_CALM_PED",
         hash = "0x89AB08C3",
         datasize = 4,
         group = 0,
         dataelements = {
+            [0] = { type = "int", data = "calmer ped id" },
             [1] = { type = "int", data = "mount ped id" },
             [2] = { type = "int", data = "CalmTypeId ( [list](#calm-type-ids) )" },
             [3] = { type = "int", data = "isFullyCalmed" },
-            [0] = { type = "int", data = "calmer ped id" },
+
         }
     }
 }
