@@ -1,4 +1,4 @@
---todo WIP this file might not be needed to be imported most of these are probably not used, either allow exports or separate them into their own module
+-- this file might not be needed to be imported most of these are probably not used, either allow exports or separate them into their own module?
 ---@class Streaming
 ---@field LoadModel fun(model: string | integer, timeout: integer?)
 ---@field LoadTextureDict fun(dict: string, timeout: integer?)

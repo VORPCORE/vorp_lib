@@ -23,6 +23,7 @@ importModules.__call        = function()
     return "importModules"
 end
 
+--- considered shared modules goes here
 local shared                = { class = true }
 
 function importModules:GetPath(file)
