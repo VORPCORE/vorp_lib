@@ -87,9 +87,9 @@ local promptKeys <const> = {
 }
 
 function Prompts:SetUpSinglePrompt(data)
-    local group = GetRandomIntInRange(0, 0xffffff)
-    local prompt = UiPromptRegisterBegin()
-    local text = VarString(10, 'LITERAL_STRING', data.promptLabel)
+    local group <const> = GetRandomIntInRange(0, 0xffffff)
+    local prompt <const> = UiPromptRegisterBegin()
+    local text <const> = VarString(10, 'LITERAL_STRING', data.promptLabel)
     UiPromptSetControlAction(prompt, data.promptKey)
     UiPromptSetText(prompt, text)
     UiPromptSetEnabled(prompt, true)
@@ -101,11 +101,11 @@ function Prompts:SetUpSinglePrompt(data)
 end
 
 function Prompts:SetUpMultiplePrompts(data)
-    local group = GetRandomIntInRange(0, 0xffffff)
+    local group <const> = GetRandomIntInRange(0, 0xffffff)
 
     for _, value in ipairs(data.prompts) do
-        local prompt = UiPromptRegisterBegin()
-        local text = VarString(10, 'LITERAL_STRING', value.promptLabel)
+        local prompt <const> = UiPromptRegisterBegin()
+        local text <const> = VarString(10, 'LITERAL_STRING', value.promptLabel)
         UiPromptSetControlAction(prompt, value.promptKey)
         UiPromptSetText(prompt, text)
         UiPromptSetEnabled(prompt, true)
@@ -301,7 +301,7 @@ local prompt = LIB.Class:Create({
     StartSingle   = function(self)
         CreateThread(function()
             while self.isRunning do
-                local groupLabel = VarString(10, 'LITERAL_STRING', self.groupLabel)
+                local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
                 UiPromptSetActiveGroupThisFrame(self.promptGroup, groupLabel, 0, 0, 0, 0)
                 if self.promptType(self.promptID, 0) then
                     self.callback(self:GetPromptKeyName(self.promptKey), self, table.unpack(self.customParams))
@@ -314,7 +314,7 @@ local prompt = LIB.Class:Create({
     StartMultiple = function(self)
         CreateThread(function()
             while self.isRunning do
-                local groupLabel = VarString(10, 'LITERAL_STRING', self.groupLabel)
+                local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
                 UiPromptSetActiveGroupThisFrame(self.promptGroup, groupLabel, 0, 0, 0, 0)
                 for _, value in ipairs(self.prompts) do
                     if value.promptType(value.promptID, 0) then
@@ -356,7 +356,7 @@ function Prompts:IsSingleString(data, isArray)
             -- if type is a hash then no need to convert
             if type(value.promptKey) == 'string' then
                 if not promptKeys[value.promptKey] then
-                    local containsUnderscore = string.find(value.promptKey, '_')
+                    local containsUnderscore <const> = string.find(value.promptKey, '_')
                     if not containsUnderscore then
                         error(('prompt key %s does not exist, available keys are %s'):format(value.promptKey, table.concat(promptKeys, ', ')))
                     else
@@ -387,7 +387,7 @@ function Prompts:IsSingleString(data, isArray)
 
     if type(data.promptKey) == 'string' then
         if not promptKeys[data.promptKey] then
-            local containsUnderscore = string.find(data.promptKey, '_')
+            local containsUnderscore <const> = string.find(data.promptKey, '_')
             if not containsUnderscore then
                 error(('prompt key %s does not exist, available keys are %s'):format(data.promptKey, table.concat(promptKeys, ', ')))
             else
@@ -406,7 +406,7 @@ function Prompts:IsSingleString(data, isArray)
 end
 
 function Prompts:Register(data, groupLabel, callback)
-    local isTable = self:isArrayOfTables(data)
+    local isTable <const> = self:isArrayOfTables(data)
     if not isTable then
         error(('data must be a table or array, got %s'):format(type(data)))
     end
@@ -419,7 +419,7 @@ function Prompts:Register(data, groupLabel, callback)
 
     data.callback = callback
     data.groupLabel = groupLabel
-    local instance = prompt:new(data)
+    local instance <const> = prompt:new(data)
     return instance
 end
 

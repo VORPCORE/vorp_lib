@@ -24,7 +24,7 @@ importModules.__call        = function()
 end
 
 --- considered shared modules goes here
-local shared                = { class = true }
+local shared <const>        = { class = true }
 
 function importModules:GetPath(file)
     local resource, path

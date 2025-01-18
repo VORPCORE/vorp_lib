@@ -1,3 +1,4 @@
+--todo: import class and refactor
 ---@class Map
 ---@field private handle number
 ---@field private New fun(self:Map, handle:number):Map

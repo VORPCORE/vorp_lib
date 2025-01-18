@@ -110,7 +110,7 @@ return {
 
 --local LIB = Import 'events' -- imports the events module
 
---local Event = LIB.Event:Register('EVENT_PED_CREATED', 0, function(data) -- regiters an event listener to a instance
+--local Event = LIB.Event:Register('EVENT_PED_CREATED', 0, function(data) -- registers an event listener to a instance
 --    print(json.encode(data))
 --end)
 
