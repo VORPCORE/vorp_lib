@@ -35,7 +35,8 @@ local switchs = LIB.Class:Create({
 ---@field delay integer
 ---@field id string
 ---@field state boolean
----@field customArgs table
+---@field customArgs? table
+---@field start? boolean
 ---@field private execute fun(self:Interval):any
 ---@field public Pause fun(self:Interval)
 ---@field public Resume fun(self:Interval, ...:any)
@@ -44,11 +45,14 @@ local switchs = LIB.Class:Create({
 local Interval = {}
 
 local intervals = LIB.Class:Create({
-    constructor = function(self, callback, delay, customArgs)
-        self.callback = callback
-        self.delay = delay or 1000
-        self.state = true
-        self.customArgs = customArgs or {}
+    constructor = function(self, data)
+        self.callback = data.callback
+        self.delay = data.delay or 1000
+        self.state = false
+        self.customArgs = data.customArgs or {}
+        if data.start then
+            self:execute()
+        end
     end,
     execute = function(self)
         CreateThread(function()
@@ -85,10 +89,10 @@ local intervals = LIB.Class:Create({
 
 --create a setTimeout function same as interval return ids so we can close it
 local timeouts = LIB.Class:Create({
-    constructor = function(self, callback, delay, customArgs)
-        self.callback = callback
-        self.delay = delay
-        self.customArgs = customArgs
+    constructor = function(self, data)
+        self.callback = data.callback
+        self.delay = data.delay or 1000
+        self.customArgs = data.customArgs or {}
         self.state = true
     end,
     execute = function(self)
@@ -127,62 +131,21 @@ local timeouts = LIB.Class:Create({
 
 })
 
--- Define the Thread class using a metatable
-
-local threads = LIB.Class:Create({
-
-    constructor = function(self, func, start)
-        self.coroutine = coroutine.create(func)
-        self.state = false
-        if start then
-            self:execute()
-        end
-    end,
-
-    execute = function(self)
-        if self.state then return print("thread is already running") end
-        self.state = true
-        coroutine.resume(self.coroutine)
-    end,
-
-    Pause = function(self)
-        if not self.state then return print("thread is not running to be paused") end
-        self.state = false
-    end,
-
-    Destroy = function(self)
-        self.state = nil
-        self.coroutine = nil
-    end,
-
-    Resume = function(self)
-        if self.state then return print("thread is already running") end
-        self:execute()
-    end,
-
-    GetState = function(self)
-        return self.state
-    end
-
-})
 
 ---@initializers
 local function switch(value)
-    return switchs:new(value)
+    return switchs:new({ value })
 end
-local function setInterval(callback, delay, customArgs)
-    return intervals:new(callback, delay, customArgs)
+local function setInterval(callback, delay, customArgs, start)
+    return intervals:new({ callback = callback, delay = delay, customArgs = customArgs, start = start })
 end
 local function setTimeout(callback, delay, customArgs)
-    return timeouts:new(callback, delay, customArgs)
+    return timeouts:new({ callback = callback, delay = delay, customArgs = customArgs })
 end
-local function createNewThread(func, start)
-    return threads:new(func, start)
-end
+
 
 return {
     Switch = switch,
     SetInterval = setInterval,
     SetTimeout = setTimeout,
-    CreateNewThread = createNewThread
 }
