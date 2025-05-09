@@ -1,8 +1,7 @@
 --DELETE ENTITY SERVER SIDE
--- doesnt require request control to delete
 RegisterNetEvent('vorp_library:Server:DeleteEntity', function(netid)
-    local _source = source
-    local entity = NetworkGetEntityFromNetworkId(netid)
+    local _source <const> = source
+    local entity <const> = NetworkGetEntityFromNetworkId(netid)
     if DoesEntityExist(entity) then
         DeleteEntity(entity)
     end

@@ -12,10 +12,10 @@ lua54 'yes'
 client_scripts {
     'client/main/*.lua'
 }
-
---server_scripts {
---   'server/**/*', -- this will be removed as its to use in other scripts
---}
+--base server scripts
+server_scripts {
+    'server/main/*.lua'
+}
 
 files {
     'import.lua',
