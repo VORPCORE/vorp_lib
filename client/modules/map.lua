@@ -1,34 +1,8 @@
---todo: import class and refactor
----@class Map
----@field private handle number
----@field private New fun(self:Map, handle:number):Map
----@field public RemoveBlip fun(self:Map)
----@field public SetName fun(self:Map, name:string)
----@field public SetCoords fun(self:Map, pos:vector)
----@field public SetStyle fun(self:Map, style:number)
----@field public SetScale fun(self:Map, scale:number)
----@field public SetSprite fun(self:Map, sprite:number)
----@field public AddModifier fun(self:Map, modifier:string)
----@field public RemoveModifier fun(self:Map, modifier:string)
----@field public GetHandle fun(self:Map):number
-local Map = {}
-Map.__index = Map
-Map.__call = function()
-    return "Map"
-end
+local LIB <const>          = Import 'class'
 
----@class Blip
----@field private InnitializeBlip fun(self:Blip, handle:number, params:table):Map
----@field public handle number
----@field public AddBlipForEntity fun(self:Blip, params:table):Map
----@field public AddBlipForCoords fun(self:Blip, params:table):Map
----@field public AddBlipForArea fun(self:Blip, params:table):Map
-Map.Blip = setmetatable({}, Map)
-Map.Blip.__index = Map.Blip
-
-
-local blipsTracker = {}
-local blipColors = {
+---@type table<number, Blip>
+local blipsTracker <const> = {}
+local blipColors <const>   = {
     blue = "BLIP_MODIFIER_MP_COLOR_1",
     red = "BLIP_MODIFIER_MP_COLOR_2",
     purple = "BLIP_MODIFIER_MP_COLOR_3",
@@ -63,144 +37,158 @@ local blipColors = {
     white = "BLIP_MODIFIER_MP_COLOR_32",
 }
 
-
 --* BASE CLASS / SUPER CLASS / PARENT CLASS
+---@class Map
+local Map                  = LIB.Class:Create({
 
----@constructor
-function Map:New(handle)
-    local properties = { handle = handle }
-    return setmetatable(properties, Map)
-end
+    constructor = function(self, handle)
+        self.handle = handle
+    end,
 
----@methods
-function Map:RemoveBlip()
-    if not DoesBlipExist(self.handle) then return end
-    RemoveBlip(self.handle)
-    Map.RemoveTrackedBlip(self.handle)
-end
+    set = {
 
-function Map:SetName(name)
-    if not name then return end
-    SetBlipName(self.handle, name)
-end
+        RemoveBlip = function(self)
+            if not DoesBlipExist(self.handle) then
+                return
+            end
+            RemoveBlip(self.handle)
+            self:RemoveTrackedBlip(self.handle)
+        end,
 
-function Map:SetCoords(pos)
-    if not pos then return end
-    SetBlipCoords(self.handle, pos.x, pos.y, pos.z)
-end
+        SetName = function(self, name)
+            if not name then return end
+            SetBlipName(self.handle, name)
+        end,
 
-function Map:SetStyle(style)
-    if not style then return end
-    BlipSetStyle(self.handle, style)
-end
+        SetCoords = function(self, pos)
+            if not pos then return end
+            SetBlipCoords(self.handle, pos.x, pos.y, pos.z)
+        end,
 
-function Map:SetScale(scale)
-    if not scale then return end
-    SetBlipScale(self.handle, scale)
-end
+        SetStyle = function(self, style)
+            if not style then return end
+            BlipSetStyle(self.handle, style)
+        end,
 
-function Map:SetSprite(sprite)
-    if not sprite then return end
-    SetBlipSprite(self.handle, sprite, false)
-end
+        SetSprite = function(self, sprite)
+            if not sprite then return end
+            SetBlipSprite(self.handle, sprite, false)
+        end,
 
-function Map:AddModifier(modifier)
-    if not modifier then return end
-    BlipAddModifier(self.handle, modifier)
-end
+        AddModifier = function(self, modifier)
+            if not modifier then return end
+            BlipAddModifier(self.handle, modifier)
+        end,
 
--- same as above but only colors in case they want to use blue,red,yellow as key values
-function Map:AddModifierColor(modifier)
-    if not modifier then return end
-    if not blipColors[modifier] then return error(('Color does not exist'):format(modifier)) end
-    BlipAddModifier(self.handle, modifier)
-end
+        -- same as above but only colors in case they want to use blue,red,yellow as key values
+        AddModifierColor = function(self, modifier)
+            if not blipColors[modifier] then return error(('Color does not exist'):format(modifier)) end
+            BlipAddModifier(self.handle, modifier)
+        end,
 
-function Map:RemoveModifier(modifier)
-    if not modifier then return end
-    BlipRemoveModifier(self.handle, modifier)
-end
+        RemoveModifier = function(self, modifier)
+            BlipRemoveModifier(self.handle, modifier)
+        end
+    },
 
-function Map:GetHandle()
-    return self.handle
-end
+    get = {
+        GetHandle = function(self)
+            return self.handle
+        end,
+    },
 
----@static functions
+    GetBlipColor = function(_, color)
+        local function errorCatch(value)
+            if not blipColors[value] then error(('Color not valid %s'):format(value), 2) end
+        end
 
-function Map.TrackBlip(handle)
-    blipsTracker[handle] = handle
-end
+        if type(color) ~= "table" then
+            color = { color }
+        end
+        local t = {}
 
-function Map.GetTrackedBlips()
-    return blipsTracker
-end
+        for k, value in ipairs(color) do
+            errorCatch(value)
+            t[k] = blipColors[value]
+        end
 
-function Map.GetNumberOfTrackedBlips()
-    return #blipsTracker
-end
+        return table.unpack(t) -- multiple or single colors
+    end,
 
-function Map.RemoveTrackedBlip(handle)
-    blipsTracker[handle] = nil
-end
+    TrackBlips = function(_, handle)
+        blipsTracker[handle] = handle
+    end,
+
+    RemoveTrackedBlip = function(_, handle)
+        blipsTracker[handle] = nil
+    end,
+
+    GetTrackedBlips = function()
+        return blipsTracker
+    end,
+
+})
 
 --* DERIVED CLASS / SUB CLASS / CHILD CLASS
-function Map.Blip:InnitializeBlip(handle, params)
-    local startTime = GetGameTimer()
+---@class Blip: Map
+local Blip                 = LIB.Class:Create(Map)
 
-    repeat Wait(0) until DoesBlipExist(handle) or (GetGameTimer() - startTime) > 3000
-    if not DoesBlipExist(handle) or (GetGameTimer() - startTime) > 3000 then
+function Blip:CreateBlip(blipType, params)
+    local handle
+
+    if blipType == 'entity' then
+        if not params.Entity or not DoesEntityExist(params.Entity) then
+            error('No handle provided OR Entity does not exist', 2)
+        end
+        handle = BlipAddForEntity(params.Blip, params.Entity)
+    end
+
+    if blipType == 'coords' then
+        if not params.Pos or not type(params.Pos) == 'table' then
+            error('No position provided', 2)
+        end
+        handle = BlipAddForCoords(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z)
+    end
+
+    if blipType == 'area' then
+        if not params.Pos or not type(params.Pos) == 'table' or not params.Scale or not type(params.Scale) == 'table' then
+            error('No position provided', 2)
+        end
+        handle = BlipAddForArea(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Scale.x, params.Scale.y, params.Scale.z, params.P7 or 0)
+    end
+
+    if blipType == 'radius' then
+        if not params.Pos or not type(params.Pos) == 'table' then
+            error('No position provided', 2)
+        end
+        handle = BlipAddForRadius(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Radius or 0.5)
+    end
+
+    local startTime <const> = GetGameTimer()
+    repeat Wait(0) until DoesBlipExist(handle) or (GetGameTimer() - startTime) > 5000
+    if not DoesBlipExist(handle) or (GetGameTimer() - startTime) > 5000 then
         error('Creation of Blip failed', 2)
     end
 
-    Map.TrackBlip(handle)
-    local instance = Map:New(handle)
+    Map:TrackBlips(handle)
+    local instance <const> = Blip:New(handle)
 
-    if not params.Options then return instance end
-    local options = params.Options
+    local options <const> = params.Options
+    if not options then
+        return instance
+    end
+
     instance:SetSprite(options?.Sprite)
     instance:SetName(options?.Name)
     instance:SetStyle(options?.Style)
-    instance:SetScale(options?.Scale)
     instance:AddModifier(options?.Modifier)
     instance:AddModifierColor(options?.Color)
+
+    if params.OnCreate then
+        params.OnCreate(instance)
+    end
+
     return instance
-end
-
-function Map.Blip:AddBlipForEntity(params)
-    if not params.Entity or DoesEntityExist(params.Entity) then error('No handle provided OR Entity does not exist', 2) end
-    local handle = BlipAddForEntity(params.Blip, params.Entity)
-    return Map.Blip:InnitializeBlip(handle, params)
-end
-
-function Map.Blip:AddBlipForCoords(params)
-    local handle = BlipAddForCoords(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z)
-    return Map.Blip:InnitializeBlip(handle, params)
-end
-
-function Map.Blip:AddBlipForArea(params)
-    local handle = BlipAddForArea(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Scale?.x or 0.0, params.Scale?.y or 0.0, params.Scale?.z or 0.0, params.P7 or 0)
-    return Map.Blip:InnitializeBlip(handle, params)
-end
-
-function Map.Blip:AddBlipForRadius(params)
-    local handle = BlipAddForRadius(params.Blip, params.Pos.x, params.Pos.y, params.Pos.z, params.Radius or 0.5)
-    return Map.Blip:InnitializeBlip(handle, params)
-end
-
-function Map.Blip:GetBlipColor(color)
-    local function errorCatch(value)
-        if not blipColors[value] then error(('Color not valie %s'):format(value), 2) end
-    end
-
-    if type(color) ~= "table" then color = { color } end
-    local t = {}
-
-    for k, value in ipairs(color) do
-        errorCatch(value)
-        t[k] = blipColors[value]
-    end
-
-    return table.unpack(t) -- multiple or single colors
 end
 
 AddEventHandler('onResourceStop', function(resource)
@@ -208,14 +196,51 @@ AddEventHandler('onResourceStop', function(resource)
         return
     end
 
-    for key, value in ipairs(blipsTracker) do
-        if DoesBlipExist(value) then
-            RemoveBlip(value)
+    for handle, _ in pairs(blipsTracker) do
+        if DoesBlipExist(handle) then
+            RemoveBlip(handle)
         end
     end
 end)
 
 
 return {
-    Map = Map.Blip
+    Map = Blip
 }
+
+-- EXAMPLE
+--[[ local LIB <const> = Import 'map'
+
+local blip = LIB.Map:CreateBlip('radius', {
+    Entity = ped,
+    Pos = vector3(0, 0, 0),
+    Radius = 10.0,
+    P7 = 0,
+    Blip = 1,
+    Scale = vector3(1.0, 1.0, 1.0),
+    Options = { -- optional
+        Sprite = 1,
+        Name = 'Test',
+        Style = 1,
+        Modifier = 'BLIP_MODIFIER_MP_COLOR_1', -- int or string
+        Color = 'blue',                        -- internal color name
+    },
+    OnCreate = function(instance)
+        print('Created', instance.handle)
+    end
+}) ]]
+
+--[[ local handle = blip:GetHandle()
+blip:SetName('Test')
+blip:SetCoords(vector3(0, 0, 0))
+blip:SetStyle(1)
+blip:AddModifier('BLIP_MODIFIER_MP_COLOR_1')
+blip:AddModifierColor('blue')
+blip:RemoveModifier('BLIP_MODIFIER_MP_COLOR_1')
+blip:RemoveModifierColor('blue')
+ ]]
+
+-- get blipcolor
+-- to use on your own scripts?
+-- local blue, red, yellow = LIB.Map:GetBlipColor({ 'blue', 'red', 'yellow' }) -- singe string or multiple colors
+-- BlipAddModifier(blip, blue)

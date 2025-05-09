@@ -65,3 +65,43 @@
 ---@field public Update fun( self:Notify, title: string, message: string, duration?: number): nil
 ---@field public Warning fun( self:Notify, title: string, message: string, audioRef: string, audioName: string, duration?: number): nil
 ---@field public NotifyLeftRank fun( self:Notify, title: string, subtitle: string, dict: string, texture: string, duration?: number, color?: string): nil
+
+---@class Map
+---@field public New fun(self:Map, handle:number):Blip
+---@field private TrackBlips fun(self:Map, handle:number)
+---@field private GetTrackedBlips fun(self:Map):table<number, number>
+---@field private GetTrackedBlipData fun(self:Map, handle:number):table
+---@field private RemoveTrackedBlip fun(self:Map, handle:number)
+---@field private GetBlipColor fun(self:Map, color:string | integer):table
+---@field public handle number
+---@field public RemoveBlip fun(self:Map)
+---@field public SetName fun(self:Map, name:string)
+---@field public SetCoords fun(self:Map, pos:vector3 | {x: number, y: number, z: number})
+---@field public SetStyle fun(self:Map, style:number|integer)
+---@field public SetScale fun(self:Map, scale:number)
+---@field public SetSprite fun(self:Map, sprite:number|integer)
+---@field public AddModifier fun(self:Map, modifier:string | integer)
+---@field public RemoveModifier fun(self:Map, modifier:string|integer)
+---@field public GetHandle fun(self:Map):number
+---@field public AddModifierColor fun(self:Map, modifier:string | integer)
+
+---@class BlipParams
+---@field public Options? BlipOptions
+---@field public Entity? number
+---@field public Pos? vector3
+---@field public Blip? number
+---@field public Scale? vector3
+---@field public Radius? number
+---@field public P7? number
+---@field public OnCreate? fun(instance:Blip)
+
+---@class BlipOptions
+---@field public Sprite? number
+---@field public Name? string
+---@field public Style? number
+---@field public Modifier? string
+---@field public Color? string
+
+
+---@class Blip: Map
+---@field public CreateBlip fun(self:Blip, blipType:'entity'|'coords'|'area'|'radius', params:BlipParams):Blip
