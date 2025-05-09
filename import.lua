@@ -92,9 +92,11 @@ function importModules:New(moduels)
 end
 
 --- [documentation]() **learn how to use it**
----@param modules table| string Import a module or multiple modules from the library or any resource **see examples below**
+---@param modules table| string Import a module or multiple modules from the library or from any resource
 function Import(modules)
     return importModules:New(modules)
 end
 
 _ENV.Import = Import
+
+_ENV.Notify = Import "notify"
