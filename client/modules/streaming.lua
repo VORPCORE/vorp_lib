@@ -3,6 +3,8 @@
 ---@class Streaming
 local Streaming = {}
 
+print("^3WARNING: ^7module STREAMING is a work in progress use it at your own risk")
+
 
 ---@param model string | integer Model name or hash
 ---@param timeout integer? Timeout in milliseconds to SetModelAsNoLongerNeeded and remove it from memory

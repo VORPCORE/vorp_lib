@@ -1,8 +1,8 @@
--- ALL IS WIP
 -- TODO: add debug messages
-
 local LIB <const> = Import { 'class' }
 local Class <const> = LIB.Class
+
+print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
 
 ---@type table<string, table<integer, integer>> Keep track of entities created
 local entityTracker <const> = {
@@ -149,6 +149,7 @@ local Entity <const> = Class:Create({
 -----------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* PEDS
+---@class Ped
 local Ped <const> = Class:Create(Entity)
 
 function Ped:Create(data)
@@ -181,6 +182,7 @@ end
 ------------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* OBJECTS
+---@class Object
 local Object <const> = Class:Create(Entity)
 
 function Object:Create(data)

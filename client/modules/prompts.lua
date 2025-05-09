@@ -1,5 +1,7 @@
 local LIB <const> = Import "class"
 
+print("^3WARNING: ^7module PROMPTS is a work in progress use it at your own risk")
+
 ---@class Prompts
 local Prompts = {}
 
@@ -350,7 +352,7 @@ end
 function Prompts:IsSingleString(data, isArray)
     --! dont think this is needed you can just loop over the register? either way it will stay here for future decisions
     if isArray then
-        for key, value in ipairs(data) do
+        for _, value in ipairs(data) do
             if not promptTypes[value.promptType] then
                 error(('prompt type %s does not exist, available types are %s'):format(value.promptType, table.concat(promptTypes, ', ')))
             end

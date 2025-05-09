@@ -1,4 +1,6 @@
 local class <const> = {}
+
+print("^3WARNING: ^7module CLASS is a work in progress use it at your own risk")
 --TODO: add private methods
 
 function class:Create(base)

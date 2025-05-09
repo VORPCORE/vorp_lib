@@ -2,6 +2,8 @@
 local LIB <const> = Import { 'gameEvents', 'dataview', "class" }
 local GameEvents <const> = LIB.GameEvents
 
+print("^3WARNING: ^7module EVENTS is a work in progress use it at your own risk")
+
 ---@class Events
 local Events = {}
 
