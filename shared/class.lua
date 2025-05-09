@@ -1,4 +1,5 @@
 local class <const> = {}
+--TODO: add private methods
 
 function class:Create(base)
     local cls   = {}
@@ -6,20 +7,20 @@ function class:Create(base)
     setmetatable(cls, { __index = base })
     --[[ local private_data = setmetatable({}, { __mode = "k" }) ]]
 
-    function cls:new(data)
+    function cls:new(o)
+        o              = o or {}
         local instance = {}
-        data = data or {}
 
-        if type(data) == "table" then
-            instance = setmetatable(data, cls)
+        if type(o) == "table" then
+            instance = setmetatable(o, cls)
         else
-            instance = setmetatable({ value = data }, cls)
+            instance = setmetatable({ value = o }, cls)
         end
 
         if instance.constructor then
-            instance:constructor(data)
+            instance:constructor(o)
         elseif cls.constructor then
-            cls.constructor(instance, data)
+            cls.constructor(instance, o)
         end
         -- private_data[instance] = {}
         return instance

@@ -1,16 +1,7 @@
--- this file might not be needed to be imported most of these are probably not used, either allow exports or separate them into their own module?
+-- ALL IS WIP
 ---@class Streaming
----@field LoadModel fun(model: string | integer, timeout: integer?)
----@field LoadTextureDict fun(dict: string, timeout: integer?)
----@field LoadParticleFx fun(dict: string, timeout: integer?)
----@field LoadAnimDict fun(dict: string, timeout: integer?)
----@field LoadWeaponAsset fun(weapon: string | integer, p1: integer, p2: boolean, timeout: number?)
----@field RequestCollisionAtCoord fun(coords: vector3 | {x: number, y: number, z: number})
----@field RequestCollisionForModel fun(model: string | integer)
----@field RequestIpl fun(ipl: string | integer)
----@field LoadMoveNetworkDef fun(netDef: string, timeout: number?)
----@field LoadClipSet fun(clipSet: string, timeout: number?)
 local Streaming = {}
+
 
 ---@param model string | integer Model name or hash
 ---@param timeout integer? Timeout in milliseconds to SetModelAsNoLongerNeeded and remove it from memory

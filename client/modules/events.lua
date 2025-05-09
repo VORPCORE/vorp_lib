@@ -1,15 +1,11 @@
-local LIB = Import { 'gameEvents', 'dataview', "class" }
-local GameEvents = LIB.GameEvents --[[@as GameEvents]]
+-- ALL IS WIP
+local LIB <const> = Import { 'gameEvents', 'dataview', "class" }
+local GameEvents <const> = LIB.GameEvents
 
 ---@class Events
----@field public Register fun(self:Events, name:string|integer, group:integer, callback:fun(data:table):any):Events
----@field public Start fun(self:Events)
----@field public Pause fun(self:Events)
----@field public Resume fun(self:Events)
----@field public Destroy fun(self:Events)
 local Events = {}
 
-local event = LIB.Class:Create({
+local event <const> = LIB.Class:Create({
 
     constructor = function(self, name, group, callback)
         self.eventHash = name
@@ -48,7 +44,7 @@ local event = LIB.Class:Create({
             end
         end,
 
-        GetData = function(self, event, eventDataStruct)
+        GetData = function(_, event, eventDataStruct)
             local datafields = {}
 
             for p = 0, event.datasize - 1, 1 do
@@ -62,7 +58,7 @@ local event = LIB.Class:Create({
             return datafields
         end,
 
-        AllocateData = function(self, event, eventDataStruct)
+        AllocateData = function(_, event, eventDataStruct)
             for p = 0, event.datasize - 1, 1 do
                 local current_data_element = event.dataelements[p]
                 if current_data_element and current_data_element.type == 'float' then
