@@ -1,4 +1,5 @@
--- ALL IS WIP
+-- these need to be imported even if you just use one or 2, either we separate them in different modules or stay as they are.
+-- these if imported they will be having its own instance meaning they will not be shared with any other clients, each script have its own, reducing the overhead.
 ---@class Streaming
 local Streaming = {}
 
@@ -12,7 +13,8 @@ function Streaming.LoadModel(model, timeout)
 
     if not HasModelLoaded(model) then
         RequestModel(model, false)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasModelLoaded(model) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -20,7 +22,10 @@ function Streaming.LoadModel(model, timeout)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
+
     SetTimeout(timeout, function()
         SetModelAsNoLongerNeeded(model)
     end)
@@ -36,7 +41,8 @@ function Streaming.LoadTextureDict(dict, timeout)
 
     if not HasStreamedTextureDictLoaded(dict) then
         RequestStreamedTextureDict(dict, false)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasStreamedTextureDictLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -44,7 +50,10 @@ function Streaming.LoadTextureDict(dict, timeout)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
+
     SetTimeout(timeout, function()
         SetStreamedTextureDictAsNoLongerNeeded(dict)
     end)
@@ -56,7 +65,8 @@ end
 function Streaming.LoadParticleFx(dict, timeout)
     if not HasNamedPtfxAssetLoaded(dict) then
         RequestNamedPtfxAsset(dict)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasNamedPtfxAssetLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -64,7 +74,10 @@ function Streaming.LoadParticleFx(dict, timeout)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
+
     SetTimeout(timeout, function()
         RemoveNamedPtfxAsset(dict)
     end)
@@ -79,7 +92,8 @@ function Streaming.LoadAnimDict(dict, timeout)
     end
     if not HasAnimDictLoaded(dict) then
         RequestAnimDict(dict)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasAnimDictLoaded(dict) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -87,7 +101,10 @@ function Streaming.LoadAnimDict(dict, timeout)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
+
     SetTimeout(timeout, function()
         RemoveAnimDict(dict)
     end)
@@ -105,7 +122,8 @@ function Streaming.LoadWeaponAsset(weapon, p1, p2, timeout)
 
     if not HasWeaponAssetLoaded(weapon) then
         RequestWeaponAsset(weapon, p1, p2)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasWeaponAssetLoaded(weapon) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -113,23 +131,29 @@ function Streaming.LoadWeaponAsset(weapon, p1, p2, timeout)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
+
     SetTimeout(timeout, function()
         RemoveWeaponAsset(weapon)
     end)
 end
 
---- request collision at coords
----@param coords vector3 | {x: number, y: number, z: number}
+--- this does only loads the collision of the terrain
 function Streaming.RequestCollisionAtCoord(coords)
     if not HasCollisionLoadedAtCoord(coords.x, coords.y, coords.z) then
         RequestCollisionAtCoord(coords.x, coords.y, coords.z)
-        repeat Wait(0) until HasCollisionLoadedAtCoord(coords.x, coords.y, coords.z)
+
+        local startTime <const> = GetGameTimer()
+        repeat Wait(0) until HasCollisionLoadedAtCoord(coords.x, coords.y, coords.z) or (GetGameTimer() - startTime) > 5000
+
+        if (GetGameTimer() - startTime) > 5000 then
+            error(('Failed to load collision at coords: %s'):format(tostring(coords)), 2)
+        end
     end
 end
 
---- request collision for model
----@param model string | integer Model name or hash
 function Streaming.RequestCollisionForModel(model)
     if not IsModelValid(model) then
         error(('Invalid model: %s'):format(tostring(model)), 2)
@@ -137,7 +161,8 @@ function Streaming.RequestCollisionForModel(model)
 
     if not HasCollisionForModelLoaded(model) then
         RequestCollisionForModel(model)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasCollisionForModelLoaded(model) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
@@ -146,50 +171,74 @@ function Streaming.RequestCollisionForModel(model)
     end
 end
 
---- request Ipl hash
----@param ipl string | integer Ipl name or hash
 function Streaming.RequestIpl(ipl)
     if not IsIplActiveHash(ipl) then
         RequestIplHash(ipl)
-        local startTime = GetGameTimer()
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until IsIplActiveHash(ipl) or (GetGameTimer() - startTime) > 5000
 
         if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load Ipl: %s'):format(tostring(ipl)), 2)
         end
+    else
+        print(('You are requesting an IPL that have been already requested: %s'):format(tostring(ipl)))
     end
 end
 
 function Streaming.LoadMoveNetworkDef(netDef, timeout)
-    local startTime = GetGameTimer()
     if HasMoveNetworkDefLoaded(netDef) == 0 then
         RequestMoveNetworkDef(netDef)
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasMoveNetworkDefLoaded(netDef) == 1 or (GetGameTimer() - startTime) > 5000
         if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load move network def: %s'):format(netDef), 1)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
     SetTimeout(timeout, function()
         RemoveMoveNetworkDef(netDef)
     end)
 end
 
 function Streaming.LoadClipSet(clipSet, timeout)
-    local startTime = GetGameTimer()
     if HasClipSetLoaded(clipSet) == 0 then
         RequestClipSet(clipSet)
+
+        local startTime <const> = GetGameTimer()
         repeat Wait(0) until HasClipSetLoaded(clipSet) == 1 or (GetGameTimer() - startTime) > 5000
         if (GetGameTimer() - startTime) > 5000 then
             error(('Failed to load clip set: %s'):format(clipSet), 1)
         end
     end
 
-    if not timeout then return end
+    if not timeout then
+        return
+    end
     SetTimeout(timeout, function()
         RemoveClipSet(clipSet)
     end)
+end
+
+function Streaming.LoadScene(pos, offset, radius, p7)
+    if not IsLoadSceneActive() and not IsLoadSceneLoaded() then
+        -- load the area, returns a boolean, will always be true unless `IS_PLAYER_SWITCH_IN_PROGRESS` is true
+        if not LoadSceneStart(pos.x, pos.y, pos.z, offset.x, offset.y, offset.z, radius, p7) then
+            return
+        end
+
+        local startTime <const> = GetGameTimer()
+        repeat Wait(0) until IsLoadSceneLoaded() or (GetGameTimer() - startTime) > 5000
+        if (GetGameTimer() - startTime) > 5000 then
+            error(('Failed to load scene at pos: %s'):format(tostring(pos)), 1)
+        end
+    end
+
+    LoadSceneStop()
 end
 
 return {

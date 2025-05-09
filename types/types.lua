@@ -5,7 +5,6 @@
 ---@field public New fun(self: Entity, handle: integer, netid: integer, entityType: string, model: string | integer): Entity | nil
 ---@field private TrackEntity fun(self: Entity, handle: integer, entityType: string)
 ---@field private RemoveTrackedEntity fun(self: Entity, handle: integer, entityType: string)
----@field private entityType string
 ---@field private ValidateEntity fun(self: Entity, handle: integer): boolean
 ---@field private GetNetworkID fun(self: Entity, handle: integer, isNetworked: boolean): integer
 ---@field private SetHeading fun(self: Entity, handle: integer, data: table)
@@ -48,6 +47,7 @@
 ---@field public RequestIpl fun(ipl: string | integer)
 ---@field public LoadMoveNetworkDef fun(netDef: string, timeout: number?)
 ---@field public LoadClipSet fun(clipSet: string, timeout: number?)
+---@field public LoadScene fun(pos: vector3 | {x: number, y: number, z: number}, offset: vector3 | {x: number, y: number, z: number}, radius: number, p7: integer)
 
 ---@class Notify
 ---@field public Left fun( self:Notify, title: string, subtitle: string, dict: string, icon: string, duration: number, color: string?): nil

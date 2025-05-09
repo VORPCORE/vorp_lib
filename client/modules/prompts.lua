@@ -119,10 +119,12 @@ function Prompts:SetUpMultiplePrompts(data)
 end
 
 function Prompts:NormalizePromptKey(promptKey)
-    if not promptKey then return print('promptKey is nil to get promptID from multiple prompts you need to pass the promptKey as a string or hash') end
+    if not promptKey then
+        return print('promptKey is nil to get promptID from multiple prompts you need to pass the promptKey as a string or hash')
+    end
 
     if type(promptKey) == 'string' then
-        local sub = string.sub(promptKey, 1, 1)
+        local sub <const> = string.sub(promptKey, 1, 1)
         if #sub == 1 then
             if not promptKeys[promptKey] then return print('promptKey', promptKey, ' does not exist') end
             promptKey = promptKeys[promptKey]

@@ -5,13 +5,13 @@ rdr3_warning 'I acknowledge that this is a prerelease build of RedM, and I am aw
 name 'vorp library'
 author 'VORP @outsider'
 description 'A library to use for RedM scripts'
-
 lua54 'yes'
 
 -- base scripts
 client_scripts {
     'client/main/*.lua'
 }
+
 --base server scripts
 server_scripts {
     'server/main/*.lua'
