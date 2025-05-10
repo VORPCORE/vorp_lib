@@ -19,18 +19,31 @@ A comprehensive library for RedM development by VORP.
   - Eliminates overhead from shared code usage
 
 ### Entity Creation
+ creation of entities with a tracking management system
+
+- Entity 
+  - Peds
+  - Objects
+  - Vehicles
 
 ### Blip Management
 
 ### Utility Functions
 
 ### Register Game Events
+- Life cycle manegement
 
 ### Register Inputs
+- Life cycle manegement
 
 ### Register Prompts
+- Life cycle manegement
 
 ### Game Notifcations
+
+### Commands
+- Life cycle manegement
+- track of commands registered
 
 ### DataView
 
