@@ -1,27 +1,20 @@
 local LIB <const> = Import "class"
 
+print("^3WARNING: ^7module INPUTS is a work in progress use it at your own risk")
 
 ---@class Inputs
----@field private New fun(self: Inputs, key: string | number, callback: function, type: string, state: boolean): Inputs
----@field private NormalizeKey fun(self: Inputs, key: string | number): string | number
----@field public IsRunning function check if the instance is running
----@field public Start function start look up for input
----@field public Remove function destroy the instance
----@field public Pause  function pause the instance
----@field public Resume function resume the instance
----@field public Register fun(self: Inputs, key: string | number, callback: function, type: string, state: boolean?): Inputs
----@field public key string | number
 local Inputs = {}
 
----@static
+---@type table<string, function>
 local inputTypes <const> = {
     Press = IsControlJustPressed,
     Hold = IsControlPressed,
     Release = IsControlJustReleased
 }
 
--- only essential keys
----@static
+-- there is a ton of controls, so make sure to pass the hash, or for general use you can pass these strings
+-- they need to be tested to see if they work
+---@type table<string, string>
 local inputKeys <const> = {
     A = `INPUT_MOVE_LEFT_ONLY`,
     B = `INPUT_OPEN_SATCHEL_MENU`,
@@ -46,25 +39,6 @@ local inputKeys <const> = {
     W = `INPUT_MOVE_UP_ONLY`,
     X = `INPUT_GAME_MENU_TAB_RIGHT_SECONDARY`,
     Z = `INPUT_GAME_MENU_TAB_LEFT_SECONDARY`,
-    UP = `INPUT_FRONTEND_UP`,
-    DOWN = `INPUT_FRONTEND_DOWN`,
-    LEFT = `INPUT_FRONTEND_LEFT`,
-    RIGHT = `INPUT_FRONTEND_RIGHT`,
-    RIGHTBRACKET = `INPUT_SNIPER_ZOOM_IN_ONLY`, -- mouse scroll up
-    LEFTBRACKET = `INPUT_SNIPER_ZOOM_OUT_ONLY`, -- mouse scroll down
-    MOUSE1 = `INPUT_ATTACK`,                    -- mouse left click
-    MOUSE2 = `INPUT_AIM`,                       -- mouse right click
-    MOUSE3 = `INPUT_SPECIAL_ABILITY`,           -- mouse middle click
-    CTRL = `INPUT_DUCK`,
-    TAB = `INPUT_TOGGLE_HOLSTER`,
-    SHIFT = `INPUT_SPRINT`,
-    SPACEBAR = `INPUT_JUMP`,
-    ENTER = `INPUT_FRONTEND_ACCEPT`,
-    BACKSPACE = `INPUT_FRONTEND_CANCEL`,
-    LALT = `INPUT_PC_FREE_LOOK`,
-    DEL = `INPUT_FRONTEND_DELETE`,
-    PGUP = `INPUT_CREATOR_LT`,
-    PGDN = `INPUT_CREATOR_RT`,
     ["1"] = `INPUT_SELECT_QUICKSELECT_SIDEARMS_LEFT`,
     ["2"] = `INPUT_SELECT_QUICKSELECT_DUALWIELD`,
     ["3"] = `INPUT_SELECT_QUICKSELECT_SIDEARMS_RIGHT`,
@@ -81,21 +55,17 @@ local input = LIB.Class:Create({
         self.callback = data.callback
         self.inputType = data.inputType
         self.isRunning = data.isRunning
+        self.isMultiple = data.isMultiple or false
+        if data.isMultiple then
+            self.inputs = data.inputs or {}
+        end
         self.customParams = {}
     end,
 
-    get = {
-        IsRunning = function(self)
-            return self.isRunning
-        end,
-    },
-
     set = {
-        Remove = function(self)
-            self.isRunning = nil
-            self.key = nil
-            self.callback = nil
-            self.inputType = nil
+        Destroy = function(self)
+            self.isRunning = false
+            self = nil
         end,
 
         Pause = function(self)
@@ -114,7 +84,15 @@ local input = LIB.Class:Create({
             self.customParams = { ... }
         end,
 
-        Start = function(self)
+        Start = function(self, ...)
+            if self.isMultiple then
+                self:StartMultiple(...)
+            else
+                self:StartSingle(...)
+            end
+        end,
+
+        StartSingle = function(self)
             if self.isRunning then return end
             self.isRunning = true
             CreateThread(function()
@@ -126,32 +104,95 @@ local input = LIB.Class:Create({
                 end
             end)
         end,
+
+        StartMultiple = function(self)
+            if self.isRunning then return end
+            self.isRunning = true
+            CreateThread(function()
+                while self.isRunning do
+                    Wait(0)
+                    for _, input in ipairs(self.inputs) do
+                        if input.inputType(0, input.key) then
+                            input.callback(input, table.unpack(input.customParams))
+                        end
+                    end
+                end
+            end)
+        end
     }
 })
 
-function Inputs:NormalizeKey(key)
-    if type(key) == 'string' then
-        local sub = string.sub(key, 1, 1)
-        if sub then
-            if not inputKeys[key] then
-                error(('input key %s does not exist, available keys are %s'):format(key, table.concat(inputKeys, ', ')))
-            end
-            key = inputKeys[key]
+function Inputs:isArrayOfTables(t)
+    if type(t) ~= "table" then
+        return false
+    end
+
+    if type(t[1]) ~= "table" then
+        return false
+    end
+
+    for k, _ in pairs(t) do
+        if type(k) ~= "number" then
+            return false
         end
     end
 
-    return key
+    return true
 end
 
-function Inputs:Register(key, callback, inputType, state)
-    if not inputTypes[inputType] then
-        error(('input type %s does not exist, available types are %s'):format(inputType, table.concat(inputTypes, ', ')))
+function Inputs:InitializeInputs(inputParams, isArray)
+    local function normalizeKey(key)
+        if type(key) == 'string' then
+            if not inputKeys[key] then
+                local sub <const> = string.sub(key, 1, 1) -- if its just a letter then check table
+                if sub then
+                    if not inputKeys[key] then
+                        error(('input does not exist with this letter: %s'):format(key, sub))
+                    end
+                end
+                key = joaat(key)
+            end
+            key = inputKeys[key]
+        end
+
+        return key
     end
 
-    key = self:NormalizeKey(key)
+    if isArray then
+        for _, value in ipairs(inputParams) do
+            if not inputTypes[value.inputType] then
+                error(('input type %s does not exist, available are: Press, Hold, Release'):format(value.inputType))
+            end
 
-    local instance = input:new({ key = key, callback = callback, inputType = inputTypes[inputType] })
+            value.key = normalizeKey(value.key)
+            value.inputType = inputTypes[value.inputType]
+        end
+        inputParams.isMultiple = true
+        inputParams.inputs = inputParams
+        return inputParams
+    end
 
+    if not inputTypes[inputParams.inputType] then
+        error(('input type %s does not exist, available are: Press, Hold, Release'):format(inputParams.inputType))
+    end
+
+    inputParams.key = normalizeKey(inputParams.key)
+    inputParams.inputType = inputTypes[inputParams.inputType]
+
+    return inputParams
+end
+
+--TODO: multiple inputs using the same register just like prompts have
+function Inputs:Register(inputParams, callback, state)
+    local isTable <const> = self:isArrayOfTables(inputParams)
+    if not isTable then
+        error(('data must be an array, got %s'):format(type(inputParams)))
+    end
+
+    inputParams = self:InitializeInputs(inputParams, isTable)
+    inputParams.callback = callback
+
+    local instance <const> = input:new(inputParams)
     if state then
         instance:Start()
     end
@@ -160,5 +201,35 @@ function Inputs:Register(key, callback, inputType, state)
 end
 
 return {
-    Inputs = Inputs
+    Input = Inputs
 }
+
+
+--[[ EXAMPLES
+
+local LIB <const> = Import "input"
+
+local input = LIB.Input:Register({inputType = "Press", key = "E"},function(instance)
+    print("E was pressed")
+end, true)
+
+--state is false then use input:Start() to start when its needed like after a character is loaded
+local inputs = {
+    {inputType = "Press", key = "E"},
+    {inputType = "Hold", key = "W"},
+    {inputType = "Release"
+}
+
+]]
+
+--[[ LIB.Input:Register(inputs,function(input)
+       if input.key == "E" then
+        print("E was pressed")
+       elseif input.key == "W" then
+        print("W was held")
+       elseif input.key == "S" then
+        print("S was released")
+       end
+end, true)
+
+]]
