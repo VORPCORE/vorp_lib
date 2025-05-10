@@ -183,7 +183,6 @@ local prompt = LIB.Class:Create({
                 end
             end
 
-            print('prompt key does not exist, available keys are')
             return { promptKey = nil, promptHash = promptKey }
         end,
         GetPromptLabel = function(self, promptKey)
@@ -196,6 +195,8 @@ local prompt = LIB.Class:Create({
                     return self.prompts[i].promptLabel
                 end
             end
+
+            return nil
         end,
         GetPromptGroupLabel = function(self)
             return self.groupLabel
@@ -217,9 +218,11 @@ local prompt = LIB.Class:Create({
                 self.promptLabel = label
             end
         end,
+
         SetPromptGroupLabel = function(self, label)
             self.groupLabel = label
         end,
+
         SetPromptEnabled = function(self, enabled, promptKey)
             if not self.isMultiple then
                 UiPromptSetEnabled(self.promptID, enabled)
@@ -227,6 +230,7 @@ local prompt = LIB.Class:Create({
                 UiPromptSetEnabled(self:GetPromptID(promptKey), enabled)
             end
         end,
+
         SetPromptVisible = function(self, visible, promptKey)
             if not self.isMultiple then
                 UiPromptSetVisible(self.promptID, visible)
@@ -234,6 +238,7 @@ local prompt = LIB.Class:Create({
                 UiPromptSetVisible(self:GetPromptID(promptKey), visible)
             end
         end,
+
         SetPromptMashMode = function(self, mashCount, promptKey)
             if not self.isMultiple then
                 UiPromptSetMashMode(self.promptID, mashCount)
@@ -241,6 +246,7 @@ local prompt = LIB.Class:Create({
                 UiPromptSetMashMode(self:GetPromptID(promptKey), mashCount)
             end
         end,
+
         SetPromptMashIndefinitelyMode = function(self, promptKey)
             if not self.isMultiple then
                 UiPromptSetMashIndefinitelyMode(self.promptID)
@@ -248,6 +254,7 @@ local prompt = LIB.Class:Create({
                 UiPromptSetMashIndefinitelyMode(self:GetPromptID(promptKey))
             end
         end,
+
         SetPromptGroup = function(self, group, promptKey)
             if not self.isMultiple then
                 UiPromptSetGroup(self.promptID, group, 0)
@@ -257,7 +264,7 @@ local prompt = LIB.Class:Create({
         end,
     },
 
-    Remove        = function(self)
+    Destroy       = function(self)
         if not self.isMultiple then
             UiPromptDelete(self.promptID)
             self.promptID = nil
@@ -266,13 +273,7 @@ local prompt = LIB.Class:Create({
                 UiPromptDelete(value.promptID)
             end
         end
-        self.promptGroup = nil
-        self.promptType = nil
-        self.callback = nil
-        self.isRunning = nil
-        self.promptLabel = nil
-        self.groupLabel = nil
-        self.customParams = {}
+        self = nil
     end,
 
     Pause         = function(self)
@@ -288,9 +289,6 @@ local prompt = LIB.Class:Create({
     end,
 
     Start         = function(self, ...)
-        if self.isRunning then return end
-        self.isRunning = true
-
         if self.isMultiple then
             self:StartMultiple(...)
         else
@@ -303,6 +301,8 @@ local prompt = LIB.Class:Create({
     end,
 
     StartSingle   = function(self)
+        if self.isRunning then return end
+        self.isRunning = true
         CreateThread(function()
             while self.isRunning do
                 local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
@@ -316,6 +316,8 @@ local prompt = LIB.Class:Create({
     end,
 
     StartMultiple = function(self)
+        if self.isRunning then return end
+        self.isRunning = true
         CreateThread(function()
             while self.isRunning do
                 local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
@@ -349,7 +351,18 @@ function Prompts:isArrayOfTables(t)
     return true
 end
 
-function Prompts:IsSingleString(data, isArray)
+function Prompts:InitializePrompts(data, isArray)
+    local function normalizeKey(value)
+        if not promptKeys[value.promptKey] then
+            local containsUnderscore <const> = string.find(value.promptKey, '_')
+            if not containsUnderscore then
+                error(('prompt key %s does not exist, available keys are %s'):format(value.promptKey, table.concat(promptKeys, ', ')))
+            end
+            return joaat(value.promptKey)
+        end
+        return promptKeys[value.promptKey]
+    end
+
     --! dont think this is needed you can just loop over the register? either way it will stay here for future decisions
     if isArray then
         for _, value in ipairs(data) do
@@ -359,17 +372,7 @@ function Prompts:IsSingleString(data, isArray)
 
             -- if type is a hash then no need to convert
             if type(value.promptKey) == 'string' then
-                if not promptKeys[value.promptKey] then
-                    local containsUnderscore <const> = string.find(value.promptKey, '_')
-                    if not containsUnderscore then
-                        error(('prompt key %s does not exist, available keys are %s'):format(value.promptKey, table.concat(promptKeys, ', ')))
-                    else
-                        -- contains undersocre is a string
-                        value.promptKey = joaat(value.promptKey)
-                    end
-                else
-                    value.promptKey = promptKeys[value.promptKey]
-                end
+                value.promptKey = normalizeKey(value.promptKey)
             end
 
             if not promptModes[value.promptMode] then
@@ -390,16 +393,7 @@ function Prompts:IsSingleString(data, isArray)
     end
 
     if type(data.promptKey) == 'string' then
-        if not promptKeys[data.promptKey] then
-            local containsUnderscore <const> = string.find(data.promptKey, '_')
-            if not containsUnderscore then
-                error(('prompt key %s does not exist, available keys are %s'):format(data.promptKey, table.concat(promptKeys, ', ')))
-            else
-                data.promptKey = joaat(data.promptKey)
-            end
-        else
-            data.promptKey = promptKeys[data.promptKey]
-        end
+        data.promptKey = normalizeKey(data.promptKey)
     end
 
     data.isMultiple = false
@@ -416,9 +410,9 @@ function Prompts:Register(data, groupLabel, callback)
     end
 
     if isTable then
-        data = self:IsSingleString(data, true)
+        data = self:InitializePrompts(data, true)
     else
-        data = self:IsSingleString(data, false)
+        data = self:InitializePrompts(data, false)
     end
 
     data.callback = callback
@@ -450,6 +444,7 @@ local prompt = Prompts:Register(data, "group label", function(input, prompt, ...
         prompt:SetPromptLabel('E pressed', 'E')
     end
 end)
+
 -- do distance check to start and stop prompts
 prompt:Resume(...)
 -------------------------------------------------------------------------------------------------------------------
@@ -465,9 +460,11 @@ prompt:Resume(...)
 -------------------------------------------------------------------------------------------------------------------
 --* register multiple prompts without being in the same group
 local prompts = {}
+
 local data = {
     { promptType = 'Press', promptKey = 'G', promptLabel = 'Standard Prompt', promptMode = 'Standard' },
 }
+
 for _, value in ipairs(data) do
     prompts[#prompts + 1] = Prompts:Register(value, "group label", function(input, prompt, key,value)
         if input.promptKey == 'G' then
@@ -479,6 +476,7 @@ for _, value in ipairs(data) do
         end
     end)
 end
+
 -- do distance check to start and stop prompts
 for key, value in ipairs(prompts) do
     local coords = GetEntityCoords(PlayerPedId())
