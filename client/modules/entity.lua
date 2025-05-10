@@ -1,6 +1,5 @@
 -- TODO: add debug messages
 local LIB <const> = Import { 'class' }
-local Class <const> = LIB.Class
 
 print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
 
@@ -15,7 +14,7 @@ local entityTracker <const> = {
 --* BASE CLASS / SUPERCLASS / PARENT CLASS
 --* ENTITY manager
 ---@class Entity
-local Entity <const> = Class:Create({
+local Entity <const> = LIB.Class:Create({
 
     ---@Constructor
     constructor = function(self, handle, netid, entityType, model)
@@ -150,7 +149,7 @@ local Entity <const> = Class:Create({
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* PEDS
 ---@class Ped
-local Ped <const> = Class:Create(Entity)
+local Ped <const> = LIB.Class:Create(Entity)
 
 function Ped:Create(data)
     Entity:LoadModel(data)
@@ -183,7 +182,7 @@ end
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* OBJECTS
 ---@class Object
-local Object <const> = Class:Create(Entity)
+local Object <const> = LIB.Class:Create(Entity)
 
 function Object:Create(data)
     Entity:LoadModel(data)
@@ -216,7 +215,7 @@ end
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* VEHICLES
 ---@class Vehicle
-local Vehicle <const> = Class:Create(Entity)
+local Vehicle <const> = LIB.Class:Create(Entity)
 
 function Vehicle:Create(data)
     Entity:LoadModel(data)
@@ -268,7 +267,7 @@ return {
 }
 
 --[[ EXAMPLES
-local LIB <const> = Import { 'entity' }
+local LIB <const> = Import 'entity'
 
 local ped = LIB.Ped:Create({
     Model = 'a_c_shep_01',
@@ -276,11 +275,11 @@ local ped = LIB.Ped:Create({
     IsNetworked = true,
     Options = {
         PlaceOnGround = true,
-        OnCreate = function(instance)
+    },
+    OnCreate = function(instance)
             print('Ped created use your own logic here')
-        end
-    }
+    end
 })
-GetHandle()
+
 ped:DeleteEntity()
 ]]

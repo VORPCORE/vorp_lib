@@ -92,7 +92,7 @@ for label, datatype in pairs(DataView.Types) do
     end
 end
 
-for label, datatype in pairs(DataView.FixedTypes) do
+for label, _ in pairs(DataView.FixedTypes) do
     DataView["GetFixed" .. label] = function(self, offset, typelen, endian)
         local o = self.offset + offset
         if o + (typelen - 1) <= self.length then
