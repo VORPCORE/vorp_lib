@@ -107,16 +107,36 @@
 ---@field public CreateBlip fun(self:Blip, blipType:'entity'|'coords'|'area'|'radius', params:BlipParams):Blip
 
 ---@class Inputs
----@field private New fun(self: Inputs, inputParams: InputParams, callback: function, state: boolean): Inputs
----@field public IsRunning function
----@field public Start function
----@field public Remove function
----@field public Pause  function
----@field public Resume function
----@field public Register fun(self: Inputs, inputParams: InputParams, callback:function, state:boolean?):Inputs
+---@field private New fun(self: Inputs, inputParams: InputParams, callback: fun(input: Inputs), state: boolean): Inputs
+---@field public IsRunning fun(self: Inputs): boolean
+---@field public Start fun(self: Inputs)
+---@field public Remove fun(self: Inputs)
+---@field public Pause fun(self: Inputs)
+---@field public Resume fun(self: Inputs)
+---@field public Register fun(self: Inputs, inputParams: InputParams, callback:fun(input:Inputs), state:boolean?):Inputs
 
 ---@class InputParams
 ---@field public inputType string
 ---@field public key string | number
----@field public callback function
+---@field public callback fun(input: Inputs)
 ---@field public state boolean
+
+
+---@class Command
+---@field public New fun(self: Command, name: string, data: CommandParams, state: boolean?): Command
+---@field public Register fun(self: Command, name: string, data: CommandParams, state: boolean?): Command
+---@field public Pause fun(self: Command): Command
+---@field public Resume fun(self: Command): Command
+---@field public Remove fun(self: Command): Command
+---@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string, command: Command)): Command
+---@field public OnError? fun(self: Command, callback: fun(error: string)): Command
+
+
+---@class CommandParams
+---@field public Name string
+---@field public Description string
+---@field public Suggestion? {name: string, help: string}[]
+---@field public Ace boolean?
+---@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string, command: Command)): Command
+---@field public OnError? fun(self: Command, callback: fun(error: string)): Command
+---@field public State boolean?
