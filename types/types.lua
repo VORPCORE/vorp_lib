@@ -105,3 +105,18 @@
 
 ---@class Blip: Map
 ---@field public CreateBlip fun(self:Blip, blipType:'entity'|'coords'|'area'|'radius', params:BlipParams):Blip
+
+---@class Inputs
+---@field private New fun(self: Inputs, inputParams: InputParams, callback: function, state: boolean): Inputs
+---@field public IsRunning function
+---@field public Start function
+---@field public Remove function
+---@field public Pause  function
+---@field public Resume function
+---@field public Register fun(self: Inputs, inputParams: InputParams, callback:function, state:boolean?):Inputs
+
+---@class InputParams
+---@field public inputType string
+---@field public key string | number
+---@field public callback function
+---@field public state boolean
