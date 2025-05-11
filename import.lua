@@ -100,3 +100,5 @@ end
 _ENV.Import = Import
 
 _ENV.Notify = Import "notify"
+
+_ENV.Core = exports.vorp_core:GetCore() -- allows to have Core has Global so we dont need to call it with exports
