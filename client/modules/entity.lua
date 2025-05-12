@@ -61,14 +61,16 @@ local Entity <const> = LIB.Class:Create({
     RemoveTrackedEntitiesByHandle = function(_, handle, entityType)
         if not entityTracker[entityType] then return error('wrong entity type') end
         entityTracker[entityType][handle] = nil
-        -- event or callback on entity was removed?
+        exports.vorp_lib:RemoveTrackedEntity(handle, entityType)
     end,
 
+    --local to this resource
     GetTrackedEntitiesByType = function(_, entityType)
         if not entityTracker[entityType] then return error('wrong entity type') end
         return entityTracker[entityType]
     end,
 
+    --local to this resource
     GetNumberOfTrackedEntitiesByType = function(_, entityType)
         if not entityTracker[entityType] then return error('wrong entity type') end
         return #entityTracker[entityType]
@@ -100,7 +102,8 @@ local Entity <const> = LIB.Class:Create({
 
     TrackEntity = function(_, handle, entityType)
         if not entityTracker[entityType] then return end
-        entityTracker[entityType][handle] = handle
+        entityTracker[entityType][handle] = handle       -- as a local to this script
+        exports.vorp_lib:TrackEntity(handle, entityType) -- as a global for all scripts
     end,
 
     ValidateEntity = function(_, handle)
@@ -276,10 +279,10 @@ local ped = LIB.Ped:Create({
     Options = {
         PlaceOnGround = true,
     },
-    OnCreate = function(instance)
-            print('Ped created use your own logic here')
+    OnCreate = function(self)
+            print('Ped created use your own logic here handle: ', self:GetHandle())
     end
 })
 
-ped:DeleteEntity()
+ped:GetHandle()
 ]]

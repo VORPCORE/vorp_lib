@@ -98,7 +98,18 @@ function Import(modules)
 end
 
 _ENV.Import = Import
-
+-- still thinking about this, either we store this in a table and use that variable or just access it directly
 _ENV.Notify = Import "notify"
+_ENV.Core = exports.vorp_core:GetCore() -- avoid calling this export every time in your scripts
+-- example of how to use it
+-- Notify:Objective("Hello", "Hello", 5000, "success")
+-- local result = Core.CallBack.TriggerAWait("Hello")
 
-_ENV.Core = exports.vorp_core:GetCore() -- allows to have Core has Global so we dont need to call it with exports
+--as a variable
+--_ENV.LIB = {}
+--_ENV.LIB.Notify = Import "notify"
+--_ENV.LIB.Core = exports.vorp_core:GetCore()
+
+-- and then use it like this
+-- LIB.Notify:Objective("Hello", "Hello", 5000, "success")
+-- local result = LIB.Core.CallBack.TriggerAWait("Hello")

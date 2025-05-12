@@ -1,9 +1,11 @@
 local LIB <const> = Import 'class'
 
+local COMMANDS <const> = {}
 local ERROR_TYPES <const> = {
     ARGUMENTS = 'missing_arguments',
     PERMISSION = 'missing_permission',
     TARGET = 'missing_target',
+    NOT_TARGET = 'not_target',
     STATE = 'missing_state',
     USER = 'missing_user',
     GROUP = 'missing_group',
@@ -17,22 +19,19 @@ local Command <const> = LIB.Class:Create({
     constructor = function(self, name, params, state)
         self.name = name
         self.isActive = state
-        self.description = params.Description
-        self.suggestion = params.Suggestion
+        self.chatSuggestion = params.ChatSuggestion
         self.execute = params.OnExecute
         self.error = params.OnError
         self.ace = params.Ace
-        self.target = params.Target or -1
-        self.groups = params.Groups or {}
-        self.jobs = params.Jobs or {}
+        self.targets = params.Targets
+        self.permissions = params.Permissions
     end,
 
     set = {
 
         Remove = function(self)
-            TriggerClientEvent("chat:removeSuggestion", self.target, ("/%s"):format(self.name))
+            TriggerClientEvent("chat:removeSuggestion", -1, ("/%s"):format(self.name))
             RegisterCommand(self.name, function() end, false)
-            exports.vorp_lib:UnTrackCommand(self.name)
             self.isActive = false
         end,
 
@@ -41,20 +40,131 @@ local Command <const> = LIB.Class:Create({
             self.isActive = false
         end,
 
+        AddSuggestion = function(self, target)
+            if self.ace or not self.chatSuggestion then return end
+            if type(self.chatSuggestion) ~= 'table' then return end
+
+            local suggestion <const> = self.chatSuggestion
+            local newArguments <const> = {}
+
+            if suggestion.arguments and next(suggestion.arguments) then
+                for i = 1, 2 do
+                    table.insert(newArguments, {
+                        name = suggestion.arguments[i].name,
+                        help = suggestion.arguments[i].help
+                    })
+                end
+
+                TriggerClientEvent("chat:addSuggestion", target, ("/%s"):format(self.name), suggestion.description, newArguments)
+            end
+        end,
+
+        RemoveSuggestion = function(self, target)
+            if not target then return print('you must provide a target') end
+            TriggerClientEvent("chat:removeSuggestion", target, ("/%s"):format(self.name))
+        end,
+
         Resume = function(self)
             if self.isActive then return end
             self.isActive = true
+            local permissions <const> = self.permissions and next(self.permissions) and self.permissions or false
 
-            TriggerClientEvent("chat:addSuggestion", self.target, ("/%s"):format(self.name), self.description, self.suggestion)
             RegisterCommand(self.name, function(source, args, rawCommand)
-                if not self.isActive then return end
+                if not self.isActive then return end -- for global
 
-                local errorType <const> = self:ValidateCommand(source, args)
+                local function validate()
+                    local allowed = false
+                    local errorType = ""
+
+                    if #self.suggestion.arguments ~= #args then
+                        return ERROR_TYPES.ARGUMENTS
+                    end
+
+                    if source == 0 then
+                        return ERROR_TYPES.USER
+                    end
+
+                    if not permissions then
+                        return false
+                    end
+
+                    if permissions.Ace then
+                        return false
+                    end
+
+                    local user <const> = Core.getUser(source)
+                    if not user then
+                        return ERROR_TYPES.USER
+                    end
+
+                    local user_group <const> = user.group
+                    local character <const> = user.getUsedCharacter
+                    local character_group <const> = character.group
+                    local job <const> = user.job
+                    local grade <const> = user.grade
+                    -- here we will check for permissions
+
+                    if permissions.Jobs and permissions.Jobs[job] then
+                        -- is a table then has grades
+                        if type(permissions.Jobs[job]) == "table" then
+                            if permissions.Jobs[job][grade] then
+                                allowed = true
+                                errorType = ERROR_TYPES.GRADE
+                            end
+                        else
+                            allowed = true
+                            errorType = ERROR_TYPES.JOB
+                        end
+                    end
+
+                    if permissions.Groups then
+                        if permissions.Groups.users and permissions.Groups.users[user_group] then
+                            allowed = true
+                            errorType = ERROR_TYPES.GROUP
+                        end
+
+                        if permissions.Groups.characters and permissions.Groups.characters[character_group] then
+                            allowed = true
+                            errorType = ERROR_TYPES.GROUP
+                        end
+                    end
+
+                    if permissions.CharactersId and permissions.CharactersId[character.id] then
+                        allowed = true
+                        errorType = ERROR_TYPES.CHARACTER
+                    end
+
+                    if allowed then
+                        return
+                    end
+
+                    return errorType
+                end
+
+                local errorType <const> = validate()
                 if errorType then
-                    if self.onError then
+                    if self.error then
                         return self.error(errorType)
                     end
                     return self:OnError(errorType)
+                end
+
+                if self.suggestion and self.suggestion.arguments then
+                    for i = 1, #self.suggestion.arguments do
+                        local type <const> = self.suggestion.arguments[i].type
+                        if type == 'player' then
+                            if not DoesPlayerExist(args[i]) then
+                                return ERROR_TYPES.USER
+                            end
+                            -- send as number
+                            args[i] = tonumber(args[i])
+                        elseif type == 'number' then
+                            if not tonumber(args[i]) then
+                                -- send as number
+                                args[i] = tonumber(args[i])
+                            end
+                        end
+                    end
                 end
 
                 if self.callback then
@@ -62,7 +172,8 @@ local Command <const> = LIB.Class:Create({
                 end
 
                 self:OnExecute(source, args, rawCommand, self)
-            end, self.ace)
+            end, permissions and permissions.Ace or false)
+            --todo: add group automatically if restricted ?
         end,
 
         Destroy = function(self)
@@ -77,110 +188,6 @@ local Command <const> = LIB.Class:Create({
         OnError = function(self, callback)
             self.onError = callback
         end,
-
-        ValidateCommand = function(self, source, args)
-            if #self.suggestion ~= #args then
-                return ERROR_TYPES.ARGUMENTS
-            end
-
-            if source == 0 then
-                return ERROR_TYPES.TARGET
-            end
-
-            --[[   if self.groups then
-                if next(self.groups) then
-                    local user = self:GetData(source)
-                    if not user then
-                        return ERROR_TYPES.USER
-                    end
-
-                    local group = user.getGroup
-                    if not self.groups[group] then
-                        return ERROR_TYPES.GROUP
-                    end
-                end
-            end
-
-            if self.jobs then
-                if next(self.jobs) then
-                    local user = self:GetData(source)
-                    if not user then
-                        return ERROR_TYPES.USER
-                    end
-
-                    local job = user.getUsedCharacter.job
-                    if not self.jobs[job] then
-                        return ERROR_TYPES.JOB
-                    end
-                end
-            end ]]
-        end,
-
-        UpdateTarget = function(self, target)
-            self.target = target
-        end,
-        -- not needed for most people, only for those who dont know what they are doing
-        --[[    UpdateGroupEntry = function(self, group, state)
-            if not self.groups[group] then
-                return print(('group %s not found use AddGroupEntry first'):format(group))
-            end
-            self.groups[group] = state
-        end,
-
-        AddGroupEntry = function(self, group, state)
-            if self.groups[group] then
-                return print(('group %s already exists use UpdateGroupEntry instead'):format(group))
-            end
-            self.groups[group] = state
-        end,
-
-        RemoveGroupEntry = function(self, group)
-            self.groups[group] = nil
-        end,
-
-        UpdateJobEntry = function(self, job, data)
-            -- insert to the table
-            if not self.jobs[job] then
-                return print(('job %s not found use AddJobEntry first'):format(job))
-            end
-            self.jobs[job] = data
-        end,
-
-        AddJobEntry = function(self, job)
-            if self.jobs[job] then
-                return print(('job %s already exists use UpdateJobEntry instead'):format(job))
-            end
-            self.jobs[job] = {}
-        end,
-
-        RemoveJobEntry = function(self, job)
-            self.jobs[job] = nil
-        end,
-
-        UpdateJobGradeState = function(self, job, grade, state)
-            if not self.jobs[job] then
-                return print(('job %s not found use AddJobEntry first'):format(job))
-            end
-
-            if not self.jobs[job][grade] then
-                return print(('grade %s not found use AddJobGradeEntry first'):format(grade))
-            end
-
-            self.jobs[job][grade] = state
-        end,
-
-        AddJobGradeEntry = function(self, job, grade, state)
-            if not self.jobs[job] then
-                return print(('job %s not found use UpdateJobEntry first'):format(job))
-            end
-
-            if self.jobs[job][grade] then
-                return print(('grade %s already exists use UpdateJobGradeState instead'):format(grade))
-            end
-
-            self.jobs[job][grade] = state
-        end, ]]
-
     }
 
 })
@@ -210,6 +217,7 @@ function Command:Register(name, params, state)
     end
 
     local instance <const> = Command:New(name, params, state)
+    COMMANDS[name] = instance
     if state then
         instance:Resume()
     end
@@ -217,40 +225,119 @@ function Command:Register(name, params, state)
     return instance
 end
 
+-- add command suggestions when a character is selected only
+AddEventHandler('vorp:SelectedCharacter', function(source, character)
+    local function allowedForCommand(permissions)
+        local allowed = false
+
+        local character_group <const> = character.group
+        local job <const> = character.job
+        local grade <const> = character.grade
+
+        if permissions.Jobs and permissions.Jobs[job] then
+            if type(permissions.Jobs[job]) == "table" then
+                if permissions.Jobs[job][grade] then
+                    allowed = true
+                end
+            else
+                allowed = true
+            end
+        end
+
+        if permissions.Groups then
+            if permissions.Groups.users then
+                local user <const> = Core.getUser(source)
+                if permissions.Groups.users[user.getGroup] then
+                    allowed = true
+                end
+            end
+
+            if permissions.Groups.characters and permissions.Groups.characters[character_group] then
+                allowed = true
+            end
+        end
+
+        if permissions.CharactersId and permissions.CharactersId[character.id] then
+            allowed = true
+        end
+
+        return allowed
+    end
+
+    -- add suggestion for commands everytime they join the server
+    for _, command in pairs(COMMANDS) do
+        -- if not ace
+        if command.permissions then
+            if not command.permissions.Ace then
+                if command.chatSuggestion then
+                    if not command.chatSuggestion.target then
+                        local allowed <const> = allowedForCommand(command.permissions)
+                        if allowed then
+                            command:AddSuggestion(source)
+                        end
+                    else
+                        -- if target is -1 then add suggestion for all players
+                        command:AddSuggestion(source)
+                    end
+                end
+            else
+                -- for ace
+                command:AddSuggestion(source)
+            end
+        end
+    end
+end)
+
 --[[ return {
     Command = Command
 }
  ]]
 
--- on the server side we can add more options to the command
+-- registers chat suggestion on char selected based on the permissions you set, or default to all players
 local command <const> = LIB.Command:Register("commandName", {
-    Description = "description of command suggestion",
-    Target = -1, -- add suggestion for all players or add the source, and or update the target
-    Suggestion = {
-        { name = "Id",  help = "player id" },
-        { name = "msg", help = "message" }
-    },          -- to register chat suggestions
-    Ace = true, -- restrict command
-    -- this is just to make it easier, but its not neccessary for most people
-    --[[   Groups = { admin = true }, -- only these groups can use the command, this uses vorp system, leave false to not use or remove the table
-    Jobs = {                   -- leave false to not use or remove the table
-        police = {             -- name of the job, if all grades are allowed just do jobname= true instead of table
-            [0] = false,       --block this grade
-            [1] = true         --allow this grade
-        }
-    },                         -- only these jobs can use the command, this uses vorp system ]]
-    OnExecute = function(source, args, rawCommand, command)
-        local user = Core.getUser(source)
-        if not user then return end
+    --OPTIONAL
+    ChatSuggestion = {
+        description = "description of command suggestion",
+        target = -1,                                                                -- if its to all players add-1 and will ignore the permissions otherwise remove it
+        arguments = {
+            { name = "Id",  help = "player id", type = "player", required = true }, -- required is optional
+            { name = "msg", help = "message",   type = "string", required = true }  -- if type is player will check if player exists
+        },
+    },
 
-        local user_group = user.getGroup
-        local character_group = user.getUsedCharacter.group
-        local character_job = user.getUsedCharacter.job
-        local character_grade = user.getUsedCharacter.grade
+    --OPTIONAL
+    Permissions = {
+        Ace = false, -- restrict command
+        --OPTIONAL this users will have the chat suggestion added automatically when they join with their character.
+        Groups = {
+            users = {
+                admin = true
+            }, -- remove users to not use this,usually this is for admins
+            characters = {
+                admin = true
+            }, -- character groups
+        },     -- only these groups can use the command, this uses vorp system, leave false to not use or remove the table
 
-        print(user_group, character_group, character_job, character_grade)
+        --OPTIONAL
+        Jobs = {             -- leave false to not use or remove the table
+            police = {       -- name of the job, if all grades are allowed just do jobname = true instead of table
+                [0] = false, --block this grade
+                [1] = true   --allow this grade
+            }
+        },
+
+        --OPTIONAL
+        CharactersId = {
+            [1] = true, -- this character id is allowed to use the command
+        },
+    },
+
+    OnExecute = function(source, args, rawCommand, self)
+        print(source, args, rawCommand, self)
     end,
+
     OnError = function(error)
+        -- based on your requirements you can use this to handle errors and apply your own notifications and translations
         if error == 'missing_arguments' then
             print('command usage: /commandName <id> <msg>')
         end
@@ -262,11 +349,30 @@ local command <const> = LIB.Command:Register("commandName", {
         if error == 'missing_target' then
             print('you must be a player to use this command')
         end
+
+        if error == 'not_target' then
+            print('you must be the target to use this command')
+        end
+
+        if error == 'missing_group' then
+            print('this command is locked to a group admin')
+        end
+
+        if error == 'missing_job' then
+            print('this command is locked to a job police')
+        end
+
+        if error == 'missing_grade' then
+            print('this command is locked to a grade 1')
+        end
+
+        if error == 'missing_user' then
+            print('user does not exist or id is missing')
+        end
+
+        if error == 'missing_state' then
+            print('this command is disabled for now')
+        end
     end,
 
-}, false) -- this param allows to not register just yet if true registers right away ]]
-
--- once character is loaded and you want to send to a specific player
--- useful for commands that are not available for all players update target before calling resume and state was false
-command:UpdateTarget(source)
-command:Resume()
+}, false)

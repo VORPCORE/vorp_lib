@@ -12,7 +12,7 @@ client_scripts {
     'client/main/*.lua'
 }
 
---base server scripts
+--base scripts
 server_scripts {
     'server/main/*.lua'
 }
