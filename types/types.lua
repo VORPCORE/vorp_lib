@@ -123,20 +123,21 @@
 
 
 ---@class Command
----@field public New fun(self: Command, name: string, data: CommandParams, state: boolean?): Command
----@field public Register fun(self: Command, name: string, data: CommandParams, state: boolean?): Command
----@field public Pause fun(self: Command): Command
----@field public Resume fun(self: Command): Command
----@field public Remove fun(self: Command): Command
----@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string, command: Command)): Command
----@field public OnError? fun(self: Command, callback: fun(error: string)): Command
+---@field private New fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
+---@field public Register fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
+---@field public Pause fun(self: Command)
+---@field public Resume fun(self: Command)
+---@field public Remove fun(self: Command)
+---@field public Destroy fun(self: Command)
+---@field public AddSuggestion fun(self: Command, target: number)
+---@field public RemoveSuggestion fun(self: Command, target: number)
+---@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string))
+---@field public OnError? fun(self: Command, callback: fun(error: string))
 
 
 ---@class CommandParams
----@field public Name string
----@field public Description string
----@field public Suggestion? {name: string, help: string}[]
----@field public Ace boolean?
----@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string, command: Command)): Command
----@field public OnError? fun(self: Command, callback: fun(error: string)): Command
+---@field public Permissions? {Jobs?:{ [string]:{ Ranks?:{[number]:boolean }}},Groups?:{[string]:{[string]:boolean }},CharIds?:{[number]:boolean },Ace?:string }
+---@field public Suggestion? {Description: string, Arguments: {name: string, help: string, required: boolean, type: string}}
+---@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: Command)
+---@field public OnError? fun(error: string)
 ---@field public State boolean?
