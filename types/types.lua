@@ -126,6 +126,7 @@
 ---@field private New fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
 ---@field public Register fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
 ---@field public Pause fun(self: Command)
+---@field public Start fun(self: Command)
 ---@field public Resume fun(self: Command)
 ---@field public Remove fun(self: Command)
 ---@field public Destroy fun(self: Command)
@@ -136,7 +137,7 @@
 
 
 ---@class CommandParams
----@field public Permissions? {Jobs?:{ [string]:{ Ranks?:{[number]:boolean }}},Groups?:{[string]:{[string]:boolean }},CharIds?:{[number]:boolean },Ace?:string }
+---@field public Permissions? {Jobs?:{ [string]:{ Ranks?:{[number]:boolean } | boolean }},Groups?:{[string]:{[string]:boolean }},CharIds?:{[number]:boolean },Ace?:string }
 ---@field public Suggestion? {Description: string, Arguments: {name: string, help: string, required: boolean, type: string}}
 ---@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: Command)
 ---@field public OnError? fun(error: string)
