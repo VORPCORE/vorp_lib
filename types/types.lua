@@ -142,3 +142,24 @@
 ---@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: Command)
 ---@field public OnError? fun(error: string)
 ---@field public State boolean?
+
+---@class Points
+---@field private New fun(self: Points, data: PointsParams): Points
+---@field public Start fun(self: Points)
+---@field public Pause fun(self: Points)
+---@field public Resume fun(self: Points)
+---@field public Destroy fun(self: Points)
+---@field public OnEnter fun(self: Points, callback: fun(self: Points))
+---@field public OnExit fun(self: Points, callback: fun(self: Points))
+---@field public OnUpdate fun(self: Points, callback: fun(self: Points))
+---@field public OnDestroy fun(self: Points, callback: fun(self: Points))
+---@field public Register fun(self: Points, data: PointsParams, state: boolean?): Points
+
+
+---@class PointsParams
+---@field public id string
+---@field public coords vector3
+---@field public distance number
+---@field public wait number
+---@field public onEnter fun(self: Points)
+---@field public onExit fun(self: Points)
