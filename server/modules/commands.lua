@@ -14,6 +14,7 @@ local ERROR_TYPES <const> = {
     MISSING_JOB = 'missing_job',
     MISSING_GRADE = 'missing_grade',
     MISSING_CHARACTER = 'missing_character',
+    ACTIVE = 'command_active',
 }
 
 local function hasPermissions(permissions, character, user, source)
@@ -141,14 +142,13 @@ end
 
 ---@class Command
 local Command <const> = LIB.Class:Create({
-    ---@Constructor
+
     constructor = function(self, name, params, state)
         self.name = name
         self.isActive = state
         self.suggestion = params.Suggestion
         self.execute = params.OnExecute
         self.error = params.OnError
-        self.ace = params.Ace
         self.permissions = params.Permissions
         self.isRegistered = false
     end,
@@ -181,12 +181,16 @@ local Command <const> = LIB.Class:Create({
             local suggestion <const> = self.suggestion
             local newArguments <const> = {}
 
-            if self.ace or not suggestion then return end
-            if type(suggestion) ~= 'table' then return end
+            if not suggestion then
+                return
+            end
 
+            if type(suggestion) ~= 'table' then
+                return
+            end
 
             if suggestion.Arguments and next(suggestion.Arguments) then
-                for i = 1, 2 do
+                for i = 1, #suggestion.Arguments do
                     table.insert(newArguments, {
                         name = suggestion.Arguments[i].name,
                         help = suggestion.Arguments[i].help
@@ -214,29 +218,40 @@ local Command <const> = LIB.Class:Create({
         end,
 
         Start = function(self)
+            if self.isActive then return end
+            self.isActive = true
+
             if self.isRegistered then return print('command is already registered') end
-            self.isRegistered = true
+            self.isRegistered         = true
 
             local permissions <const> = self.permissions and next(self.permissions) and self.permissions or false
+            local isRestricted        = false
+            local principal           = nil
+            if permissions then
+                isRestricted = permissions?.Ace and true or false
+                principal    = permissions?.Ace and permissions?.Ace or nil
+                if principal and type(principal) ~= 'string' then
+                    error('command ace must be a string to automatically add the user to the ace group, other wise remove it')
+                end
+            end
 
             RegisterCommand(self.name, function(source, args, rawCommand)
-                if not self.isActive then return end
+                if not self.isActive then return self.error(ERROR_TYPES.ACTIVE) end
 
                 local errorType <const> = validate(self, args, source, permissions)
                 if errorType then
-                    return self.error(errorType)
+                    return self.error and self.error(errorType) or print(errorType)
                 end
 
                 local success <const>, arguments <const> = checkType(self, args)
                 if not success then
-                    return self.error(arguments)
+                    return self.error and self.error(arguments) or print(arguments)
                 end
 
                 self.execute(source, arguments, rawCommand, self)
-            end, permissions?.Ace and true)
+            end, isRestricted)
 
-            if permissions and permissions.Ace then
-                local principal = permissions.Ace
+            if isRestricted and principal then
                 if not IsPrincipalAceAllowed(principal, ('command.%s'):format(self.name)) then
                     ExecuteCommand(('add_ace %s %s %s'):format(principal, ('command.%s'):format(self.name), "allow"))
                 end
@@ -249,15 +264,15 @@ local Command <const> = LIB.Class:Create({
             COMMANDS_REGISTERED[self.name] = nil
             self = nil -- does it actually destroy it?
         end,
+    },
 
-        OnExecute = function(self, callback)
-            self.execute = callback
-        end,
+    OnExecute = function(self, callback)
+        self.execute = callback
+    end,
 
-        OnError = function(self, callback)
-            self.error = callback
-        end,
-    }
+    OnError = function(self, callback)
+        self.error = callback
+    end,
 
 })
 
@@ -306,15 +321,17 @@ AddEventHandler('vorp:SelectedCharacter', function(source, character)
     for _, command in pairs(COMMANDS_REGISTERED) do
         -- if its active then add suggestions?
         if command.isActive then
-            if not command.permissions?.Ace then
-                if command.suggestion then
+            if command.permissions?.Ace then
+                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
                     local allowed <const> = hasPermissions(command.permissions, character, nil, source)
                     if allowed then
                         command:AddSuggestion(source)
                     end
                 end
             else
-                command:AddSuggestion(source)
+                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+                    command:AddSuggestion(source)
+                end
             end
         end
     end
