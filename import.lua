@@ -16,29 +16,46 @@ end
 local side <const>          = IsDuplicityVersion() and 'server' or 'client'
 local loadedModules <const> = {}
 
----@class importModules
-local importModules         = {}
-importModules.__index       = importModules
-importModules.__call        = function()
+
+local importModules   = {}
+importModules.__index = importModules
+importModules.__call  = function()
     return "importModules"
 end
 
 --- considered shared modules goes here
-local shared <const>        = { class = true }
+local shared <const>  = {
+    class = true,
+    functions = true,
+}
+
+local data <const>    = {
+    client = {
+        gameEvents = true
+    },
+    shared = {}
+}
 
 function importModules:GetPath(file)
     local resource, path
 
     if file:sub(1, 1) == "@" then
+        -- resource contains @
         resource = file:match("@(.-)/")
         path = file:match("@.-/(.+)")
-    elseif file:sub(1, 1) == "/" then
+    elseif file:sub(1, 1) == "/" or file:sub(1, 1) == "." then
+        -- own resource contains / or .
         resource = GetCurrentResourceName()
         path = file
     else
+        -- lib contains no symbols
         resource = "vorp_lib"
         if shared[file] then
             path = ("shared/%s"):format(file)
+        elseif data.client[file] then
+            path = ("client/data/%s"):format(file)
+        elseif data.shared[file] then
+            path = ("shared/data/%s"):format(file)
         else
             path = ("%s/modules/%s"):format(side, file)
         end
