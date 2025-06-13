@@ -182,7 +182,7 @@ function Inputs:InitializeInputs(inputParams, isArray)
     return inputParams
 end
 
---TODO: multiple inputs using the same register just like prompts have
+
 function Inputs:Register(inputParams, callback, state)
     local isTable <const> = self:isArrayOfTables(inputParams)
     if not isTable then
