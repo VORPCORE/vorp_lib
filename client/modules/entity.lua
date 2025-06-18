@@ -17,11 +17,12 @@ local entityTracker <const> = {
 local Entity <const> = LIB.Class:Create({
 
     ---@Constructor
-    constructor = function(self, handle, netid, entityType, model)
+    constructor = function(self, handle, netid, entityType, model, OnDelete)
         self.handle = handle
         self.netid = netid
         self.entityType = entityType
         self.model = model
+        self.OnDelete = OnDelete
     end,
 
     ---@methods
@@ -40,7 +41,7 @@ local Entity <const> = LIB.Class:Create({
                 DeleteEntity(self.handle)
             end
             self:RemoveTrackedEntity(self.handle, self.entityType)
-            self = nil
+            self.OnDelete(self.handle) 
         end,
     },
 
@@ -126,13 +127,14 @@ local Entity <const> = LIB.Class:Create({
     end,
 
     SetHeading = function(_, handle, data)
-        if not data.Pos?.w then return end
-        SetEntityHeading(handle, data.Pos.w)
+        if not Pos.w then return end
+        SetEntityHeading(handle, Pos.w)
     end,
 
     SetEntityRotation = function(_, handle, data)
-        if not data?.Rot then return end
-        SetEntityRotation(handle, data.Rot.x, data.Rot.y, data.Rot.z, data.Rot.Order or 1, data.Rot.P5 or false)
+        if not data.Rot?.Pos then return end
+
+        SetEntityRotation(handle, data.Rot.Pos.x, data.Rot.Pos.y, data.Rot.Pos.z, data.Rot.Order or 1, data.Rot.P5 or false)
     end,
 
     SetPedIntoVehicle = function(_, handle, data)
@@ -145,7 +147,35 @@ local Entity <const> = LIB.Class:Create({
         if not data?.PlaceOnGround then return end
         PlaceEntityOnGroundProperly(handle, false)
     end,
+
+    -- PUBLIC METHODS
+
+    GetPosition = function(self)
+        return GetEntityCoords(self.handle, true, false)
+    end,
+
+    GetHeading = function(self)
+        return GetEntityHeading(self.handle)
+    end,
+
+    GetRotation = function(self)
+        return GetEntityRotation(self.handle, 2)
+    end,
+
+    SetPosition = function(self, pos) -- accetps vector3 vector4 or table with heading as w
+        if not pos then return end
+
+        if pos.x then
+            SetEntityCoords(self.handle, pos.x, pos.y, pos.z, false, false, false, true)
+        end
+
+        if pos.w then
+            SetEntityHeading(self.handle, pos.w)
+        end
+    end,
+
 })
+
 
 
 -----------------------------------
@@ -165,10 +195,10 @@ function Ped:Create(data)
 
     Entity:TrackEntity(handle, 'Ped')
     Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Options)
+    Entity:SetHeading(handle, data.Pos)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Ped:New(handle, netid, 'Ped', data.Model)
+    local instance <const> = Ped:New(handle, netid, 'Ped', data.Model, data?.OnDelete) 
 
     if not data.Options then
         return instance
@@ -190,18 +220,18 @@ local Object <const> = LIB.Class:Create(Entity)
 function Object:Create(data)
     Entity:LoadModel(data)
 
-    local handle <const> = CreateObject(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.IsNetworked, data.ScriptHostPed, data.P7, data.P8)
+    local handle <const> = CreateObject(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.IsNetworked, data.ScriptHostObj, data.Dynamic, data.P7, data.P8)
     if not Entity:ValidateEntity(handle) then
         return
     end
 
     Entity:TrackEntity(handle, 'Object')
     Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Options)
+    Entity:SetHeading(handle, data.Pos)
     Entity:SetEntityRotation(handle, data.Options)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Object:New(handle, netid, 'Object', data.Model)
+    local instance <const> = Object:New(handle, netid, 'Object', data.Model, data?.OnDelete)
 
     if not data.Options then
         return instance
@@ -222,19 +252,18 @@ local Vehicle <const> = LIB.Class:Create(Entity)
 
 function Vehicle:Create(data)
     Entity:LoadModel(data)
-    local handle <const> = CreateVehicle(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostPed, data.P7, data.P8)
+    local handle <const> = CreateVehicle(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostVeh, data.DontAutoCreateDraftAnimals, data.P8)
     if not Entity:ValidateEntity(handle) then
         return
     end
 
     Entity:TrackEntity(handle, 'Vehicle')
     Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Options)
-    Entity:SetEntityRotation(handle, data.Options)
+    Entity:SetHeading(handle, data.Pos)
     Entity:SetPedIntoVehicle(handle, data.Options)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Vehicle:New(handle, netid, 'Vehicle', data.Model)
+    local instance <const> = Vehicle:New(handle, netid, 'Vehicle', data.Model, data?.OnDelete)
 
     if not data.Options then
         return instance
@@ -281,8 +310,12 @@ local ped = LIB.Ped:Create({
     },
     OnCreate = function(self)
             print('Ped created use your own logic here handle: ', self:GetHandle())
+    end,
+    OnDelete = function(self)
+            print('Ped deleted handle: ', self.handle)
     end
 })
 
 ped:GetHandle()
+
 ]]

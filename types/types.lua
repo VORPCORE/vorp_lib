@@ -2,7 +2,7 @@
 ---@meta
 
 ---@class Entity
----@field public New fun(self: Entity, handle: integer, netid: integer, entityType: string, model: string | integer): Entity | nil
+---@field public New fun(self: Entity, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): Entity | nil
 ---@field private TrackEntity fun(self: Entity, handle: integer, entityType: string)
 ---@field private RemoveTrackedEntity fun(self: Entity, handle: integer, entityType: string)
 ---@field private ValidateEntity fun(self: Entity, handle: integer): boolean
@@ -18,6 +18,11 @@
 ---@field public DeleteEntity fun(self: Entity)
 ---@field public GetTrackedEntitiesByType fun(self: Entity, entityType: string) :table | nil static
 ---@field public GetNumberOfTrackedEntitiesByType fun(self: Entity, entityType: string): integer | nil static
+---@field public SetPosition fun(self: Entity, pos: vector3 | {x: number, y: number, z: number,w: number} | vector4 | {x: number, y: number, z: number, w: number})
+---@field public GetPosition fun(self: Entity): vector3
+---@field public GetHeading fun(self: Entity): number
+---@field public GetRotation fun(self: Entity): vector3
+
 
 ---@class Ped : Entity
 ---@field public Create fun(self: Ped, data: table): Ped | nil
@@ -163,3 +168,9 @@
 ---@field public wait number
 ---@field public onEnter fun(self: Points)
 ---@field public onExit fun(self: Points)
+
+
+---@class Functions
+---@field public Switch fun(self: Functions): Functions
+---@field public SetInterval fun(self: Functions): Functions
+---@field public SetTimeout fun(self: Functions): Functions
