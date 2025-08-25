@@ -23,17 +23,24 @@ importModules.__call  = function()
     return "importModules"
 end
 
---- considered shared modules goes here
-local shared <const>  = {
-    class = true,
-    functions = true,
-}
 
-local data <const>    = {
-    client = {
-        gameEvents = true
+local content <const> = {
+    -- data files for the path
+    client_data = {
+        gameEvents = true,
     },
-    shared = {}
+    -- model names
+    shared_data = {
+        animals = true,
+        peds = true,
+        vehicles = true,
+    },
+    -- shared files for the path
+    shared = {
+        class = true,
+        functions = true,
+        notify = true,
+    },
 }
 
 function importModules:GetPath(file)
@@ -50,11 +57,12 @@ function importModules:GetPath(file)
     else
         -- lib contains no symbols
         resource = "vorp_lib"
-        if shared[file] then
+        -- is shared file
+        if content.shared[file] then
             path = ("shared/%s"):format(file)
-        elseif data.client[file] then
+        elseif content.client_data[file] then
             path = ("client/data/%s"):format(file)
-        elseif data.shared[file] then
+        elseif content.shared_data[file] then
             path = ("shared/data/%s"):format(file)
         else
             path = ("%s/modules/%s"):format(side, file)
@@ -116,22 +124,11 @@ end
 
 _ENV.Import = Import
 
--- still thinking about this, either we store this in a table and use that variable or just access it directly
-_ENV.NOTIFY = Import "notify" --[[@as Notify]]
 
--- avoid calling this export every time in your scripts
-_ENV.CORE = exports.vorp_core:GetCore()
-
-
--- example of how to use it
--- Notify:Objective("Hello", "Hello", 5000, "success")
--- local result = Core.CallBack.TriggerAWait("Hello")
-
---as a variable but is too verbose
---_ENV.LIB = {}
---_ENV.LIB.Notify = Import "notify"
---_ENV.LIB.Core = exports.vorp_core:GetCore()
-
--- and then use it like this
--- LIB.Notify:Objective("Hello", "Hello", 5000, "success")
--- local result = LIB.Core.CallBack.TriggerAWait("Hello")
+---@class LIB
+---@field NOTIFY NOTIFY_CLIENT
+---@field CORE CORE_CLIENT | CORE_SERVER
+_ENV.LIB = {
+    NOTIFY = Import("notify").Notify,
+    CORE = exports.vorp_core:GetCore()
+}

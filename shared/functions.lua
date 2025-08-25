@@ -134,13 +134,13 @@ local timeouts = LIB.Class:Create({
 
 ---@initializers
 local function switch(value)
-    return switchs:new({ value })
+    return switchs:New({ value })
 end
 local function setInterval(callback, delay, customArgs, start)
-    return intervals:new({ callback = callback, delay = delay, customArgs = customArgs, start = start })
+    return intervals:New({ callback = callback, delay = delay, customArgs = customArgs, start = start })
 end
 local function setTimeout(callback, delay, customArgs)
-    return timeouts:new({ callback = callback, delay = delay, customArgs = customArgs })
+    return timeouts:New({ callback = callback, delay = delay, customArgs = customArgs })
 end
 
 

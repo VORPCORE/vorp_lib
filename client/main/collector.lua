@@ -7,21 +7,21 @@ ENTITIES.Vehicles = {}
 
 --set exports
 exports('TrackEntity', function(entity)
-    if entity.type == 'object' then
+    if entity == 'object' then
         table.insert(ENTITIES.Objects, entity)
-    elseif entity.type == 'ped' then
+    elseif entity == 'ped' then
         table.insert(ENTITIES.Peds, entity)
-    elseif entity.type == 'vehicle' then
+    elseif entity == 'vehicle' then
         table.insert(ENTITIES.Vehicles, entity)
     end
 end)
 
 exports('UntrackEntity', function(entity)
-    if entity.type == 'object' then
+    if entity == 'object' then
         table.remove(ENTITIES.Objects, entity)
-    elseif entity.type == 'ped' then
+    elseif entity == 'ped' then
         table.remove(ENTITIES.Peds, entity)
-    elseif entity.type == 'vehicle' then
+    elseif entity == 'vehicle' then
         table.remove(ENTITIES.Vehicles, entity)
     end
 end)
@@ -34,6 +34,7 @@ end)
 exports('GetAllObjects', function()
     return ENTITIES.Objects
 end)
+
 -- example local objects = exports.vorp_lib:GetAllObjects()
 -- local numObjects = #objects
 
@@ -51,7 +52,7 @@ AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
 
     for _, types in pairs(ENTITIES) do
-        for _, entity in pairs(types) do
+        for _, entity in ipairs(types) do
             if DoesEntityExist(entity) then
                 DeleteEntity(entity)
             end

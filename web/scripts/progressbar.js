@@ -9,19 +9,37 @@ document.addEventListener("DOMContentLoaded", () => {
     */
     function showProgressBars(data, duration) {
         return new Promise(resolve => {
+            isCanceled = false
 
             document.querySelectorAll('.horizontal-progress-container').forEach(el => el.remove());
 
             const container = document.createElement('div');
             container.className = 'horizontal-progress-container';
+            container.style.top = ((data.position?.top ?? 90) + '%');
+            container.style.left = ((data.position?.left ?? 50) + '%');
 
-            const g = document.createElement('div'); g.className = 'progress-grey';
-            const w = document.createElement('div'); w.className = 'progress-white';
-            const t = document.createElement('div'); t.className = 'progress-text';
+            const g = document.createElement('div');
+            g.className = 'progress-grey';
+            const w = document.createElement('div');
+            w.className = 'progress-white';
+            const t = document.createElement('div');
+            t.className = 'progress-text';
+
             t.textContent = data.text;
+
+            const imagePath = data.image ? `assets/${data.image}.png` : `assets/score_timer_extralong.png`;
+            g.style.backgroundImage = `url(${imagePath})`;
+            w.style.backgroundImage = `url(${imagePath})`;
+
+            if (data.colors?.backgroundColor) {
+                g.style.filter = `grayscale(100%) brightness(20%) sepia(100%) hue-rotate(${data.colors.backgroundColor}) saturate(2)`;
+            }
+
+            if (data.colors?.fillColor) {
+                w.style.filter = `grayscale(100%) brightness(80%) sepia(100%) hue-rotate(${data.colors.fillColor}) saturate(2)`;
+            }
+
             t.style.color = data.colors?.startColor ?? 'white';
-            t.style.top = ((data.position?.top ?? 90) + '%');
-            t.style.left = ((data.position?.left ?? 50) + '%');
 
             container.append(g, w, t);
             document.body.appendChild(container);
@@ -58,6 +76,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }, duration);
 
             const interval = setInterval(() => {
+
                 if (isCanceled) {
                     endProgress(false);
                     clearInterval(interval);
@@ -72,9 +91,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     window.addEventListener('message', function (event) {
-        const data = event.data;
+        const { data, duration } = event.data;
+
         if (data.type === 'linear') {
-            showProgressBars(data);
+            showProgressBars(data, duration);
         }
 
         //todo: add progress circular

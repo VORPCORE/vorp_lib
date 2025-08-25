@@ -1,8 +1,12 @@
 local LIB <const> = Import "class"
 
+local GetEntityCoords <const> = GetEntityCoords
+local UiPromptSetActiveGroupThisFrame <const> = UiPromptSetActiveGroupThisFrame
+local VarString <const> = VarString
+
 print("^3WARNING: ^7module PROMPTS is a work in progress use it at your own risk")
 
----@class Prompts
+---@class PROMPTS
 local Prompts = {}
 
 local promptTypes <const> = {
@@ -88,336 +92,259 @@ local promptKeys <const> = {
 
 }
 
-function Prompts:SetUpSinglePrompt(data)
-    local group <const> = GetRandomIntInRange(0, 0xffffff)
-    local prompt <const> = UiPromptRegisterBegin()
-    local text <const> = VarString(10, 'LITERAL_STRING', data.promptLabel)
-    UiPromptSetControlAction(prompt, data.promptKey)
-    UiPromptSetText(prompt, text)
-    UiPromptSetEnabled(prompt, true)
-    UiPromptSetVisible(prompt, true)
-    data.promptMode(prompt, data)
-    UiPromptSetGroup(prompt, group, 0)
-    UiPromptRegisterEnd(prompt)
-    return group, prompt
-end
 
-function Prompts:SetUpMultiplePrompts(data)
+function Prompts:SetUpPrompts(data)
     local group <const> = GetRandomIntInRange(0, 0xffffff)
 
     for _, value in ipairs(data.prompts) do
         local prompt <const> = UiPromptRegisterBegin()
-        local text <const> = VarString(10, 'LITERAL_STRING', value.promptLabel)
-        UiPromptSetControlAction(prompt, value.promptKey)
+        local text <const> = VarString(10, 'LITERAL_STRING', value.label)
+        UiPromptSetControlAction(prompt, value.keyHash)
         UiPromptSetText(prompt, text)
         UiPromptSetEnabled(prompt, true)
         UiPromptSetVisible(prompt, true)
-        value.promptMode(prompt, value)
+        promptModes[value.mode](prompt, value)
         UiPromptSetGroup(prompt, group, 0)
         UiPromptRegisterEnd(prompt)
-        value.promptID = prompt
+        value.handle = prompt
     end
     return group, data.prompts
 end
 
-function Prompts:NormalizePromptKey(promptKey)
-    if not promptKey then
-        return print('promptKey is nil to get promptID from multiple prompts you need to pass the promptKey as a string or hash')
-    end
-
-    if type(promptKey) == 'string' then
-        local sub <const> = string.sub(promptKey, 1, 1)
-        if #sub == 1 then
-            if not promptKeys[promptKey] then return print('promptKey', promptKey, ' does not exist') end
-            promptKey = promptKeys[promptKey]
-        else
-            promptKey = joaat(promptKey)
-        end
-    end
-    -- returns hash key
-    return promptKey
-end
-
 local prompt = LIB.Class:Create({
-    constructor   = function(self, data)
-        if data.isMultiple then
-            self.promptGroup, self.prompts = Prompts:SetUpMultiplePrompts(data)
-        else
-            self.promptType = data.promptType
-            self.promptGroup, self.promptID = Prompts:SetUpSinglePrompt(data)
-        end
-
+    constructor  = function(self, data)
+        self.group, self.prompts = Prompts:SetUpPrompts(data)
+        self.coords = data.coords
+        self.distance = data.distance
+        self.label = data.label
         self.callback = data.callback
-        self.isRunning = data.isRunning
-        self.promptLabel = data.promptLabel
-        self.groupLabel = data.groupLabel
-        self.isMultiple = data.isMultiple
+        self.marker = data.marker
+        self.sleep = data.sleep
+        self.isRunning = false
     end,
 
-    get           = {
-        GetPromptID = function(self, promptKey)
-            if not self.isMultiple then return self.promptID end
-
-            promptKey = Prompts:NormalizePromptKey(promptKey)
-
-            for i = 1, #self.prompts do
-                if self.prompts[i].promptKey == promptKey then
-                    return self.prompts[i].promptID
-                end
-            end
+    get          = {
+        GetHandle = function(self, key)
+            return self.prompts?[key].handle
         end,
-        GetPromptGroup = function(self)
-            return self.promptGroup
+
+        GetPromptGroup = function(self, key)
+            return self.prompts?[key].group
         end,
-        GetPromptControlAction = function(self)
-            return self:GetPromptKeyName(self.promptKey)
+
+        GetGroupLabel = function(self, key)
+            return self.prompts?[key].label
         end,
-        GetPromptKeyName = function(self, promptKey) -- only hash
-            if not self.isMultiple then return print('this is for multiple prompts only') end
 
-            promptKey = Prompts:NormalizePromptKey(promptKey)
-
-            for key, value in pairs(promptKeys) do
-                if value == promptKey then
-                    return { promptKey = key, promptHash = value }
-                end
-            end
-
-            return { promptKey = nil, promptHash = promptKey }
-        end,
-        GetPromptLabel = function(self, promptKey)
-            if not self.isMultiple then return self.promptLabel end
-
-            promptKey = Prompts:NormalizePromptKey(promptKey)
-
-            for i = 1, #self.prompts do
-                if self.prompts[i].promptKey == promptKey then
-                    return self.prompts[i].promptLabel
-                end
-            end
-
-            return nil
-        end,
-        GetPromptGroupLabel = function(self)
-            return self.groupLabel
-        end,
-        IsPromptRunning = function(self)
+        IsRunning = function(self)
             return self.isRunning
-        end
-    },
-
-    set           = {
-        SetPromptLabel = function(self, label, promptKey)
-            if not self.isMultiple then
-                if not label then return print('label is nil') end
-                UiPromptSetText(self.promptID, VarString(10, 'LITERAL_STRING', label))
-                self.promptLabel = label
-            else
-                if not label then return print('label is nil') end
-                UiPromptSetText(self:GetPromptID(promptKey), VarString(10, 'LITERAL_STRING', label))
-                self.promptLabel = label
-            end
         end,
 
-        SetPromptGroupLabel = function(self, label)
+    },
+    -- updates the prompt data
+    set          = {
+        SetLabel = function(self, label, key)
+            if type(label) ~= 'string' then return print('label must be a string') end
+
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetText(value.handle, VarString(10, 'LITERAL_STRING', label))
+            value.label = label
+        end,
+
+        SetGroupLabel = function(self, label)
+            if type(label) ~= 'string' then return print('label must be a string') end
             self.groupLabel = label
         end,
 
-        SetPromptEnabled = function(self, enabled, promptKey)
-            if not self.isMultiple then
-                UiPromptSetEnabled(self.promptID, enabled)
-            else
-                UiPromptSetEnabled(self:GetPromptID(promptKey), enabled)
-            end
+        SetEnabled = function(self, enabled, key)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetEnabled(value.handle, enabled)
         end,
 
-        SetPromptVisible = function(self, visible, promptKey)
-            if not self.isMultiple then
-                UiPromptSetVisible(self.promptID, visible)
-            else
-                UiPromptSetVisible(self:GetPromptID(promptKey), visible)
-            end
+        SetVisible = function(self, visible, key)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetVisible(value.handle, visible)
         end,
 
-        SetPromptMashMode = function(self, mashCount, promptKey)
-            if not self.isMultiple then
-                UiPromptSetMashMode(self.promptID, mashCount)
-            else
-                UiPromptSetMashMode(self:GetPromptID(promptKey), mashCount)
-            end
+        SetMashMode = function(self, mashCount, key)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetMashMode(value.handle, mashCount)
         end,
 
-        SetPromptMashIndefinitelyMode = function(self, promptKey)
-            if not self.isMultiple then
-                UiPromptSetMashIndefinitelyMode(self.promptID)
-            else
-                UiPromptSetMashIndefinitelyMode(self:GetPromptID(promptKey))
-            end
+        SetMashIndefinitelyMode = function(self, key)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetMashIndefinitelyMode(value.handle)
         end,
 
-        SetPromptGroup = function(self, group, promptKey)
-            if not self.isMultiple then
-                UiPromptSetGroup(self.promptID, group, 0)
-            else
-                UiPromptSetGroup(self:GetPromptID(promptKey), group, 0)
+        SetGroup = function(self, group, key, gorupid)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+
+            UiPromptSetGroup(value.handle, group, 0)
+            -- we might also need to update the group label ?
+            if gorupid then
+                value.group = gorupid
             end
         end,
     },
 
-    Destroy       = function(self)
-        if not self.isMultiple then
-            UiPromptDelete(self.promptID)
-            self.promptID = nil
-        else
-            for _, value in ipairs(self.prompts) do
-                UiPromptDelete(value.promptID)
+    CreateMarker = function(self)
+        CreateThread(function()
+            while self.isRunning do
+                local distance <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
+                if distance <= self.marker.distance then
+                    -- if value.debug the
+
+                    DrawMarker(
+                        self.marker.type,
+                        self.coords.x, self.coords.y, self.coords.z,
+                        0.0, 0.0, 0.0,
+                        0.0, 0.0, 0.0,
+                        self.marker.scale.x, self.marker.scale.y, self.marker.scale.z,
+                        self.marker.color.r, self.marker.color.g, self.marker.color.b, self.marker.color.a,
+                        false, false, 2, nil, nil,
+                        false, false
+                    )
+                    -- end
+                end
+
+                Wait(0)
             end
-        end
-        self = nil
+        end)
     end,
 
-    Pause         = function(self)
+    Destroy      = function(self)
+        for _, value in ipairs(self.prompts) do
+            UiPromptDelete(value.handle)
+        end
+        self.isRunning = false
+        self = nil
+    end,
+    -- removes entry for this specific prompt
+    Remove       = function(self, key)
+        local value <const> = self.prompts[key]
+        if not value then return print(('prompt not found with key %s'):format(key)) end
+        UiPromptDelete(value.handle)
+        self.prompts[key] = nil
+
+        if not next(self.prompts) then
+            self:Destroy()
+        end
+    end,
+
+    Pause        = function(self)
         if not self.isRunning then return end
         self.isRunning = false
     end,
 
-    Resume        = function(self, ...)
-        self:Update(...) -- constantly update the thread with new key and value this allows for use to update these values in the callback
+    Resume       = function(self)
         if self.isRunning then return end
-        self.isRunning = false
-        self:Start(self)
+        self:Start()
     end,
 
-    Start         = function(self, ...)
-        if self.isMultiple then
-            self:StartMultiple(...)
-        else
-            self:StartSingle(...)
+    Start        = function(self)
+        if self.isRunning then return end
+        self.isRunning = true
+
+        if self.marker then
+            self:CreateMarker()
         end
-    end,
 
-    Update        = function(self, ...)
-        self.customParams = { ... }
-    end,
-
-    StartSingle   = function(self)
-        if self.isRunning then return end
-        self.isRunning = true
         CreateThread(function()
+            self:SortPrompts()
             while self.isRunning do
-                local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
-                UiPromptSetActiveGroupThisFrame(self.promptGroup, groupLabel, 0, 0, 0, 0)
-                if self.promptType(self.promptID, 0) then
-                    self.callback(self:GetPromptKeyName(self.promptKey), self, table.unpack(self.customParams))
-                end
-                Wait(0)
-            end
-        end)
-    end,
+                -- can add here distance check to display prompts
+                local distance              = #(GetEntityCoords(PlayerPedId()) - self.coords)
+                local distanceCheck <const> = self.distance or 2.0
+                local sleep                 = self.sleep or 700
 
-    StartMultiple = function(self)
-        if self.isRunning then return end
-        self.isRunning = true
-        CreateThread(function()
-            while self.isRunning do
-                local groupLabel <const> = VarString(10, 'LITERAL_STRING', self.groupLabel)
-                UiPromptSetActiveGroupThisFrame(self.promptGroup, groupLabel, 0, 0, 0, 0)
-                for _, value in ipairs(self.prompts) do
-                    if value.promptType(value.promptID, 0) then
-                        self.callback(self:GetPromptKeyName(value.promptKey), self, table.unpack(self.customParams))
+                if distance <= distanceCheck then
+                    sleep = 0
+                    UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', self.label), 0, 0, 0, 0)
+
+                    for _, value in pairs(self.prompts) do
+                        if value._promptType(value.handle) then
+                            self.callback(value, self)
+                        end
                     end
                 end
-                Wait(0)
+                Wait(sleep)
             end
         end)
+    end,
+    -- allows to use key input as index to avoid loops
+    SortPrompts  = function(self)
+        -- only once
+        if self.isSorted then return end
+        self.isSorted = true
+
+        local sortedPrompts = {}
+        for _, value in ipairs(self.prompts) do
+            sortedPrompts[value.keyHash] = value
+        end
+        self.prompts = sortedPrompts
     end
 })
 
-function Prompts:isArrayOfTables(t)
-    if type(t) ~= "table" then
-        return false
-    end
 
-    if type(t[1]) ~= "table" then
-        return false
-    end
-
-    for k, _ in pairs(t) do
-        if type(k) ~= "number" then
-            return false
-        end
-    end
-
-    return true
-end
-
-function Prompts:InitializePrompts(data, isArray)
+function Prompts:InitializePrompts(data)
     local function normalizeKey(value)
-        if not promptKeys[value.promptKey] then
-            local containsUnderscore <const> = string.find(value.promptKey, '_')
+        if not promptKeys[value.key] then
+            local containsUnderscore <const> = string.find(value.key, '_')
             if not containsUnderscore then
-                error(('prompt key %s does not exist, available keys are %s'):format(value.promptKey, table.concat(promptKeys, ', ')))
+                error(('prompt key %s does not exist, available keys are %s'):format(value.key, table.concat(promptKeys, ', ')))
             end
-            return joaat(value.promptKey)
+            return joaat(value.key)
         end
-        return promptKeys[value.promptKey]
+        return promptKeys[value.key]
     end
 
-    --! dont think this is needed you can just loop over the register? either way it will stay here for future decisions
-    if isArray then
-        for _, value in ipairs(data) do
-            if not promptTypes[value.promptType] then
-                error(('prompt type %s does not exist, available types are %s'):format(value.promptType, table.concat(promptTypes, ', ')))
-            end
-
-            -- if type is a hash then no need to convert
-            if type(value.promptKey) == 'string' then
-                value.promptKey = normalizeKey(value.promptKey)
-            end
-
-            if not promptModes[value.promptMode] then
-                error(('prompt mode %s does not exist, available modes are %s'):format(value.promptMode, table.concat(promptModes, ', ')))
-            end
-
-            value.promptType = promptTypes[value.promptType]
-            value.promptMode = promptModes[value.promptMode]
+    -- if isArray then
+    for _, value in ipairs(data.prompts) do
+        if not promptTypes[value.type] then
+            error(('prompt type %s does not exist, available types are %s'):format(value.type, table.concat(promptTypes, ', ')))
         end
-        data.isMultiple = true
-        data.prompts = data
-        return data
+
+        -- if type is a hash then no need to convert
+        if type(value.key) == 'string' then
+            value.keyHash = normalizeKey(value)
+        end
+
+        if not promptModes[value.mode] then
+            error(('prompt mode %s does not exist, available modes are %s'):format(value.mode, table.concat(promptModes, ', ')))
+        end
+
+        value._promptType = promptTypes[value.type]
     end
-
-
-    if not promptTypes[data.promptType] then
-        error(('prompt type %s does not exist, available types are %s'):format(data.promptType, table.concat(promptTypes, ', ')))
-    end
-
-    if type(data.promptKey) == 'string' then
-        data.promptKey = normalizeKey(data.promptKey)
-    end
-
-    data.isMultiple = false
-    data.promptType = promptTypes[data.promptType]
-    data.promptMode = promptModes[data.promptMode]
 
     return data
 end
 
-function Prompts:Register(data, groupLabel, callback)
-    local isTable <const> = self:isArrayOfTables(data)
-    if not isTable then
-        error(('data must be a table or array, got %s'):format(type(data)))
+-- support only one way to register prompts if multiple and they want one just add one array lol
+function Prompts:Register(data, callback, state)
+    local processedData = self:InitializePrompts(data)
+    processedData.callback = callback
+    processedData.coords = data.coords
+    processedData.distance = data.distance
+    processedData.label = data.label
+    processedData.marker = data.marker
+    processedData.sleep = data.sleep
+
+    local instance = prompt:New(processedData)
+    if state then
+        instance:Start()
     end
 
-    if isTable then
-        data = self:InitializePrompts(data, true)
-    else
-        data = self:InitializePrompts(data, false)
-    end
-
-    data.callback = callback
-    data.groupLabel = groupLabel
-    local instance <const> = prompt:new(data)
     return instance
 end
 
@@ -426,70 +353,40 @@ return {
 }
 
 --[[
-------------------------------------------------------------------------------------------------------------------
--- register multiple prompts to the same group
+local LIB <const> = Import "prompts"
+-- register multiple prompts
 local data = {
-    { promptType = 'Press', promptKey = 'G', promptLabel = 'Standard Prompt', promptMode = 'Standard' },
-    { promptType = 'Press', promptKey = 'E', promptLabel = 'Standard Prompt', promptMode = 'Standard' }
+
+    coords = vector3(2868.43, 480.19, 65.02), -- center
+    distance = 2.0,                           -- radius
+    label = 'Billing Menu',
+    sleep = 700,                              -- or default is 700
+    marker = {                                -- if defined then will override the default marker
+        type = 0x94FDAE17,
+        color = { r = 0, g = 255, b = 0, a = 96 },
+        distance = 4.0, -- different from the distance of the prompts usually so player can see it from far away
+        scale = { x = 2.0, y = 2.0, z = 0.5 },
+    },
+    prompts = { -- group prompts
+        { type = 'Press', key = 'G', label = 'Draw Weapon',    mode = 'Standard' },
+        { type = 'Hold',  key = 'E', label = 'Holster Weapon', mode = 'Hold',    holdTime = 3000 }
+    }
+    -- if mode is hold then holdTime = 1000
+    -- if mode is mash then mashCount = 5
+    -- if mode is timed then timedMode = 5000
+    -- if mode is standard then releaseMode = true
+    -- if mode is standardized then eventHash = 'MEDIUM_TIMED_EVENT'
 }
 
--- supports table of data with single or multiple prompts
-local prompt = Prompts:Register(data, "group label", function(input, prompt, ...)
+local prompt = LIB.Prompts:Register(data, function(value)
     -- LOOK UP WITH STRING OR HASH
-    if input.promptKey == 'G' or input.promptHash == `INPUT_INTERACT_ANIMAL` then
-        prompt:SetPromptLabel('G pressed', 'G')
+    if value.key == 'G' then
+        return print('G pressed')
     end
 
-    if input.promptKey == 'E' then
-        prompt:SetPromptLabel('E pressed', 'E')
+    if value.key == 'E' then
+        return print('E pressed')
     end
-end)
-
--- do distance check to start and stop prompts
-prompt:Resume(...)
--------------------------------------------------------------------------------------------------------------------
--- single prompt
-local data = { promptType = 'Press', promptKey = 'E', promptLabel = 'Standard Prompt', promptMode = 'Standard' }
-local prompt = Prompts:Register(data, "group label", function(input, prompt, key, value)
-    -- promt E was pressed
-    print(key, value)
-end)
--- do distance check to start and stop prompts
-prompt:Resume(...)
-
--------------------------------------------------------------------------------------------------------------------
---* register multiple prompts without being in the same group
-local prompts = {}
-
-local data = {
-    { promptType = 'Press', promptKey = 'G', promptLabel = 'Standard Prompt', promptMode = 'Standard' },
-}
-
-for _, value in ipairs(data) do
-    prompts[#prompts + 1] = Prompts:Register(value, "group label", function(input, prompt, key,value)
-        if input.promptKey == 'G' then
-            prompt:SetPromptLabel('G pressed')
-        end
-
-        if input.promptKey == 'E' then
-            prompt:SetPromptLabel('E pressed')
-        end
-    end)
-end
-
--- do distance check to start and stop prompts
-for key, value in ipairs(prompts) do
-    local coords = GetEntityCoords(PlayerPedId())
-    local promptCoords = GetEntityCoords(value:GetPromptID())
-    local distance = #(coords - promptCoords)
-
-    if distance < 2 then         -- if key or value have changed you need to update the prompts data you sending
-        value:Resume(key, value) -- -- this data will be updated throught the callback
-    end
-
-    if distance > 2 then
-        value:Pause() -- will make the prompt stop displaying
-    end
-end
--------------------------------------------------------------------------------------------------------------------
-]]
+    print(value.key)
+end, true)
+ ]]

@@ -19,11 +19,12 @@ server_scripts {
 
 files {
     'import.lua',
-    'client/modules/*.lua',
-    'server/modules/*.lua',
-    'shared/*.lua',
+    'client/**/*',
+    'server/**/*',
+    'shared/**/*',
     'web/**/*',
 }
+
 ui_page 'web/index.html'
 
 version '0.1'

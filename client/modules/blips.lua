@@ -1,8 +1,9 @@
-local LIB <const>          = Import 'class'
+local LIB <const>              = Import 'class'
 
 ---@type table<number, Blip>
-local blipsTracker <const> = {}
-local blipColors <const>   = {
+local REGISTERED_BLIPS <const> = {}
+
+local COLORS <const>           = {
     blue = "BLIP_MODIFIER_MP_COLOR_1",
     red = "BLIP_MODIFIER_MP_COLOR_2",
     purple = "BLIP_MODIFIER_MP_COLOR_3",
@@ -11,7 +12,7 @@ local blipColors <const>   = {
     yellow = "BLIP_MODIFIER_MP_COLOR_6",
     pink = "BLIP_MODIFIER_MP_COLOR_7",
     green = "BLIP_MODIFIER_MP_COLOR_8",
-    brown = "BLIP_MODIFIER_MP_COLOR_9", -- needs finish up the rest
+    brown = "BLIP_MODIFIER_MP_COLOR_9", --todo: needs finish up the rest
     lightgreen = "BLIP_MODIFIER_MP_COLOR_10",
     turquoise = "BLIP_MODIFIER_MP_COLOR_11",
     lightpurple = "BLIP_MODIFIER_MP_COLOR_12",
@@ -38,8 +39,8 @@ local blipColors <const>   = {
 }
 
 --* BASE CLASS / SUPER CLASS / PARENT CLASS
----@class Map
-local Map                  = LIB.Class:Create({
+---@class MAP
+local Map                      = LIB.Class:Create({
 
     constructor = function(self, handle)
         self.handle = handle
@@ -47,7 +48,7 @@ local Map                  = LIB.Class:Create({
 
     set = {
 
-        RemoveBlip = function(self)
+        Remove = function(self)
             if not DoesBlipExist(self.handle) then
                 return
             end
@@ -82,7 +83,7 @@ local Map                  = LIB.Class:Create({
 
         -- same as above but only colors in case they want to use blue,red,yellow as key values
         AddModifierColor = function(self, modifier)
-            if not blipColors[modifier] then return error(('Color does not exist'):format(modifier)) end
+            if not COLORS[modifier] then return error(('Color does not exist'):format(modifier)) end
             BlipAddModifier(self.handle, modifier)
         end,
 
@@ -95,45 +96,45 @@ local Map                  = LIB.Class:Create({
         GetHandle = function(self)
             return self.handle
         end,
+
+        GetBlipColor = function(_, color)
+            local function errorCatch(value)
+                if not COLORS[value] then error(('Color not valid %s'):format(value), 2) end
+            end
+
+            if type(color) ~= "table" then
+                color = { color }
+            end
+            local t = {}
+
+            for k, value in ipairs(color) do
+                errorCatch(value)
+                t[k] = COLORS[value]
+            end
+
+            return table.unpack(t) -- multiple or single colors
+        end,
     },
 
-    GetBlipColor = function(_, color)
-        local function errorCatch(value)
-            if not blipColors[value] then error(('Color not valid %s'):format(value), 2) end
-        end
-
-        if type(color) ~= "table" then
-            color = { color }
-        end
-        local t = {}
-
-        for k, value in ipairs(color) do
-            errorCatch(value)
-            t[k] = blipColors[value]
-        end
-
-        return table.unpack(t) -- multiple or single colors
-    end,
-
     TrackBlips = function(_, handle)
-        blipsTracker[handle] = handle
+        REGISTERED_BLIPS[handle] = handle
     end,
 
     RemoveTrackedBlip = function(_, handle)
-        blipsTracker[handle] = nil
+        REGISTERED_BLIPS[handle] = nil
     end,
 
     GetTrackedBlips = function()
-        return blipsTracker
+        return REGISTERED_BLIPS
     end,
 
 })
 
 --* DERIVED CLASS / SUB CLASS / CHILD CLASS
----@class Blip: Map
-local Blip                 = LIB.Class:Create(Map)
+---@class Blip: MAP
+local Blip                     = LIB.Class:Create(Map)
 
-function Blip:CreateBlip(blipType, params)
+function Blip:Create(blipType, params)
     local handle
 
     if blipType == 'entity' then
@@ -178,11 +179,11 @@ function Blip:CreateBlip(blipType, params)
         return instance
     end
 
-    instance:SetSprite(options?.Sprite)
-    instance:SetName(options?.Name)
-    instance:SetStyle(options?.Style)
-    instance:AddModifier(options?.Modifier)
-    instance:AddModifierColor(options?.Color)
+    instance:SetSprite(options?.sprite)
+    instance:SetName(options?.name)
+    instance:SetStyle(options?.style)
+    instance:AddModifier(options?.modifier)
+    instance:AddModifierColor(options?.color)
 
     if params.OnCreate then
         params.OnCreate(instance)
@@ -192,11 +193,11 @@ function Blip:CreateBlip(blipType, params)
 end
 
 AddEventHandler('onResourceStop', function(resource)
-    if resource ~= GetCurrentResourceName() then
-        return
-    end
+    if resource ~= GetCurrentResourceName() then return end
 
-    for handle, _ in pairs(blipsTracker) do
+    print("^3CLEANUP^7 cleaning up all created blips")
+
+    for handle, _ in pairs(REGISTERED_BLIPS) do
         if DoesBlipExist(handle) then
             RemoveBlip(handle)
         end
@@ -205,30 +206,33 @@ end)
 
 
 return {
-    Map = Blip
+    Blips = Blip
 }
 
 -- EXAMPLE
---[[ local LIB <const> = Import 'map'
+--[[
+local LIB <const> = Import 'blips'
 
-local blip = LIB.Map:CreateBlip('radius', {
-    Entity = ped,
-    Pos = vector3(0, 0, 0),
-    Radius = 10.0,
-    P7 = 0,
-    Blip = 1,
-    Scale = vector3(1.0, 1.0, 1.0),
-    Options = { -- optional
-        Sprite = 1,
-        Name = 'Test',
-        Style = 1,
-        Modifier = 'BLIP_MODIFIER_MP_COLOR_1', -- int or string
-        Color = 'blue',                        -- internal color name
+local blip = LIB.Blips:Create('radius', {
+    --Entity = ped, -- if type is entity, you need to provide a handle
+    Pos = vector3(2865.88, 475.38, 66.09), -- position
+    Radius = 50.0,                         -- if type is radius or area
+    --  P7 = 0,                                -- optional default is 0
+    Blip = 1673015813,                     -- blip hash the style of the blip
+    --Scale = vector3(1.0, 1.0, 1.0),        -- for type area only
+    Options = {                            -- optional
+        --Sprite = 1,                        --string or integer
+        name = 'Test',
+        --  modifier = 'BLIP_MODIFIER_MP_COLOR_1', -- int or string
+        color = 'blue', -- internal color name
     },
     OnCreate = function(instance)
         print('Created', instance.handle)
+        local blue, red, yellow = instance:GetBlipColor({ 'blue', 'red', 'yellow' })
+        instance:AddModifier(red)
     end
-}) ]]
+})
+
 
 --[[ local handle = blip:GetHandle()
 blip:SetName('Test')
@@ -243,4 +247,4 @@ blip:RemoveModifierColor('blue')
 -- get blipcolor
 -- to use on your own scripts?
 -- local blue, red, yellow = LIB.Map:GetBlipColor({ 'blue', 'red', 'yellow' }) -- singe string or multiple colors
--- BlipAddModifier(blip, blue)
+-- BlipAddModifier(blip, blue)]]

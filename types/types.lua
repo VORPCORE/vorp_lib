@@ -1,47 +1,51 @@
--- ALL IS WIP
+-- WIP
 ---@meta
 
----@class Entity
----@field public New fun(self: Entity, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): Entity | nil
----@field private TrackEntity fun(self: Entity, handle: integer, entityType: string)
----@field private RemoveTrackedEntity fun(self: Entity, handle: integer, entityType: string)
----@field private ValidateEntity fun(self: Entity, handle: integer): boolean
----@field private GetNetworkID fun(self: Entity, handle: integer, isNetworked: boolean): integer
----@field private SetHeading fun(self: Entity, handle: integer, data: table)
----@field private SetEntityRotation fun(self: Entity, handle: integer, data: table)
----@field private SetPedIntoVehicle fun(self: Entity, handle: integer, data: table)
----@field private PlaceOnGround fun(self: Entity, handle: integer, data: table)
----@field private LoadModel fun(self: Entity, data: table)
----@field public GetNetID fun(self: Entity): integer
----@field public GetHandle fun(self: Entity): integer
----@field public GetModel fun(self: Entity): string | integer
----@field public DeleteEntity fun(self: Entity)
----@field public GetTrackedEntitiesByType fun(self: Entity, entityType: string) :table | nil static
----@field public GetNumberOfTrackedEntitiesByType fun(self: Entity, entityType: string): integer | nil static
----@field public SetPosition fun(self: Entity, pos: vector3 | {x: number, y: number, z: number,w: number} | vector4 | {x: number, y: number, z: number, w: number})
----@field public GetPosition fun(self: Entity): vector3
----@field public GetHeading fun(self: Entity): number
----@field public GetRotation fun(self: Entity): vector3
+---@class ENTITY
+---@field private New fun(self: ENTITY, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): ENTITY | nil
+---@field private TrackEntity fun(self: ENTITY, handle: integer, entityType: string)
+---@field private RemoveTrackedEntity fun(self: ENTITY, handle: integer, entityType: string)
+---@field private ValidateEntity fun(self: ENTITY, handle: integer): boolean
+---@field private GetNetworkID fun(self: ENTITY, handle: integer, isNetworked: boolean): integer
+---@field private SetHeading fun(self: ENTITY, handle: integer, data: table)
+---@field private SetEntityRotation fun(self: ENTITY, handle: integer, data: table)
+---@field private SetPedIntoVehicle fun(self: ENTITY, handle: integer, data: table)
+---@field private PlaceOnGround fun(self: ENTITY, handle: integer, data: table)
+---@field private LoadModel fun(self: ENTITY, data: table)
+---@field public GetNetID fun(self: ENTITY): integer
+---@field public GetHandle fun(self: ENTITY): integer
+---@field public GetModel fun(self: ENTITY): string | integer
+---@field public Delete fun(self: ENTITY)
+---@field public GetTrackedEntitiesByType fun(self: ENTITY, entityType: string) :table | nil static
+---@field public GetNumberOfTrackedEntitiesByType fun(self: ENTITY, entityType: string): integer | nil static
+---@field public SetPosition fun(self: ENTITY, pos: vector3 | {x: number, y: number, z: number,w: number} | vector4 | {x: number, y: number, z: number, w: number})
+---@field public GetPosition fun(self: ENTITY): vector3
+---@field public GetHeading fun(self: ENTITY): number
+---@field public GetRotation fun(self: ENTITY): vector3
 
 
----@class Ped : Entity
----@field public Create fun(self: Ped, data: table): Ped | nil
+---@class PED : ENTITY
+---@field public Create fun(self: PED, data: table): PED | nil
+---@field private New fun(self: PED, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): PED | nil
 
----@class Object : Entity
----@field public Create fun(self: Object, data: table): Object | nil
+---@class OBJECT : ENTITY
+---@field public Create fun(self: OBJECT, data: table): OBJECT | nil
+---@field private New fun(self: OBJECT, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): OBJECT | nil
 
----@class Vehicle : Entity
----@field public Create fun(self: Vehicle, data: table): Vehicle | nil
+---@class VEHICLE : ENTITY
+---@field public Create fun(self: VEHICLE, data: table): VEHICLE | nil
+---@field private New fun(self: VEHICLE, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): VEHICLE | nil
 
 
----@class Events
----@field public Register fun(self:Events, name:string|integer, group:integer, callback:fun(data:table):any):Events
----@field public Start fun(self:Events)
----@field public Pause fun(self:Events)
----@field public Resume fun(self:Events)
----@field public Destroy fun(self:Events)
+---@class EVENTS
+---@field public Register fun(self:EVENTS, name:string|integer, group:integer, callback:fun(), state:boolean):EVENTS
+---@field public Start fun(self:EVENTS)
+---@field public Pause fun(self:EVENTS)
+---@field public Resume fun(self:EVENTS)
+---@field public Destroy fun(self:EVENTS)
+---@field public DevMode fun(self:EVENTS, turn_on:boolean, events:string|integer|table|nil)
 
----@class Streaming
+---@class STREAMING
 ---@field public LoadModel fun(model: string | integer, timeout: integer?)
 ---@field public LoadTextureDict fun(dict: string, timeout: integer?)
 ---@field public LoadParticleFx fun(dict: string, timeout: integer?)
@@ -54,123 +58,143 @@
 ---@field public LoadClipSet fun(clipSet: string, timeout: number?)
 ---@field public LoadScene fun(pos: vector3 | {x: number, y: number, z: number}, offset: vector3 | {x: number, y: number, z: number}, radius: number, p7: integer)
 
----@class Notify
----@field public Left fun( self:Notify, title: string, subtitle: string, dict: string, icon: string, duration: number, color: string?): nil
----@field public Tip fun( self:Notify, tipMessage: string, duration?: number): nil
----@field public Top fun( self:Notify, message: string, location: string, duration?: number): nil
----@field public RightTip fun( self:Notify, tipMessage: string, duration?: number): nil
----@field public Objective fun( self:Notify, message: string, duration?: number): nil
----@field public SimpleTop fun( self:Notify, title: string,subTitle:string, duration?: number): nil
----@field public RightAdvanced fun( self:Notify, text: string, dict: string, icon: string, text_color: string, duration?: number, quality?: number, showquality?: boolean): nil
----@field public BasicTop fun( self:Notify, text: string, duration?: number): nil
----@field public Center fun( self:Notify, text: string, duration?: number, text_color?: string): nil
----@field public BottomRight fun( self:Notify, text: string, duration?: number): nil
----@field public Fail fun( self:Notify, title: string, subtitle: string, duration?: number): nil
----@field public Dead fun( self:Notify, title: string, audioRef: string, audioName: string, duration?: number): nil
----@field public Update fun( self:Notify, title: string, message: string, duration?: number): nil
----@field public Warning fun( self:Notify, title: string, message: string, audioRef: string, audioName: string, duration?: number): nil
----@field public NotifyLeftRank fun( self:Notify, title: string, subtitle: string, dict: string, texture: string, duration?: number, color?: string): nil
+---@class NOTIFY_CLIENT
+---@field public Left fun( self:NOTIFY_CLIENT, title: string, subtitle: string, dict: string, icon: string, duration: number, color: string?)
+---@field public Tip fun( self:NOTIFY_CLIENT, tipMessage: string, duration?: number)
+---@field public Top fun( self:NOTIFY_CLIENT, message: string, location: string, duration?: number)
+---@field public RightTip fun( self:NOTIFY_CLIENT, tipMessage: string, duration?: number)
+---@field public Objective fun( self:NOTIFY_CLIENT, message: string, duration?: number)
+---@field public SimpleTop fun( self:NOTIFY_CLIENT, title: string,subTitle:string, duration?: number)
+---@field public RightAdvanced fun( self:NOTIFY_CLIENT, text: string, dict: string, icon: string, text_color: string, duration?: number, quality?: number, showquality?: boolean)
+---@field public BasicTop fun( self:NOTIFY_CLIENT, text: string, duration?: number)
+---@field public Center fun( self:NOTIFY_CLIENT, text: string, duration?: number, text_color?: string)
+---@field public BottomRight fun( self:NOTIFY_CLIENT, text: string, duration?: number)
+---@field public Fail fun( self:NOTIFY_CLIENT, title: string, subtitle: string, duration?: number)
+---@field public Dead fun( self:NOTIFY_CLIENT, title: string, audioRef: string, audioName: string, duration?: number)
+---@field public Update fun( self:NOTIFY_CLIENT, title: string, message: string, duration?: number)
+---@field public Warning fun( self:NOTIFY_CLIENT, title: string, message: string, audioRef: string, audioName: string, duration?: number)
+---@field public NotifyLeftRank fun( self:NOTIFY_CLIENT, title: string, subtitle: string, dict: string, texture: string, duration?: number, color?: string)
 
----@class Map
----@field public New fun(self:Map, handle:number):Blip
----@field private TrackBlips fun(self:Map, handle:number)
----@field private GetTrackedBlips fun(self:Map):table<number, number>
----@field private GetTrackedBlipData fun(self:Map, handle:number):table
----@field private RemoveTrackedBlip fun(self:Map, handle:number)
----@field private GetBlipColor fun(self:Map, color:string | integer):table
----@field public handle number
----@field public RemoveBlip fun(self:Map)
----@field public SetName fun(self:Map, name:string)
----@field public SetCoords fun(self:Map, pos:vector3 | {x: number, y: number, z: number})
----@field public SetStyle fun(self:Map, style:number|integer)
----@field public SetScale fun(self:Map, scale:number)
----@field public SetSprite fun(self:Map, sprite:number|integer)
----@field public AddModifier fun(self:Map, modifier:string | integer)
----@field public RemoveModifier fun(self:Map, modifier:string|integer)
----@field public GetHandle fun(self:Map):number
----@field public AddModifierColor fun(self:Map, modifier:string | integer)
+---@class NOTIFY_SERVER
+---@field public Left fun( self:NOTIFY_SERVER, source: number, title: string, subtitle: string, dict: string, icon: string, duration: number, color: string?): nil
+---@field public Tip fun( self:NOTIFY_SERVER, source: number, tipMessage: string, duration?: number): nil
+---@field public Top fun( self:NOTIFY_SERVER, source: number, message: string, location: string, duration?: number): nil
+---@field public RightTip fun( self:NOTIFY_SERVER, source: number, tipMessage: string, duration?: number): nil
+---@field public Objective fun( self:NOTIFY_SERVER, source: number, message: string, duration?: number): nil
+---@field public SimpleTop fun( self:NOTIFY_SERVER, source: number, title: string,subTitle:string, duration?: number): nil
+---@field public RightAdvanced fun( self:NOTIFY_SERVER, source: number, text: string, dict: string, icon: string, text_color: string, duration?: number, quality?: number, showquality?: boolean): nil
+---@field public BasicTop fun( self:NOTIFY_SERVER, source: number, text: string, duration?: number): nil
+---@field public Center fun( self:NOTIFY_SERVER, source: number, text: string, duration?: number, text_color?: string): nil
+---@field public BottomRight fun( self:NOTIFY_SERVER, source: number, text: string, duration?: number): nil
+---@field public Fail fun( self:NOTIFY_SERVER, source: number, title: string, subtitle: string, duration?: number): nil
+---@field public Dead fun( self:NOTIFY_SERVER, source: number, title: string, audioRef: string, audioName: string, duration?: number): nil
+---@field public Update fun( self:NOTIFY_SERVER, source: number, title: string, message: string, duration?: number): nil
+---@field public Warning fun( self:NOTIFY_SERVER, source: number, title: string, message: string, audioRef: string, audioName: string, duration?: number): nil
+---@field public NotifyLeftRank fun( self:NOTIFY_SERVER, source: number, title: string, subtitle: string, dict: string, texture: string, duration?: number, color?: string): nil
 
----@class BlipParams
----@field public Options? BlipOptions
----@field public Entity? number
+
+---@class MAP
+---@field public New fun(self:MAP, handle:number):Blip
+---@field public TrackBlips fun(self:MAP, handle:number)
+---@field public GetTrackedBlips fun(self:MAP):table<number, number>
+---@field public GetTrackedBlipData fun(self:MAP, handle:number):table
+---@field public RemoveTrackedBlip fun(self:MAP, handle:number)
+---@field public GetBlipColor fun(self:MAP, color:string | integer):table
+---@field public Remove fun(self:MAP)
+---@field public SetName fun(self:MAP, name:string)
+---@field public SetCoords fun(self:MAP, pos:vector3 | {x: number, y: number, z: number})
+---@field public SetStyle fun(self:MAP, style:number|integer)
+---@field public SetScale fun(self:MAP, scale:number)
+---@field public SetSprite fun(self:MAP, sprite:number|integer)
+---@field public AddModifier fun(self:MAP, modifier:string | integer)
+---@field public RemoveModifier fun(self:MAP, modifier:string|integer)
+---@field public GetHandle fun(self:MAP):number
+---@field public AddModifierColor fun(self:MAP, modifier:string | integer)
+
+---@class BLIP_PARAMS
+---@field public Options? BLIP_OPTIONS
+---@field public Entity? number if type is entity, you need to provide a handle
 ---@field public Pos? vector3
----@field public Blip? number
----@field public Scale? vector3
----@field public Radius? number
----@field public P7? number
+---@field public Blip? number bliphash the style of the blip
+---@field public Scale? vector3 for type area only
+---@field public Radius? number for type radius or area
+---@field public P7? number default is 0
 ---@field public OnCreate? fun(instance:Blip)
 
----@class BlipOptions
----@field public Sprite? number
----@field public Name? string
----@field public Style? number
----@field public Modifier? string
----@field public Color? string
+---@class BLIP_OPTIONS
+---@field public sprite? number
+---@field public name? string
+---@field public style? number
+---@field public modifier? string
+---@field public color? string
+
+---@class BLIP: MAP
+---@field public Create fun(self:BLIP, blipType:'entity'|'coords'|'area'|'radius', params:BLIP_PARAMS):BLIP
 
 
----@class Blip: Map
----@field public CreateBlip fun(self:Blip, blipType:'entity'|'coords'|'area'|'radius', params:BlipParams):Blip
+---@class INPUTS
+---@field private New fun(self: INPUTS, inputParams: INPUT_PARAMS, callback: fun(input: INPUTS), state: boolean): INPUTS
+---@field public IsRunning fun(self: INPUTS): boolean
+---@field public Start fun(self: INPUTS)
+---@field public Remove fun(self: INPUTS)
+---@field public Pause fun(self: INPUTS)
+---@field public Resume fun(self: INPUTS)
+---@field public Register fun(self: INPUTS, inputParams: INPUT_PARAMS, callback:fun(input:INPUTS), state:boolean?):INPUTS
 
----@class Inputs
----@field private New fun(self: Inputs, inputParams: InputParams, callback: fun(input: Inputs), state: boolean): Inputs
----@field public IsRunning fun(self: Inputs): boolean
----@field public Start fun(self: Inputs)
----@field public Remove fun(self: Inputs)
----@field public Pause fun(self: Inputs)
----@field public Resume fun(self: Inputs)
----@field public Register fun(self: Inputs, inputParams: InputParams, callback:fun(input:Inputs), state:boolean?):Inputs
-
----@class InputParams
+---@class INPUT_PARAMS
 ---@field public inputType string
 ---@field public key string | number
----@field public callback fun(input: Inputs)
+---@field public callback fun(input: INPUTS)
 ---@field public state boolean
 
 
----@class Command
----@field private New fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
----@field public Register fun(self: Command, commandName: string, params: CommandParams, state: boolean?): Command
----@field public Pause fun(self: Command)
----@field public Start fun(self: Command)
----@field public Resume fun(self: Command)
----@field public Remove fun(self: Command)
----@field public Destroy fun(self: Command)
----@field public AddSuggestion fun(self: Command, target: number)
----@field public RemoveSuggestion fun(self: Command, target: number)
----@field public OnExecute? fun(self: Command, callback: fun(source: number, args: table, rawCommand: string))
----@field public OnError? fun(self: Command, callback: fun(error: string))
+---@class COMMANDS
+---@field private New fun(self: COMMANDS, commandName: string, params: COMMAND_PARAMS, state: boolean?): COMMANDS
+---@field private isRequiredArgument fun(self: COMMANDS, args: table)
+---@field private validate fun(self: COMMANDS, args: table)
+---@field private getTypes fun(self: COMMANDS, args: table)
+---@field public Register fun(self: COMMANDS, commandName: string, params: COMMAND_PARAMS, state: boolean?): COMMANDS
+---@field public Pause fun(self: COMMANDS)
+---@field public Start fun(self: COMMANDS)
+---@field public Resume fun(self: COMMANDS)
+---@field public Remove fun(self: COMMANDS)
+---@field public Destroy fun(self: COMMANDS)
+---@field public AddSuggestion fun(self: COMMANDS, target: number)
+---@field public RemoveSuggestion fun(self: COMMANDS, target: number)
+---@field public OnExecute? fun(self: COMMANDS, callback: fun(source: number, args: table, rawCommand: string))
+---@field public OnError? fun(self: COMMANDS, callback: fun(error: string))
 
 
----@class CommandParams
+---@class COMMAND_PARAMS
 ---@field public Permissions? {Jobs?:{ [string]:{ Ranks?:{[number]:boolean } | boolean }},Groups?:{[string]:{[string]:boolean }},CharIds?:{[number]:boolean },Ace?:string }
 ---@field public Suggestion? {Description: string, Arguments: {name: string, help: string, required: boolean, type: string}}
----@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: Command)
+---@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: COMMANDS)
 ---@field public OnError? fun(error: string)
 ---@field public State boolean?
 
----@class Points
----@field private New fun(self: Points, data: PointsParams): Points
----@field public Start fun(self: Points)
----@field public Pause fun(self: Points)
----@field public Resume fun(self: Points)
----@field public Destroy fun(self: Points)
----@field public OnEnter fun(self: Points, callback: fun(self: Points))
----@field public OnExit fun(self: Points, callback: fun(self: Points))
----@field public OnUpdate fun(self: Points, callback: fun(self: Points))
----@field public OnDestroy fun(self: Points, callback: fun(self: Points))
----@field public Register fun(self: Points, data: PointsParams, state: boolean?): Points
+---@class POINTS
+---@field private New fun(self: POINTS, data: POINTS_PARAMS): POINTS
+---@field public Start fun(self: POINTS)
+---@field public Pause fun(self: POINTS)
+---@field public Resume fun(self: POINTS)
+---@field public Destroy fun(self: POINTS)
+---@field public OnEnter fun(self: POINTS, callback: fun(self: POINTS))
+---@field public OnExit fun(self: POINTS, callback: fun(self: POINTS))
+---@field public OnUpdate fun(self: POINTS, callback: fun(self: POINTS))
+---@field public OnDestroy fun(self: POINTS, callback: fun(self: POINTS))
+---@field public Register fun(self: POINTS, data: POINTS_PARAMS, state: boolean?): POINTS
 
 
----@class PointsParams
+---@class POINTS_PARAMS
 ---@field public id string
 ---@field public coords vector3
 ---@field public distance number
 ---@field public wait number
----@field public onEnter fun(self: Points)
----@field public onExit fun(self: Points)
+---@field public onEnter fun(self: POINTS)
+---@field public onExit fun(self: POINTS)
 
 
----@class Functions
----@field public Switch fun(self: Functions): Functions
----@field public SetInterval fun(self: Functions): Functions
----@field public SetTimeout fun(self: Functions): Functions
+---@class FUNCTIONS
+---@field public Switch fun(self: FUNCTIONS): FUNCTIONS
+---@field public SetInterval fun(self: FUNCTIONS): FUNCTIONS
+---@field public SetTimeout fun(self: FUNCTIONS): FUNCTIONS

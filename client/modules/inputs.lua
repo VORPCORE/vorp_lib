@@ -1,8 +1,11 @@
 local LIB <const> = Import "class"
+local REGISTERED_INPUTS <const> = {}
+
+local Wait <const> = Wait
 
 print("^3WARNING: ^7module INPUTS is a work in progress use it at your own risk")
 
----@class Inputs
+---@class INPUTS
 local Inputs = {}
 
 ---@type table<string, function>
@@ -51,15 +54,19 @@ local inputKeys <const> = {
 
 local input = LIB.Class:Create({
     constructor = function(self, data)
+        self._keyHash = data._keyHash
         self.key = data.key
-        self.callback = data.callback
         self.inputType = data.inputType
+        self.callback = data.callback
+        self._inputType = data._inputType
         self.isRunning = data.isRunning
         self.isMultiple = data.isMultiple or false
+
         if data.isMultiple then
-            self.inputs = data.inputs or {}
+            self.inputs = data.inputs or { customParams = {} }
+        else
+            self.customParams = {}
         end
-        self.customParams = {}
     end,
 
     set = {
@@ -67,21 +74,55 @@ local input = LIB.Class:Create({
             self.isRunning = false
             self = nil
         end,
+        -- only if is multiple then remove the key
+        RemoveKey = function(self, key)
+            if self.isMultiple then
+                for index, input in ipairs(self.inputs) do
+                    if input.key == key then
+                        table.remove(self.inputs, index)
+                        break
+                    end
+                end
+            else
+                print("only usable for multiple inputs")
+            end
+        end,
 
         Pause = function(self)
             if not self.isRunning then return end
             self.isRunning = false
         end,
 
-        Resume = function(self, ...)
-            self:Update(...)
+        Resume = function(self)
             if self.isRunning then return end
             self.isRunning = false
             self:Start()
         end,
 
-        Update = function(self, ...)
-            self.customParams = { ... }
+
+        Update = function(self, data, key) -- only accept tables
+            if not data then
+                error("data is required")
+            end
+
+            if type(data) ~= "table" then
+                error("data must be a table")
+            end
+
+            if self.isMultiple then
+                if not key then
+                    error("key is required if using multiple inputs")
+                end
+
+                for _, input in ipairs(self.inputs) do
+                    if input.key == key then
+                        input.customParams = data
+                        break
+                    end
+                end
+            else
+                self.customParams = data
+            end
         end,
 
         Start = function(self, ...)
@@ -95,29 +136,33 @@ local input = LIB.Class:Create({
         StartSingle = function(self)
             if self.isRunning then return end
             self.isRunning = true
+
             CreateThread(function()
                 while self.isRunning do
                     Wait(0)
-                    if self.inputType(0, self.key) then
-                        self.callback(self, table.unpack(self.customParams))
+                    if self._inputType(0, self._keyHash) then
+                        self.callback(self, self.customParam)
                     end
                 end
             end)
+            -- can support draw text ? or html text on screen ?
         end,
 
         StartMultiple = function(self)
             if self.isRunning then return end
             self.isRunning = true
+
             CreateThread(function()
                 while self.isRunning do
                     Wait(0)
                     for _, input in ipairs(self.inputs) do
-                        if input.inputType(0, input.key) then
-                            input.callback(input, table.unpack(input.customParams))
+                        if input._inputType(0, input._keyHash) then
+                            self.callback(input, input.customParams)
                         end
                     end
                 end
             end)
+            -- can support draw text ? or html text on screen ?
         end
     }
 })
@@ -164,8 +209,8 @@ function Inputs:InitializeInputs(inputParams, isArray)
                 error(('input type %s does not exist, available are: Press, Hold, Release'):format(value.inputType))
             end
 
-            value.key = normalizeKey(value.key)
-            value.inputType = inputTypes[value.inputType]
+            value._keyHash = normalizeKey(value.key)
+            value._inputType = inputTypes[value.inputType]
         end
         inputParams.isMultiple = true
         inputParams.inputs = inputParams
@@ -176,60 +221,71 @@ function Inputs:InitializeInputs(inputParams, isArray)
         error(('input type %s does not exist, available are: Press, Hold, Release'):format(inputParams.inputType))
     end
 
-    inputParams.key = normalizeKey(inputParams.key)
-    inputParams.inputType = inputTypes[inputParams.inputType]
+    inputParams._keyHash = normalizeKey(inputParams.key)
+    inputParams._inputType = inputTypes[inputParams.inputType]
 
     return inputParams
 end
 
-
 function Inputs:Register(inputParams, callback, state)
     local isTable <const> = self:isArrayOfTables(inputParams)
-    if not isTable then
-        error(('data must be an array, got %s'):format(type(inputParams)))
-    end
-
     inputParams = self:InitializeInputs(inputParams, isTable)
     inputParams.callback = callback
 
-    local instance <const> = input:new(inputParams)
+    local instance <const> = input:New(inputParams)
     if state then
         instance:Start()
     end
 
+    table.insert(REGISTERED_INPUTS, instance)
+
     return instance
 end
+
+-- CLEAN UP
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    print("^3CLEANUP^7 cleaning up all registered inputs")
+
+    for _, self in ipairs(REGISTERED_INPUTS) do
+        self:Destroy()
+    end
+end)
+
 
 return {
     Input = Inputs
 }
 
 
+
+
 --[[ EXAMPLES
 
-local LIB <const> = Import "input"
+local LIB <const> = Import "inputs"
 
-local input = LIB.Input:Register({inputType = "Press", key = "E"},function(instance)
-    print("E was pressed")
-end, true)
+-- register one input
+local input = LIB.Input:Register({ inputType = "Release", key = "E" }, function(instance)
+    print("Pressed", instance.key, instance.inputType)
+end, true) -- state is true then it will start automatically
 
---state is false then use input:Start() to start when its needed like after a character is loaded
+-- multiple inputs
 local inputs = {
-    {inputType = "Press", key = "E"},
-    {inputType = "Hold", key = "W"},
-    {inputType = "Release"
+    { inputType = "Press",   key = "E" },
+    { inputType = "Hold",    key = "W" },
+    { inputType = "Release", key = "S" },
 }
 
-]]
-
---[[ LIB.Input:Register(inputs,function(input)
-       if input.key == "E" then
+local inputs = LIB.Input:Register(inputs, function(input)
+    if input.key == "E" then
         print("E was pressed")
-       elseif input.key == "W" then
-        print("W was held")
-       elseif input.key == "S" then
+    elseif input.key == "W" then
+        print("W is held")
+    elseif input.key == "S" then
         print("S was released")
-       end
+    end
 end, true)
+
 
 ]]

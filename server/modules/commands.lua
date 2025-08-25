@@ -21,18 +21,21 @@ local function hasPermissions(permissions, character, user, source)
     local allowed = false
     local errorType = ""
 
-    if not permissions.Jobs and not permissions.Groups and not permissions.CharIds then
+    if not permissions?.Jobs and not permissions?.Groups and not permissions?.CharIds then
         return true, nil
     end
 
-    if not next(permissions.Jobs) and not next(permissions.Groups) and not next(permissions.CharIds) then
+    if (not permissions?.Jobs or not next(permissions?.Jobs)) and
+        (not permissions?.Groups or not next(permissions?.Groups)) and
+        (not permissions?.CharIds or not next(permissions?.CharIds)) then
         return true, nil
     end
 
 
-    if permissions.Jobs[character.job] then
+    if permissions?.Jobs?[character.job] then
+        -- if is a table then has ranks to check
         if type(permissions.Jobs[character.job]) == "table" then
-            if permissions.Jobs[character.job].Ranks[character.grade] then
+            if permissions.Jobs[character.job][character.grade] then
                 allowed = true
             else
                 errorType = ERROR_TYPES.MISSING_GRADE
@@ -46,9 +49,7 @@ local function hasPermissions(permissions, character, user, source)
 
     if allowed then return true, nil end
 
-
-
-    if permissions.Groups.users then
+    if permissions?.Groups?.users then
         if not user and source then
             user = Core.getUser(source)
         end
@@ -60,7 +61,7 @@ local function hasPermissions(permissions, character, user, source)
         end
     end
 
-    if permissions.Groups.characters then
+    if permissions?.Groups?.characters then
         if permissions.Groups.characters[character.group] then
             return true, nil
         else
@@ -69,7 +70,7 @@ local function hasPermissions(permissions, character, user, source)
     end
 
 
-    if permissions.CharIds[character.id] then
+    if permissions?.CharIds?[character.charIdentifier] then
         return true, nil
     else
         errorType = ERROR_TYPES.MISSING_CHARACTER
@@ -78,74 +79,14 @@ local function hasPermissions(permissions, character, user, source)
     return false, errorType
 end
 
-local function isRequiredArgument(self, args)
-    for i = 1, #self.suggestion.arguments do
-        if self.suggestion.arguments[i].required and (not args[i] or args[i] == "") then
-            return ERROR_TYPES.MISSING_ARGUMENTS
-        end
-    end
-end
 
-local function validate(self, args, source, permissions)
-    local requiredError <const> = isRequiredArgument(self, args)
-    if requiredError then
-        return requiredError
-    end
-
-    if source == 0 then
-        return ERROR_TYPES.MISSING_USER
-    end
-
-    if not permissions then
-        return
-    end
-
-    if permissions.Ace then
-        return
-    end
-
-    local user <const> = Core.getUser(source)
-    if not user then
-        return ERROR_TYPES.MISSING_USER
-    end
-
-    local allowed, errorType <const> = hasPermissions(permissions, user.getUsedCharacter, user, source)
-
-    if allowed then
-        return
-    end
-
-    return errorType
-end
-
-local function checkType(self, args)
-    local suggestion <const> = self.suggestion
-    if suggestion and suggestion.Arguments then
-        for i = 1, #suggestion.Arguments do
-            local type <const> = suggestion.Arguments[i].type
-            if type == 'player' then
-                if not DoesPlayerExist(args[i]) then
-                    return false, ERROR_TYPES.MISSING_USER
-                end
-
-                args[i] = tonumber(args[i])
-            elseif type == 'number' then
-                if not tonumber(args[i]) then
-                    args[i] = tonumber(args[i])
-                end
-            end
-        end
-    end
-
-    return true, args
-end
 
 ---@class Command
 local Command <const> = LIB.Class:Create({
 
-    constructor = function(self, name, params, state)
+    constructor = function(self, name, params)
         self.name = name
-        self.isActive = state
+        self.isActive = false
         self.suggestion = params.Suggestion
         self.execute = params.OnExecute
         self.error = params.OnError
@@ -197,7 +138,7 @@ local Command <const> = LIB.Class:Create({
                     })
                 end
 
-                TriggerClientEvent("chat:addSuggestion", target, ("/%s"):format(self.name), suggestion.description, newArguments)
+                TriggerClientEvent("chat:addSuggestion", target, ("/%s"):format(self.name), suggestion.Description, newArguments)
             end
         end,
         -- only remove suggestion from player
@@ -238,17 +179,14 @@ local Command <const> = LIB.Class:Create({
             RegisterCommand(self.name, function(source, args, rawCommand)
                 if not self.isActive then return self.error(ERROR_TYPES.ACTIVE) end
 
-                local errorType <const> = validate(self, args, source, permissions)
+                local errorType <const> = self:validate(args, source, permissions)
                 if errorType then
                     return self.error and self.error(errorType) or print(errorType)
                 end
 
-                local success <const>, arguments <const> = checkType(self, args)
-                if not success then
-                    return self.error and self.error(arguments) or print(arguments)
-                end
+                args = self:getTypes(args)
 
-                self.execute(source, arguments, rawCommand, self)
+                self.execute(source, args, rawCommand, self)
             end, isRestricted)
 
             if isRestricted and principal then
@@ -263,6 +201,68 @@ local Command <const> = LIB.Class:Create({
             self.isRegistered = false
             COMMANDS_REGISTERED[self.name] = nil
             self = nil -- does it actually destroy it?
+        end,
+
+        isRequiredArgument = function(self, args)
+            for i = 1, #self.suggestion.Arguments do
+                if self.suggestion.Arguments[i].required and (not args[i] or args[i] == "") then
+                    return ERROR_TYPES.MISSING_ARGUMENTS
+                end
+            end
+        end,
+
+        validate = function(self, args, source, permissions)
+            local requiredError <const> = self:isRequiredArgument(args)
+            if requiredError then
+                return requiredError
+            end
+
+            if source == 0 then
+                return ERROR_TYPES.MISSING_USER
+            end
+
+            if not permissions then
+                return
+            end
+
+            if permissions.Ace then
+                return
+            end
+
+            local user <const> = Core.getUser(source)
+            if not user then
+                return ERROR_TYPES.MISSING_USER
+            end
+
+            local allowed, errorType <const> = hasPermissions(permissions, user.getUsedCharacter, user, source)
+            if allowed then
+                return
+            end
+
+            return errorType
+        end,
+
+        getTypes = function(self, args)
+            local arguments <const> = self.suggestion?.Arguments
+            if arguments and next(arguments) then
+                for i = 1, #arguments do
+                    local type <const> = arguments[i].type
+                    if type == 'integer' or type == "number" then
+                        if not DoesPlayerExist(args[i]) then
+                            return false, ERROR_TYPES.MISSING_USER
+                        end
+                        args[i] = tonumber(args[i])
+                    elseif type == 'message' then
+                        local messageArgs <const> = {}
+                        for j = i, #args do
+                            messageArgs[#messageArgs + 1] = args[j]
+                        end
+                        args[i] = table.concat(messageArgs, " ")
+                    end
+                end
+            end
+
+            return args
         end,
     },
 
@@ -307,7 +307,7 @@ function Command:Register(commandName, params, state)
         error(('command %s is already registered by %s'):format(commandName, isRegistered))
     end
 
-    local instance <const> = Command:New(commandName, params, state)
+    local instance <const> = Command:New(commandName, params)
     COMMANDS_REGISTERED[commandName] = instance
     if state then
         instance:Start()
@@ -315,6 +315,49 @@ function Command:Register(commandName, params, state)
 
     return instance
 end
+
+--CLEAN UP
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    for _, command in pairs(COMMANDS_REGISTERED) do
+        command:Destroy()
+    end
+end)
+
+-- FOR DEBUGGING
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    Wait(5000)
+    -- for when we restart the resouce to test the commands
+    if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
+
+    local character <const> = {
+        job = LocalPlayer.state.Character.Job,
+        grade = LocalPlayer.state.Character.Grade,
+        group = LocalPlayer.state.Character.Group,
+        charIdentifier = LocalPlayer.state.Character.CharId,
+    }
+
+    for _, command in pairs(COMMANDS_REGISTERED) do
+        -- if its active then add suggestions?
+        if command.isActive then
+            if command.permissions?.Ace then
+                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+                    local allowed <const> = hasPermissions(command.permissions, character, nil, source)
+                    if allowed then
+                        command:AddSuggestion(source)
+                    end
+                end
+            else
+                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+                    command:AddSuggestion(source)
+                end
+            end
+        end
+    end
+end)
+
 
 -- add command suggestions when a character is selected only
 AddEventHandler('vorp:SelectedCharacter', function(source, character)
@@ -343,82 +386,69 @@ end)
  ]]
 
 
--- when adding chat suggestions, the script will automatically add the suggestion to the player when they join with their character based on the permissions you set if any is true suggestion will be added. for this to work, you need to add the suggestion to the player manually.
-
--- to add suggestions or to remove them at run time you can use the methods:
--- command:AddSuggestion(source) -- will add the chat suggestion to the player
--- command:RemoveSuggestion(source) -- will remove the chat suggestion from the player
-
 -- example from here
-local LIB <const> = Import 'command'
-local Commands <const> = LIB.Commands --[[@as Command]] --to get intellisense
+--[[ local LIB <const> = Import 'command'
+local Commands <const> = LIB.Commands --@as Command --to get intellisense
 
 
-local permissions <const> = {
-    Ace = 'group.admin', -- ace permisions will override any other permisions you set. remove if you dont want to use this
-    --OPTIONAL
-    Groups = {           -- remove this to not use groups
-
-        users = {        -- from DB users table for admins
-            admin = true
-        },
-
-        characters = { -- from DB characters table for admins/character groups/gangs
-            gang = true
-        },
-    },
-
-    --OPTIONAL
-    Jobs = {       -- remove this to not use jobs
-        POLICE = { -- name of the job, if all grades are allowed just do POLICE = true instead of table (reduces code)
-            Ranks = {
-                [0] = false,
-                [1] = true
-            }
-        }
-    },
-
-    --OPTIONAL
-    -- for unique character permissions
-    CharIds = {
-        [1] = true,
-    },
-}
-
-local chatSuggestion <const> = {
-    Description = "description of command suggestion",
-    Arguments = {
-        { name = "Id",  help = "player id", type = "player", required = true }, -- required is optional
-        { name = "msg", help = "message",   type = "string", required = true }  -- if type is player will check if player exists
-    },
-}
 
 -- registers chat suggestion on char selected based on the permissions you set, or default to all players
 local command <const> = Commands:Register("commandName", {
-    Suggestion = chatSuggestion, -- OPTIONAL
-    Permissions = permissions,   -- OPTIONAL
 
-    -- Option 1 built in function for organization
+    Suggestion = {
+        Description = "description of command suggestion",
+        Arguments = {
+            { name = "Id",  help = "player id", type = "player",  required = true }, -- required is optional
+            { name = "msg", help = "message",   type = "message", required = true }  -- if type is player will check if player exists
+        },
+    },
 
-    -- Gets called when the command is valid, trigger events or functions here as you wish
-    -- args is an array of the arguments passed to the command, the script will update it with the correct type that you set in the chat suggestion
+    Permissions = {
+        Ace = 'group.admin', -- ace permisions will override any other permisions you set. remove if you dont want to use this
+        --OPTIONAL
+        Groups = {           -- remove this to not use groups checks
+
+            users = {        -- from DB users table for admins
+                admin = true
+            },
+
+            characters = { -- from DB characters table for admins/character groups/gangs
+                gang = true
+            },
+        },
+
+        --OPTIONAL
+        Jobs = {       -- remove this to not use job checks
+
+            POLICE = { -- leave true if no need to check grades other wise make it a table with the grades
+                [0] = false,
+                [1] = true
+            }
+        },
+
+        --OPTIONAL
+        CharIds = {
+            [1] = true,
+        },
+    },
+
     OnExecute = function(source, args, rawCommand, self)
         print(source, args, rawCommand, self)
     end,
 
-    -- Gets called when the command is not valid with the error type, allows to add your notify and translations
     OnError = function(error)
         if error == 'missing_arguments' then
             print('command usage: /commandName <id> <msg>')
         end
     end,
 
-}, true) -- if this is false then you need to resume the command manually yourself and add the chat suggestions manually too for each player.
+}, true) ]] -- if this is false then you need to resume the command manually yourself and add the chat suggestions manually too for each player.
+
 -- command:Start() -- will resume the command when you paused it or when you register it with false
 
 
 -- Option 2 use methods
-command:OnExecute(function(source, args, rawCommand)
+--[[ command:OnExecute(function(source, args, rawCommand)
     print(source, args, rawCommand)
 end)
 
@@ -426,9 +456,9 @@ command:OnError(function(error)
     if error == 'missing_arguments' then
         print('command usage: /commandName <id> <msg>')
     end
-end)
+end) ]]
 
 
--- make sure this is in your server.cfg
+--! make sure this is in your server.cfg for adding ace permissions or remove it if you dont want to use ace permissions
 --add_ace resource.vorp_lib command.add_ace allow
 --add_ace resource.vorp_lib command.remove_ace allow

@@ -1,10 +1,9 @@
--- TODO: add debug messages
 local LIB <const> = Import { 'class' }
 
 print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
 
 ---@type table<string, table<integer, integer>> Keep track of entities created
-local entityTracker <const> = {
+local REGISTERED_ENTITIES <const> = {
     Objects = {},
     Peds = {},
     Vehicles = {}
@@ -13,7 +12,7 @@ local entityTracker <const> = {
 ------------------------------------
 --* BASE CLASS / SUPERCLASS / PARENT CLASS
 --* ENTITY manager
----@class Entity
+---@class ENTITY
 local Entity <const> = LIB.Class:Create({
 
     ---@Constructor
@@ -28,10 +27,12 @@ local Entity <const> = LIB.Class:Create({
     ---@methods
     set = {
 
-        DeleteEntity = function(self)
+        Delete = function(self)
             if not DoesEntityExist(self.handle) then
                 return
             end
+
+            self.OnDelete(self.handle, self.netid)
 
             if self.netid and NetworkGetEntityIsNetworked(self.handle) then
                 TriggerServerEvent('vorp_library:Server:DeleteEntity', self.netid)
@@ -41,7 +42,7 @@ local Entity <const> = LIB.Class:Create({
                 DeleteEntity(self.handle)
             end
             self:RemoveTrackedEntity(self.handle, self.entityType)
-            self.OnDelete(self.handle) 
+            exports.vorp_lib:UntrackEntity(self.handle, self.entityType)
         end,
     },
 
@@ -50,31 +51,43 @@ local Entity <const> = LIB.Class:Create({
             return self.handle
         end,
 
-        GetNetID = function(self)
+        GetNetId = function(self)
             return self.netid
         end,
 
         GetModel = function(self)
-            return self.model
+            return GetEntityModel(self.handle)
+        end,
+
+        GetRotation = function(self)
+            return GetEntityRotation(self.handle)
+        end,
+
+        GetHeading = function(self)
+            return GetEntityHeading(self.handle)
+        end,
+
+        GetPosition = function(self)
+            return GetEntityCoords(self.handle)
         end,
     },
 
+    --local to this resource
     RemoveTrackedEntitiesByHandle = function(_, handle, entityType)
-        if not entityTracker[entityType] then return error('wrong entity type') end
-        entityTracker[entityType][handle] = nil
-        exports.vorp_lib:RemoveTrackedEntity(handle, entityType)
+        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
+        REGISTERED_ENTITIES[entityType][handle] = nil
     end,
 
     --local to this resource
     GetTrackedEntitiesByType = function(_, entityType)
-        if not entityTracker[entityType] then return error('wrong entity type') end
-        return entityTracker[entityType]
+        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
+        return REGISTERED_ENTITIES[entityType]
     end,
 
     --local to this resource
     GetNumberOfTrackedEntitiesByType = function(_, entityType)
-        if not entityTracker[entityType] then return error('wrong entity type') end
-        return #entityTracker[entityType]
+        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
+        return #REGISTERED_ENTITIES[entityType]
     end,
 
     LoadModel = function(_, data)
@@ -87,10 +100,10 @@ local Entity <const> = LIB.Class:Create({
         if not HasModelLoaded(model) then
             RequestModel(model, false)
             local startTime = GetGameTimer()
-            repeat Wait(0) until HasModelLoaded(model) or (GetGameTimer() - startTime) > 3000
+            repeat Wait(0) until HasModelLoaded(model) or (GetGameTimer() - startTime) > 5000
 
-            if (GetGameTimer() - startTime) > 2000 then
-                error(('Failed to load model: %s'):format(tostring(model)), 1)
+            if (GetGameTimer() - startTime) >= 5000 then
+                error(('Failed to load model: %s'):format(tostring(model)), 2)
             end
         end
 
@@ -102,8 +115,8 @@ local Entity <const> = LIB.Class:Create({
     end,
 
     TrackEntity = function(_, handle, entityType)
-        if not entityTracker[entityType] then return end
-        entityTracker[entityType][handle] = handle       -- as a local to this script
+        if not REGISTERED_ENTITIES[entityType] then return end
+        REGISTERED_ENTITIES[entityType][handle] = handle -- as a local to this script
         exports.vorp_lib:TrackEntity(handle, entityType) -- as a global for all scripts
     end,
 
@@ -127,13 +140,12 @@ local Entity <const> = LIB.Class:Create({
     end,
 
     SetHeading = function(_, handle, data)
-        if not Pos.w then return end
-        SetEntityHeading(handle, Pos.w)
+        if not data.w then return end
+        SetEntityHeading(handle, data.w)
     end,
 
     SetEntityRotation = function(_, handle, data)
         if not data.Rot?.Pos then return end
-
         SetEntityRotation(handle, data.Rot.Pos.x, data.Rot.Pos.y, data.Rot.Pos.z, data.Rot.Order or 1, data.Rot.P5 or false)
     end,
 
@@ -148,29 +160,21 @@ local Entity <const> = LIB.Class:Create({
         PlaceEntityOnGroundProperly(handle, false)
     end,
 
-    -- PUBLIC METHODS
-
-    GetPosition = function(self)
-        return GetEntityCoords(self.handle, true, false)
-    end,
-
-    GetHeading = function(self)
-        return GetEntityHeading(self.handle)
-    end,
-
-    GetRotation = function(self)
-        return GetEntityRotation(self.handle, 2)
-    end,
-
-    SetPosition = function(self, pos) -- accetps vector3 vector4 or table with heading as w
+    SetPosition = function(self, pos) -- accepts vector3 vector4 or table with heading as w
         if not pos then return end
-
-        if pos.x then
-            SetEntityCoords(self.handle, pos.x, pos.y, pos.z, false, false, false, true)
+        -- position and heading
+        if pos.x and pos.w then
+            return SetEntityCoordsAndHeading(self.handle, pos.x, pos.y, pos.z, pos.w, false, false, false)
         end
 
+        -- just position
+        if pos.x then
+            return SetEntityCoords(self.handle, pos.x, pos.y, pos.z, false, false, false, true)
+        end
+
+        -- just heading
         if pos.w then
-            SetEntityHeading(self.handle, pos.w)
+            return SetEntityHeading(self.handle, pos.w)
         end
     end,
 
@@ -181,7 +185,7 @@ local Entity <const> = LIB.Class:Create({
 -----------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* PEDS
----@class Ped
+---@class PED : ENTITY
 local Ped <const> = LIB.Class:Create(Entity)
 
 function Ped:Create(data)
@@ -191,21 +195,25 @@ function Ped:Create(data)
     if not Entity:ValidateEntity(handle) then
         return
     end
-    SetRandomOutfitVariation(handle, true) -- without this the ped will not be visible
 
-    Entity:TrackEntity(handle, 'Ped')
+    if data.Options?.OutfitPreset then
+        EquipMetaPedOutfitPreset(handle, data.Options?.OutfitPreset)
+    else
+        SetRandomOutfitVariation(handle, true) -- without this the ped will not be visible
+    end
+
+    Entity:TrackEntity(handle, 'Peds')
     Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Pos)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Ped:New(handle, netid, 'Ped', data.Model, data?.OnDelete) 
-
-    if not data.Options then
-        return instance
-    end
+    local instance <const> = Ped:New(handle, netid, 'Ped', data.Model, data?.OnDelete)
 
     if data.OnCreate then
         data.OnCreate(instance)
+    end
+
+    if not data.Options then
+        return instance
     end
 
     return instance
@@ -214,7 +222,7 @@ end
 ------------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* OBJECTS
----@class Object
+---@class OBJECT : ENTITY
 local Object <const> = LIB.Class:Create(Entity)
 
 function Object:Create(data)
@@ -225,21 +233,23 @@ function Object:Create(data)
         return
     end
 
-    Entity:TrackEntity(handle, 'Object')
+    Entity:TrackEntity(handle, 'Objects')
     Entity:PlaceOnGround(handle, data.Options)
     Entity:SetHeading(handle, data.Pos)
     Entity:SetEntityRotation(handle, data.Options)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Object:New(handle, netid, 'Object', data.Model, data?.OnDelete)
+    local instance <const> = Object:New(handle, netid, 'Objects', data.Model, data?.OnDelete)
+
+
+    if data.OnCreate then
+        data.OnCreate(instance)
+    end
 
     if not data.Options then
         return instance
     end
 
-    if data.OnCreate then
-        data.OnCreate(instance)
-    end
 
     return instance
 end
@@ -247,7 +257,7 @@ end
 ------------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* VEHICLES
----@class Vehicle
+---@class VEHICLE : ENTITY
 local Vehicle <const> = LIB.Class:Create(Entity)
 
 function Vehicle:Create(data)
@@ -257,20 +267,19 @@ function Vehicle:Create(data)
         return
     end
 
-    Entity:TrackEntity(handle, 'Vehicle')
+    Entity:TrackEntity(handle, 'Vehicles')
     Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Pos)
     Entity:SetPedIntoVehicle(handle, data.Options)
 
     local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Vehicle:New(handle, netid, 'Vehicle', data.Model, data?.OnDelete)
-
-    if not data.Options then
-        return instance
-    end
+    local instance <const> = Vehicle:New(handle, netid, 'Vehicles', data.Model, data?.OnDelete)
 
     if data.OnCreate then
         data.OnCreate(instance)
+    end
+
+    if not data.Options then
+        return instance
     end
 
     return instance
@@ -280,7 +289,7 @@ end
 AddEventHandler('onResourceStop', function(resource)
     if resource ~= GetCurrentResourceName() then return end
 
-    for _, handles in pairs(entityTracker) do
+    for _, handles in pairs(REGISTERED_ENTITIES) do
         for handle, _ in pairs(handles) do
             if DoesEntityExist(handle) then
                 DeleteEntity(handle)
@@ -299,23 +308,22 @@ return {
 }
 
 --[[ EXAMPLES
-local LIB <const> = Import 'entity'
+local LIB <const> = Import 'entities'
 
 local ped = LIB.Ped:Create({
-    Model = 'a_c_shep_01',
-    Pos = vector3(0, 0, 0),
+    Model = 'A_C_COW',
+    Pos = vector3(2854.6, 486.46, 63.98),
     IsNetworked = true,
     Options = {
         PlaceOnGround = true,
     },
     OnCreate = function(self)
-            print('Ped created use your own logic here handle: ', self:GetHandle())
+        print('Ped created use your own logic here handle: ', self:GetHandle())
     end,
-    OnDelete = function(self)
-            print('Ped deleted handle: ', self.handle)
+    OnDelete = function(handle, netid)
+        print('Ped deleted handle: ', handle, 'netid: ', netid)
     end
 })
 
-ped:GetHandle()
 
 ]]

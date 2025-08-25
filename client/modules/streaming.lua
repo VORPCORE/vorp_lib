@@ -1,6 +1,6 @@
 -- these need to be imported even if you just use one or 2, either we separate them in different modules or stay as they are.
--- these if imported they will be having its own instance meaning they will not be shared with any other clients, each script have its own, reducing the overhead.
----@class Streaming
+-- these if imported they will be having its own instance meaning they will not be shared with any other clients, each script have its own, reducing the overhead
+---@class STREAMING
 local Streaming = {}
 
 print("^3WARNING: ^7module STREAMING is a work in progress use it at your own risk")
@@ -226,6 +226,7 @@ function Streaming.LoadClipSet(clipSet, timeout)
     end)
 end
 
+-- loads the world around entity, but can cause crash if too many MLOS around ?
 function Streaming.LoadScene(pos, offset, radius, p7)
     if not IsLoadSceneActive() and not IsLoadSceneLoaded() then
         -- load the area, returns a boolean, will always be true unless `IS_PLAYER_SWITCH_IN_PROGRESS` is true

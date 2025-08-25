@@ -1,10 +1,12 @@
 local LIB <const> = Import "class"
 
----@class Notify
-local Notify = {}
+
 
 
 if not IsDuplicityVersion() then
+    ---@class NOTIFY_CLIENT
+    local Notify = {}
+
     local _LIB <const> = Import 'dataview'
     local DataView <const> = _LIB.DataView
 
@@ -78,7 +80,9 @@ if not IsDuplicityVersion() then
 
             Citizen.InvokeNative(0xB2920B9760F0F36B, structConfig:Buffer(), structData:Buffer(), 1)
         end,
-
+        --- client side notification
+        ---@param message string
+        ---@param duration number
         Objective = function(_, message, duration)
             Citizen.InvokeNative(0xDD1232B332CBB9E7, 3, 1, 0)
 
@@ -289,7 +293,8 @@ if not IsDuplicityVersion() then
 
     })
 
-    local notificationClient <const> = notifyClient:new()
+
+    local notificationClient <const> = notifyClient:New()
 
     CreateThread(function()
         local strings <const> = { "Left", "Tip", "Top", "RightTip", "Objective", "SimpleTop", "RightAdvanced", "BasicTop", "Center", "BottomRight", "Fail", "Dead", "Update", "Warning", "LeftRank" }
@@ -303,11 +308,10 @@ if not IsDuplicityVersion() then
     return {
         Notify = notificationClient
     }
-
-    --[[ EXAMPLE USAGE
-    Notify:Objective("Test", 3000)
-    ]]
 else
+    ---@class NOTIFY_SERVER
+    local Notify = {}
+
     local notifyServer <const> = LIB.Class:Create({
         constructor = function(_)
             return setmetatable({}, Notify)
@@ -372,13 +376,10 @@ else
 
     })
 
-    local notificationServer <const> = notifyServer:new()
+    ---@type NOTIFY_SERVER
+    local notificationServer <const> = notifyServer:New()
 
     return {
         Notify = notificationServer
     }
-
-    --[[ EXAMPLE USAGE
-    Notify:Objective(source, "Test", 3000)
-    ]]
 end

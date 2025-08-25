@@ -4,7 +4,13 @@ local GameEvents <const> = LIB.GameEvents
 
 print("^3WARNING: ^7module EVENTS is a work in progress use it at your own risk")
 
----@class Events
+local SCRIPT_EVENT_QUEUE_AI <const> = 0
+local SCRIPT_EVENT_QUEUE_NETWORK <const> = 1
+local EVENTS_TO_IGNORE <const> = {}
+local REGISTERED_EVENTS <const> = {}
+
+
+---@class EVENTS
 local Events = {}
 
 local event <const> = LIB.Class:Create({
@@ -14,6 +20,7 @@ local event <const> = LIB.Class:Create({
         self.eventGroup = group
         self.eventCallback = callback
         self.isRunning = false
+        self.developerMode = false
     end,
 
     set = {
@@ -27,16 +34,40 @@ local event <const> = LIB.Class:Create({
                         if size > 0 then
                             for i = 0, size - 1 do
                                 local eventAtIndex = GetEventAtIndex(eventgroup, i)
-                                if self.eventHash == eventAtIndex and GameEvents[self.eventHash] then
-                                    local data = GameEvents[self.eventHash]
-                                    local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
-                                    self:AllocateData(data, eventDataStruct)
-                                    local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), self.datasize)
-                                    local datafields = {}
-                                    if data_exists then
-                                        datafields = self:GetData(data, eventDataStruct)
+
+                                if self.developerMode then
+                                    if not EVENTS_TO_IGNORE[eventAtIndex] then
+                                        local data = GameEvents[eventAtIndex]
+                                        if data.datasize ~= 0 then
+                                            local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
+                                            self:AllocateData(data, eventDataStruct)
+                                            local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local datafields = {}
+                                            if data_exists then
+                                                datafields = self:GetData(data, eventDataStruct)
+                                            end
+                                            print("^3DEVMODE: EVENT AT INDEX^7", GameEvents[eventAtIndex]?.name, json.encode(datafields, { indent = true }))
+                                        end
                                     end
-                                    self.eventCallback(datafields)
+                                else
+                                    if self.eventHash == eventAtIndex and GameEvents[self.eventHash] then
+                                        local data = GameEvents[self.eventHash]
+
+                                        if data.datasize ~= 0 then
+                                            local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
+                                            self:AllocateData(data, eventDataStruct)
+                                            local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local datafields = {}
+                                            if data_exists then
+                                                datafields = self:GetData(data, eventDataStruct)
+                                            end
+
+
+                                            self.eventCallback(datafields)
+                                        else
+                                            self.eventCallback()
+                                        end
+                                    end
                                 end
                             end
                         end
@@ -82,13 +113,41 @@ local event <const> = LIB.Class:Create({
         Destroy = function(self)
             self.isRunning = false
             self = nil
-        end
+        end,
+
+        -- do not log events that are in the table to help with debug
+        DevMode = function(self, turn_on, events)
+            print("^3DEVMODE: ^7", turn_on, json.encode(events, { indent = true }))
+            events = events or {}
+            self.developerMode = turn_on
+
+            if type(events) ~= "table" then
+                events = { events }
+            end
+
+
+            if turn_on then
+                for _, v in ipairs(events) do
+                    if type(v) == "string" then
+                        v = joaat(v)
+                    end
+
+                    if not EVENTS_TO_IGNORE[v] then
+                        EVENTS_TO_IGNORE[v] = true
+                    end
+                end
+            else
+                table.wipe(EVENTS_TO_IGNORE)
+            end
+        end,
+
+
     }
 
 })
 
 ---@methods
-function Events:Register(name, group, callback)
+function Events:Register(name, group, callback, state)
     if type(name) == 'string' then
         name = joaat(name)
     end
@@ -97,11 +156,32 @@ function Events:Register(name, group, callback)
         error(('Event %s does not exist in the data file'):format(name))
     end
 
-    return event:new(name, group, callback)
+    if group ~= SCRIPT_EVENT_QUEUE_AI and group ~= SCRIPT_EVENT_QUEUE_NETWORK then
+        error('Invalid group provided. Must be either SCRIPT_EVENT_QUEUE_AI (0) or SCRIPT_EVENT_QUEUE_NETWORK (1).')
+    end
+    local instance <const> = event:New(name, group, callback)
+    if state then
+        instance:Start()
+    end
+
+    REGISTERED_EVENTS[#REGISTERED_EVENTS + 1] = instance
+
+    return instance
 end
 
+--CLEAN UP
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    print("^3CLEANUP^7 cleaning up all registered game events")
+
+    for _, self in ipairs(REGISTERED_EVENTS) do
+        self:Destroy()
+    end
+end)
+
 return {
-    Event = Events
+    Events = Events
 }
 
 -- example usage
@@ -116,3 +196,10 @@ return {
 --Event:Pause() -- pauses the event listener for this instance
 --Event:Resume() -- resumes the event listener for this instance
 --Event:Destroy() -- destroys the event listener for this instance
+
+-- for devmode just register any event and use the method events are optional allows to se all events being triggered
+--Event:DevMode(true) -- turn on devmode
+--Event:DevMode(false) -- turn off devmode
+-- hash or string
+--Event:DevMode(true, { `EVENT_PED_CREATED` }) -- turn on devmode and log only the event_ped_created
+--Event:DevMode(true, { "EVENT_PED_CREATED", "EVENT_PED_DESTROYED" }) -- turn on devmode and log only the event_ped_created and event_ped_destroyed

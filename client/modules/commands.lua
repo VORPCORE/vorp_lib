@@ -1,57 +1,24 @@
--- here we will add a register command classs for players to use
-
 local LIB <const> = Import 'class'
+
+print("^3WARNING: ^7module COMMANDS is a work in progress use it at your own risk")
 
 local COMMANDS_REGISTERED <const> = {}
 
 local ERROR_TYPES <const> = {
-    ARGUMENTS = 'missing_arguments',
+    MISSING_ARGUMENTS = 'missing_arguments',
     PERMISSION = 'missing_permission',
     TARGET = 'missing_target',
     ACTIVE = 'command_active',
 }
 
-local function isRequiredArgument(self, args)
-    for i = 1, #self.suggestion.arguments do
-        if self.suggestion.arguments[i].required and (not args[i] or args[i] == "") then
-            return ERROR_TYPES.MISSING_ARGUMENTS
-        end
-    end
-end
 
-local function validate(self, args)
-    local requiredError <const> = isRequiredArgument(self, args)
-    if requiredError then
-        return requiredError
-    end
 
-    return false
-end
--- need to check if args are empty
-local function checkType(self, args)
-    local suggestion <const> = self.suggestion
-    if suggestion?.Arguments then
-        for i = 1, #suggestion.Arguments do
-            local type <const> = suggestion.Arguments[i].type
-            if type == 'player' then
-                args[i] = tonumber(args[i])
-            elseif type == 'number' then
-                if not tonumber(args[i]) then
-                    args[i] = tonumber(args[i])
-                end
-            end
-        end
-    end
-
-    return true, args
-end
-
----@class Command
+---@class COMMANDS
 local Command <const> = LIB.Class:Create({
 
-    constructor = function(self, name, params, state)
+    constructor = function(self, name, params)
         self.name = name
-        self.isActive = state
+        self.isActive = false
         self.permissions = params.Permissions
         self.suggestion = params.Suggestion or {}
         self.execute = params.OnExecute
@@ -89,7 +56,7 @@ local Command <const> = LIB.Class:Create({
                     })
                 end
 
-                TriggerEvent("chat:addSuggestion", ("/%s"):format(self.name), suggestion.description, newArguments)
+                TriggerEvent("chat:addSuggestion", ("/%s"):format(self.name), suggestion.Description or "", newArguments)
             else
                 if self.error then
                     self.error(ERROR_TYPES.INVALID_SUGGESTION)
@@ -111,8 +78,45 @@ local Command <const> = LIB.Class:Create({
             self.isActive = true
         end,
 
-        Start = function(self)
-            if self.isActive then return print('command already resumed') end
+        isRequiredArgument = function(self, args)
+            for i = 1, #self.suggestion.Arguments do
+                if self.suggestion.Arguments[i].required and (not args[i] or args[i] == "") then
+                    return ERROR_TYPES.MISSING_ARGUMENTS
+                end
+            end
+        end,
+
+        validate = function(self, args)
+            local requiredError <const> = self:isRequiredArgument(args)
+            if requiredError then
+                return requiredError
+            end
+            return false
+        end,
+
+        getTypes = function(self, args)
+            local suggestion <const> = self.suggestion
+            if suggestion?.Arguments and next(suggestion.Arguments) then
+                for i = 1, #suggestion.Arguments do
+                    local type <const> = suggestion.Arguments[i].type
+                    if type then
+                        if type == 'number' or type == 'integer' then
+                            args[i] = tonumber(args[i])
+                        elseif type == 'message' then
+                            local messageArgs = {}
+                            for j = i, #args do
+                                messageArgs[#messageArgs + 1] = args[j]
+                            end
+                            args[i] = table.concat(messageArgs, " ")
+                        end
+                    end
+                end
+            end
+            return args
+        end,
+
+        Start = function(self, addSuggestion)
+            if self.isActive then return print('command already running') end
             self.isActive = true
 
             if self.isRegistered then return print('command already registered') end
@@ -129,20 +133,21 @@ local Command <const> = LIB.Class:Create({
                 end
             end
 
-            RegisterCommand(self.name, function(source, args, rawCommand)
+            if addSuggestion then
+                self:AddSuggestion()
+            end
+
+            RegisterCommand(self.name, function(_, args, rawCommand)
                 if not self.isActive then return self.error(ERROR_TYPES.ACTIVE) end
 
-                local validateError <const> = validate(self, args)
+                local validateError <const> = self:validate(args)
                 if validateError then
-                    return self.error and self.error(validateError) or print(validateError)
+                    return self.error and self.error(validateError)
                 end
 
-                local typeError <const> = checkType(self, args)
-                if typeError then
-                    return self.error and self.error(typeError) or print(typeError)
-                end
+                args = self:getTypes(args)
 
-                self.execute(source, args, rawCommand, self)
+                self.execute(args, rawCommand, self)
             end, isRestricted)
 
             -- we need to send to server to add the ace group, player will have to do it manually
@@ -188,7 +193,7 @@ function Command:Register(name, params, state)
         error(('command %s is already registered by %s'):format(name, isRegistered))
     end
 
-    local instance = Command:New(name, params, state)
+    local instance <const> = Command:New(name, params)
     COMMANDS_REGISTERED[name] = instance
     if state then
         instance:Start()
@@ -197,66 +202,125 @@ function Command:Register(name, params, state)
     return instance
 end
 
-RegisterNetEvent('vorp:SelectedCharacter', function()
-    -- here we start the commands registered
-    for _, command in pairs(COMMANDS_REGISTERED) do
-        if command.isActive then             -- if its  active that means user want to register the command right away
-            if command.permissions?.Ace then -- if not ace
-                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-                    command:AddSuggestion()
+--CLEAN UP
+AddEventHandler('onResourceStop', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+
+    print("^3CLEANUP^7 cleaning up all registered commands")
+
+    for _, self in pairs(COMMANDS_REGISTERED) do
+        self:Destroy()
+    end
+end)
+
+-- FOR DEBUGGING
+AddEventHandler('onResourceStart', function(resource)
+    if resource ~= GetCurrentResourceName() then return end
+    Wait(5000)
+    -- for when we restart the resouce to test the commands
+    if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
+
+
+    for _, self in pairs(COMMANDS_REGISTERED) do
+        if self.isActive then
+            if self.permissions?.Ace then
+                if self.suggestion?.Arguments and next(self.suggestion.Arguments) then
+                    self:AddSuggestion()
                 end
             else
                 -- if ace then add suggestion if any
-                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-                    command:AddSuggestion()
+
+                if self.suggestion?.Arguments and next(self.suggestion.Arguments) then
+                    self:AddSuggestion()
                 end
             end
         end
     end
 end)
 
---[[ return {
+-- if any was active then add suggestions when player enters character
+RegisterNetEvent('vorp:SelectedCharacter', function()
+    for _, self in pairs(COMMANDS_REGISTERED) do
+        if self.isActive then
+            if self.permissions?.Ace then
+                if self.suggestion?.Arguments and next(self.suggestion.Arguments) then
+                    self:AddSuggestion()
+                end
+            else
+                if self.suggestion?.Arguments and next(self.suggestion.Arguments) then
+                    self:AddSuggestion()
+                end
+            end
+        end
+    end
+end)
+
+return {
     Command = Command
-} ]]
+}
 
--- example usage client side
 
-local command <const> = LIB.Command:Register("commandName", {
+--[[
+
+local LIB <const> = Import "commands"
+
+
+local command <const> = LIB.Command:Register("billtest", {
 
     Suggestion = {
         Description = "description of command suggestion",
-        arguments = {
-            { name = "Id",  help = "player id", type = "player", required = true },
-            { name = "msg", help = "message",   type = "string", required = true }
+        Arguments = {
+            { name = "Id",  help = "player id", type = "integer", required = true },
+            { name = "msg", help = "message",   type = "message", required = true }
         }
     },
 
-    Permissions = {
-        Ace = "group.admin", -- or false
+    Permissions = { -- or remove
+        Ace = "group.admin", -- or false this will only allow users with acename.admin to be executed
     },
 
-    OnExecute = function(source, args, rawCommand, self)
-        print(source, args, rawCommand)
+    OnExecute = function(args, rawCommand, self)
+        print("command executed")
     end,
 
     OnError = function(error)
         if error == 'missing_arguments' then
-            print('command usage: /commandName <id> <msg>')
+            print('command usage: /billtest <id> <msg>')
         end
+        print(error, "OnError")
     end
-}, true) -- this param allows to not register just yet if true registers right away
+}, false) -- this param allows to not register just yet if true registers right away
 
---[[ -- when character is loaded
+-- when character is loaded
 
 -- if not defined onExecute or onError, it will use the default ones
-command:OnExecute(function(source, args, rawCommand)
-    print(source, args, rawCommand)
-    commands:Destroy()
+command:OnExecute(function(args, rawCommand)
+    Core.NotifyObjective("command executed: " .. args[2], 5000)
+    -- command:Destroy()
 end)
 
 command:OnError(function(error)
     if error == 'missing_arguments' then
-        print('command usage: /commandName <id> <msg>')
+        Core.NotifyObjective("command usage: /billtest <id> <msg>", 5000)
     end
 end)
- ]]
+
+RegisterCommand("pause", function(source, args, rawCommand)
+    command:Pause()
+end, false)
+
+--resume
+RegisterCommand("resume", function(source, args, rawCommand)
+    command:Resume()
+end, false)
+
+--destroy
+RegisterCommand("destroy", function(source, args, rawCommand)
+    command:Destroy()
+end, false)
+
+RegisterCommand("start", function()
+    command:Start(true) -- add suggestion if it hasnt been added yet
+end, false)
+
+]]
