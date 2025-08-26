@@ -28,6 +28,7 @@ local Command <const> = LIB.Class:Create({
 
     set = {
 
+        ---@public methods
         Remove = function(self)
             TriggerEvent("chat:removeSuggestion", ("/%s"):format(self.name))
             RegisterCommand(self.name, function() end, false)
@@ -78,41 +79,11 @@ local Command <const> = LIB.Class:Create({
             self.isActive = true
         end,
 
-        isRequiredArgument = function(self, args)
-            for i = 1, #self.suggestion.Arguments do
-                if self.suggestion.Arguments[i].required and (not args[i] or args[i] == "") then
-                    return ERROR_TYPES.MISSING_ARGUMENTS
-                end
-            end
-        end,
-
-        validate = function(self, args)
-            local requiredError <const> = self:isRequiredArgument(args)
-            if requiredError then
-                return requiredError
-            end
-            return false
-        end,
-
-        getTypes = function(self, args)
-            local suggestion <const> = self.suggestion
-            if suggestion?.Arguments and next(suggestion.Arguments) then
-                for i = 1, #suggestion.Arguments do
-                    local type <const> = suggestion.Arguments[i].type
-                    if type then
-                        if type == 'number' or type == 'integer' then
-                            args[i] = tonumber(args[i])
-                        elseif type == 'message' then
-                            local messageArgs = {}
-                            for j = i, #args do
-                                messageArgs[#messageArgs + 1] = args[j]
-                            end
-                            args[i] = table.concat(messageArgs, " ")
-                        end
-                    end
-                end
-            end
-            return args
+        Destroy = function(self)
+            self:Remove()
+            self.isRegistered = false
+            COMMANDS_REGISTERED[self.name] = nil
+            self = nil
         end,
 
         Start = function(self, addSuggestion)
@@ -140,12 +111,12 @@ local Command <const> = LIB.Class:Create({
             RegisterCommand(self.name, function(_, args, rawCommand)
                 if not self.isActive then return self.error(ERROR_TYPES.ACTIVE) end
 
-                local validateError <const> = self:validate(args)
+                local validateError <const> = self:_validate(args)
                 if validateError then
                     return self.error and self.error(validateError)
                 end
 
-                args = self:getTypes(args)
+                args = self:_getTypes(args)
 
                 self.execute(args, rawCommand, self)
             end, isRestricted)
@@ -153,12 +124,6 @@ local Command <const> = LIB.Class:Create({
             -- we need to send to server to add the ace group, player will have to do it manually
         end,
 
-        Destroy = function(self)
-            self:Remove()
-            self.isRegistered = false
-            COMMANDS_REGISTERED[self.name] = nil
-            self = nil
-        end,
     },
 
     OnExecute = function(self, callback)
@@ -167,6 +132,44 @@ local Command <const> = LIB.Class:Create({
 
     OnError = function(self, callback)
         self.error = callback
+    end,
+
+    ---@private methods
+    _validate = function(self, args)
+        local requiredError <const> = self:_isRequiredArgument(args)
+        if requiredError then
+            return requiredError
+        end
+        return false
+    end,
+
+    _isRequiredArgument = function(self, args)
+        for i = 1, #self.suggestion.Arguments do
+            if self.suggestion.Arguments[i].required and (not args[i] or args[i] == "") then
+                return ERROR_TYPES.MISSING_ARGUMENTS
+            end
+        end
+    end,
+
+    _getTypes = function(self, args)
+        local suggestion <const> = self.suggestion
+        if suggestion?.Arguments and next(suggestion.Arguments) then
+            for i = 1, #suggestion.Arguments do
+                local type <const> = suggestion.Arguments[i].type
+                if type then
+                    if type == 'number' or type == 'integer' then
+                        args[i] = tonumber(args[i])
+                    elseif type == 'message' then
+                        local messageArgs = {}
+                        for j = i, #args do
+                            messageArgs[#messageArgs + 1] = args[j]
+                        end
+                        args[i] = table.concat(messageArgs, " ")
+                    end
+                end
+            end
+        end
+        return args
     end
 })
 

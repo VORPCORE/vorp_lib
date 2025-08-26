@@ -44,6 +44,7 @@ local Map                      = LIB.Class:Create({
 
     constructor = function(self, handle)
         self.handle = handle
+        self:_TrackBlips()
     end,
 
     set = {
@@ -53,7 +54,7 @@ local Map                      = LIB.Class:Create({
                 return
             end
             RemoveBlip(self.handle)
-            self:RemoveTrackedBlip(self.handle)
+            self:_RemoveTrackedBlip()
         end,
 
         SetName = function(self, name)
@@ -116,16 +117,12 @@ local Map                      = LIB.Class:Create({
         end,
     },
 
-    TrackBlips = function(_, handle)
-        REGISTERED_BLIPS[handle] = handle
+    _TrackBlips = function(self)
+        REGISTERED_BLIPS[self.handle] = self.handle
     end,
 
-    RemoveTrackedBlip = function(_, handle)
-        REGISTERED_BLIPS[handle] = nil
-    end,
-
-    GetTrackedBlips = function()
-        return REGISTERED_BLIPS
+    _RemoveTrackedBlip = function(self)
+        REGISTERED_BLIPS[self.handle] = nil
     end,
 
 })
@@ -171,7 +168,6 @@ function Blip:Create(blipType, params)
         error('Creation of Blip failed', 2)
     end
 
-    Map:TrackBlips(handle)
     local instance <const> = Blip:New(handle)
 
     local options <const> = params.Options

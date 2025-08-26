@@ -93,27 +93,11 @@ local promptKeys <const> = {
 }
 
 
-function Prompts:SetUpPrompts(data)
-    local group <const> = GetRandomIntInRange(0, 0xffffff)
 
-    for _, value in ipairs(data.prompts) do
-        local prompt <const> = UiPromptRegisterBegin()
-        local text <const> = VarString(10, 'LITERAL_STRING', value.label)
-        UiPromptSetControlAction(prompt, value.keyHash)
-        UiPromptSetText(prompt, text)
-        UiPromptSetEnabled(prompt, true)
-        UiPromptSetVisible(prompt, true)
-        promptModes[value.mode](prompt, value)
-        UiPromptSetGroup(prompt, group, 0)
-        UiPromptRegisterEnd(prompt)
-        value.handle = prompt
-    end
-    return group, data.prompts
-end
 
 local prompt = LIB.Class:Create({
-    constructor  = function(self, data)
-        self.group, self.prompts = Prompts:SetUpPrompts(data)
+    constructor   = function(self, data)
+        self:_SetUpPrompts(data)
         self.coords = data.coords
         self.distance = data.distance
         self.label = data.label
@@ -123,7 +107,7 @@ local prompt = LIB.Class:Create({
         self.isRunning = false
     end,
 
-    get          = {
+    get           = {
         GetHandle = function(self, key)
             return self.prompts?[key].handle
         end,
@@ -142,7 +126,7 @@ local prompt = LIB.Class:Create({
 
     },
     -- updates the prompt data
-    set          = {
+    set           = {
         SetLabel = function(self, label, key)
             if type(label) ~= 'string' then return print('label must be a string') end
 
@@ -198,13 +182,30 @@ local prompt = LIB.Class:Create({
         end,
     },
 
-    CreateMarker = function(self)
+    _SetUpPrompts = function(self, data)
+        local group <const> = GetRandomIntInRange(0, 0xffffff)
+
+        for _, value in ipairs(data.prompts) do
+            local prompt <const> = UiPromptRegisterBegin()
+            local text <const> = VarString(10, 'LITERAL_STRING', value.label)
+            UiPromptSetControlAction(prompt, value.keyHash)
+            UiPromptSetText(prompt, text)
+            UiPromptSetEnabled(prompt, true)
+            UiPromptSetVisible(prompt, true)
+            promptModes[value.mode](prompt, value)
+            UiPromptSetGroup(prompt, group, 0)
+            UiPromptRegisterEnd(prompt)
+            value.handle = prompt
+        end
+        self.group = group
+        self.prompts = data.prompts
+    end,
+
+    _CreateMarker = function(self)
         CreateThread(function()
             while self.isRunning do
                 local distance <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
                 if distance <= self.marker.distance then
-                    -- if value.debug the
-
                     DrawMarker(
                         self.marker.type,
                         self.coords.x, self.coords.y, self.coords.z,
@@ -212,10 +213,9 @@ local prompt = LIB.Class:Create({
                         0.0, 0.0, 0.0,
                         self.marker.scale.x, self.marker.scale.y, self.marker.scale.z,
                         self.marker.color.r, self.marker.color.g, self.marker.color.b, self.marker.color.a,
-                        false, false, 2, nil, nil,
+                        false, false, 2, false, nil,
                         false, false
                     )
-                    -- end
                 end
 
                 Wait(0)
@@ -223,15 +223,16 @@ local prompt = LIB.Class:Create({
         end)
     end,
 
-    Destroy      = function(self)
+    Destroy       = function(self)
         for _, value in ipairs(self.prompts) do
             UiPromptDelete(value.handle)
         end
         self.isRunning = false
         self = nil
     end,
+
     -- removes entry for this specific prompt
-    Remove       = function(self, key)
+    Remove        = function(self, key)
         local value <const> = self.prompts[key]
         if not value then return print(('prompt not found with key %s'):format(key)) end
         UiPromptDelete(value.handle)
@@ -242,26 +243,26 @@ local prompt = LIB.Class:Create({
         end
     end,
 
-    Pause        = function(self)
+    Pause         = function(self)
         if not self.isRunning then return end
         self.isRunning = false
     end,
 
-    Resume       = function(self)
+    Resume        = function(self)
         if self.isRunning then return end
         self:Start()
     end,
 
-    Start        = function(self)
+    Start         = function(self)
         if self.isRunning then return end
         self.isRunning = true
 
         if self.marker then
-            self:CreateMarker()
+            self:_CreateMarker()
         end
 
         CreateThread(function()
-            self:SortPrompts()
+            self:_SortPrompts()
             while self.isRunning do
                 -- can add here distance check to display prompts
                 local distance              = #(GetEntityCoords(PlayerPedId()) - self.coords)
@@ -283,7 +284,7 @@ local prompt = LIB.Class:Create({
         end)
     end,
     -- allows to use key input as index to avoid loops
-    SortPrompts  = function(self)
+    _SortPrompts  = function(self)
         -- only once
         if self.isSorted then return end
         self.isSorted = true

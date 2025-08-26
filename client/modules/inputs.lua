@@ -9,7 +9,7 @@ print("^3WARNING: ^7module INPUTS is a work in progress use it at your own risk"
 local Inputs = {}
 
 ---@type table<string, function>
-local inputTypes <const> = {
+local INPUT_TYPES <const> = {
     Press = IsControlJustPressed,
     Hold = IsControlPressed,
     Release = IsControlJustReleased
@@ -54,37 +54,27 @@ local inputKeys <const> = {
 
 local input = LIB.Class:Create({
     constructor = function(self, data)
-        self._keyHash = data._keyHash
-        self.key = data.key
-        self.inputType = data.inputType
         self.callback = data.callback
-        self._inputType = data._inputType
+        self.inputType = data.inputType
         self.isRunning = data.isRunning
-        self.isMultiple = data.isMultiple or false
-
-        if data.isMultiple then
-            self.inputs = data.inputs or { customParams = {} }
-        else
-            self.customParams = {}
-        end
+        self.inputs = data.inputs or { customParams = {} }
     end,
 
+    ---@public methods
     set = {
+
         Destroy = function(self)
             self.isRunning = false
             self = nil
         end,
-        -- only if is multiple then remove the key
+
         RemoveKey = function(self, key)
-            if self.isMultiple then
-                for index, input in ipairs(self.inputs) do
-                    if input.key == key then
-                        table.remove(self.inputs, index)
-                        break
-                    end
+            for index, input in ipairs(self.inputs) do
+                -- input key was preserved for this
+                if input.key == key then
+                    table.remove(self.inputs, index)
+                    break
                 end
-            else
-                print("only usable for multiple inputs")
             end
         end,
 
@@ -100,7 +90,7 @@ local input = LIB.Class:Create({
         end,
 
 
-        Update = function(self, data, key) -- only accept tables
+        Update = function(self, data, key) 
             if not data then
                 error("data is required")
             end
@@ -109,46 +99,20 @@ local input = LIB.Class:Create({
                 error("data must be a table")
             end
 
-            if self.isMultiple then
                 if not key then
                     error("key is required if using multiple inputs")
                 end
 
                 for _, input in ipairs(self.inputs) do
+                    -- input key was preserved for this
                     if input.key == key then
                         input.customParams = data
                         break
                     end
                 end
-            else
-                self.customParams = data
-            end
         end,
 
-        Start = function(self, ...)
-            if self.isMultiple then
-                self:StartMultiple(...)
-            else
-                self:StartSingle(...)
-            end
-        end,
-
-        StartSingle = function(self)
-            if self.isRunning then return end
-            self.isRunning = true
-
-            CreateThread(function()
-                while self.isRunning do
-                    Wait(0)
-                    if self._inputType(0, self._keyHash) then
-                        self.callback(self, self.customParam)
-                    end
-                end
-            end)
-            -- can support draw text ? or html text on screen ?
-        end,
-
-        StartMultiple = function(self)
+        Start = function(self)
             if self.isRunning then return end
             self.isRunning = true
 
@@ -156,36 +120,24 @@ local input = LIB.Class:Create({
                 while self.isRunning do
                     Wait(0)
                     for _, input in ipairs(self.inputs) do
-                        if input._inputType(0, input._keyHash) then
+                        if input.inputType(0, input.keyHash) then
                             self.callback(input, input.customParams)
                         end
                     end
                 end
             end)
-            -- can support draw text ? or html text on screen ?
-        end
+        end,
+    },
+
+    get = {
+        GetIsRunning = function(self)
+            return self.isRunning
+        end,
     }
 })
 
-function Inputs:isArrayOfTables(t)
-    if type(t) ~= "table" then
-        return false
-    end
 
-    if type(t[1]) ~= "table" then
-        return false
-    end
-
-    for k, _ in pairs(t) do
-        if type(k) ~= "number" then
-            return false
-        end
-    end
-
-    return true
-end
-
-function Inputs:InitializeInputs(inputParams, isArray)
+function Inputs:InitializeInputs(inputParams)
     local function normalizeKey(key)
         if type(key) == 'string' then
             if not inputKeys[key] then
@@ -203,33 +155,21 @@ function Inputs:InitializeInputs(inputParams, isArray)
         return key
     end
 
-    if isArray then
-        for _, value in ipairs(inputParams) do
-            if not inputTypes[value.inputType] then
-                error(('input type %s does not exist, available are: Press, Hold, Release'):format(value.inputType))
-            end
-
-            value._keyHash = normalizeKey(value.key)
-            value._inputType = inputTypes[value.inputType]
+    for _, value in ipairs(inputParams) do
+        if not INPUT_TYPES[value.inputType] then
+            error(('input type %s does not exist, available are: Press, Hold, Release'):format(value.inputType))
         end
-        inputParams.isMultiple = true
-        inputParams.inputs = inputParams
-        return inputParams
+
+        value.keyHash = normalizeKey(value.key)
+        value.inputType = INPUT_TYPES[value.inputType]
     end
 
-    if not inputTypes[inputParams.inputType] then
-        error(('input type %s does not exist, available are: Press, Hold, Release'):format(inputParams.inputType))
-    end
-
-    inputParams._keyHash = normalizeKey(inputParams.key)
-    inputParams._inputType = inputTypes[inputParams.inputType]
-
+    inputParams.inputs = inputParams
     return inputParams
 end
 
 function Inputs:Register(inputParams, callback, state)
-    local isTable <const> = self:isArrayOfTables(inputParams)
-    inputParams = self:InitializeInputs(inputParams, isTable)
+    inputParams = self:InitializeInputs(inputParams)
     inputParams.callback = callback
 
     local instance <const> = input:New(inputParams)

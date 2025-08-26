@@ -1,4 +1,4 @@
-local LIB <const> = Import { 'class' }
+local LIB <const> = Import  'class' 
 
 print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
 

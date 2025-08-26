@@ -40,11 +40,11 @@ local event <const> = LIB.Class:Create({
                                         local data = GameEvents[eventAtIndex]
                                         if data.datasize ~= 0 then
                                             local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:AllocateData(data, eventDataStruct)
+                                            self:_AllocateData(data, eventDataStruct)
                                             local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
-                                                datafields = self:GetData(data, eventDataStruct)
+                                                datafields = self:_GetData(data, eventDataStruct)
                                             end
                                             print("^3DEVMODE: EVENT AT INDEX^7", GameEvents[eventAtIndex]?.name, json.encode(datafields, { indent = true }))
                                         end
@@ -55,7 +55,7 @@ local event <const> = LIB.Class:Create({
 
                                         if data.datasize ~= 0 then
                                             local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:AllocateData(data, eventDataStruct)
+                                            self:_AllocateData(data, eventDataStruct)
                                             local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
@@ -77,7 +77,7 @@ local event <const> = LIB.Class:Create({
             end
         end,
 
-        GetData = function(_, event, eventDataStruct)
+        _GetData = function(_, event, eventDataStruct)
             local datafields = {}
 
             for p = 0, event.datasize - 1, 1 do
@@ -91,7 +91,7 @@ local event <const> = LIB.Class:Create({
             return datafields
         end,
 
-        AllocateData = function(_, event, eventDataStruct)
+        _AllocateData = function(_, event, eventDataStruct)
             for p = 0, event.datasize - 1, 1 do
                 local current_data_element = event.dataelements[p]
                 if current_data_element and current_data_element.type == 'float' then
