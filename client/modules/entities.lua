@@ -16,15 +16,45 @@ local REGISTERED_ENTITIES <const> = {
 local Entity <const> = LIB.Class:Create({
 
     ---@Constructor
-    constructor = function(self, handle, netid, entityType, model, OnDelete)
-        self.handle = handle
-        self.netid = netid
-        self.entityType = entityType
-        self.model = model
-        self.OnDelete = OnDelete
+    constructor = function(self, entityType, data)
+        self.model = data.Model
+        ---@private
+        self._entityType = entityType
+
+        self:_LoadModel(data)
+
+        if self._entityType == 'Peds' then
+            self.handle = CreatePed(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostPed, data.P7, data.P8)
+        elseif self._entityType == 'Objects' then
+            self.handle = CreateObject(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.IsNetworked, data.ScriptHostObj, data.Dynamic, data.P7, data.P8)
+            self:_SetHeading(data.Pos)
+        elseif self._entityType == 'Vehicles' then
+            self.handle = CreateVehicle(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostVeh, data.DontAutoCreateDraftAnimals, data.P8)
+        end
+
+        if not self:_ValidateEntity() then
+            return print(('Failed to create entity, pool full? entity type: %s handle: %s is networked: %s'):format(self._entityType, self.handle, data.IsNetworked))
+        end
+
+        self:_PlaceOnGround(data.Options)
+        self:_SetEntityRotation(data.Options)
+        self:_SetPedIntoVehicle(data.Options)
+
+        self:_TrackEntity()
+
+        if data.IsNetworked then
+            self.netid = NetworkGetNetworkIdFromEntity(self.handle)
+        end
+
+        self.OnDelete = data?.OnDelete
+
+        if data.OnCreate then
+            data.OnCreate(self)
+        end
     end,
 
     ---@methods
+    -- public setters
     set = {
 
         Delete = function(self)
@@ -32,7 +62,9 @@ local Entity <const> = LIB.Class:Create({
                 return
             end
 
-            self.OnDelete(self.handle, self.netid)
+            if self.OnDelete then
+                self.OnDelete(self.handle, self.netid)
+            end
 
             if self.netid and NetworkGetEntityIsNetworked(self.handle) then
                 TriggerServerEvent('vorp_library:Server:DeleteEntity', self.netid)
@@ -41,11 +73,35 @@ local Entity <const> = LIB.Class:Create({
                 SetEntityAsNoLongerNeeded(self.handle)
                 DeleteEntity(self.handle)
             end
-            self:RemoveTrackedEntity(self.handle, self.entityType)
-            exports.vorp_lib:UntrackEntity(self.handle, self.entityType)
+
+            self:_RemoveTrackedEntity()
+            exports.vorp_lib:UntrackEntity(self.handle, self._entityType)
+
+            self.OnDelete = nil
+            self.handle = nil
+            self.netid = nil
+            self.model = nil
+            self._entityType = nil
+        end,
+
+        SetPosition = function(self, pos) -- accepts vector3 vector4 or table with heading as w
+            if not pos then return end
+
+            if pos.x and pos.w then
+                return SetEntityCoordsAndHeading(self.handle, pos.x, pos.y, pos.z, pos.w, false, false, false)
+            end
+
+            if pos.x then
+                return SetEntityCoords(self.handle, pos.x, pos.y, pos.z, false, false, false, true)
+            end
+
+            if pos.w then
+                return SetEntityHeading(self.handle, pos.w)
+            end
         end,
     },
 
+    -- public methods
     get = {
         GetHandle = function(self)
             return self.handle
@@ -72,26 +128,24 @@ local Entity <const> = LIB.Class:Create({
         end,
     },
 
-    --local to this resource
-    RemoveTrackedEntitiesByHandle = function(_, handle, entityType)
-        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
-        REGISTERED_ENTITIES[entityType][handle] = nil
+    ---@private methods
+    _RemoveTrackedEntity = function(self)
+        if not REGISTERED_ENTITIES[self._entityType] then return end
+        REGISTERED_ENTITIES[self._entityType][self.handle] = nil
     end,
 
-    --local to this resource
-    GetTrackedEntitiesByType = function(_, entityType)
-        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
-        return REGISTERED_ENTITIES[entityType]
+    _GetTrackedEntitiesByType = function(self)
+        if not REGISTERED_ENTITIES[self._entityType] then return end
+        return REGISTERED_ENTITIES[self._entityType]
     end,
 
-    --local to this resource
-    GetNumberOfTrackedEntitiesByType = function(_, entityType)
-        if not REGISTERED_ENTITIES[entityType] then return error('wrong entity type') end
-        return #REGISTERED_ENTITIES[entityType]
+    _GetNumberOfTrackedEntitiesByType = function(self)
+        if not REGISTERED_ENTITIES[self._entityType] then return end
+        return #REGISTERED_ENTITIES[self._entityType]
     end,
 
-    LoadModel = function(_, data)
-        local model = data.Model
+    _LoadModel = function(self, data)
+        local model = self.model
 
         if not IsModelValid(model) then
             error(('Invalid model name or hash: %s'):format(tostring(model)), 2)
@@ -107,79 +161,54 @@ local Entity <const> = LIB.Class:Create({
             end
         end
 
-        local timeout = data.Options?.Timeout
+        local timeout = data?.Options?.Timeout
         if not timeout then return end
         SetTimeout(timeout, function()
             SetModelAsNoLongerNeeded(model)
         end)
     end,
 
-    TrackEntity = function(_, handle, entityType)
-        if not REGISTERED_ENTITIES[entityType] then return end
-        REGISTERED_ENTITIES[entityType][handle] = handle -- as a local to this script
-        exports.vorp_lib:TrackEntity(handle, entityType) -- as a global for all scripts
+    _TrackEntity = function(self)
+        if not REGISTERED_ENTITIES[self._entityType] then return end
+        REGISTERED_ENTITIES[self._entityType][self.handle] = self.handle -- as a local to this script
+        exports.vorp_lib:TrackEntity(self.handle, self._entityType)      -- as a global for all scripts
     end,
 
-    ValidateEntity = function(_, handle)
+    _ValidateEntity = function(self)
+        if self.handle == 0 then return false end
+
         local startTime <const> = GetGameTimer()
-        repeat Wait(0) until DoesEntityExist(handle) or (GetGameTimer() - startTime) > 5000
+        repeat Wait(0) until DoesEntityExist(self.handle) or (GetGameTimer() - startTime) > 5000
         if (GetGameTimer() - startTime) > 5000 then
             print('Failed to create entity, pool full?')
             return false
         end
+
         return true
     end,
 
-    GetNetworkID = function(_, handle, isNetworked)
-        local netid = nil
-        if isNetworked then
-            netid = NetworkGetNetworkIdFromEntity(handle)
-        end
 
-        return netid
-    end,
-
-    SetHeading = function(_, handle, data)
+    _SetHeading = function(self, data)
         if not data.w then return end
-        SetEntityHeading(handle, data.w)
+        SetEntityHeading(self.handle, data.w)
     end,
 
-    SetEntityRotation = function(_, handle, data)
+    _SetEntityRotation = function(self, data)
         if not data.Rot?.Pos then return end
-        SetEntityRotation(handle, data.Rot.Pos.x, data.Rot.Pos.y, data.Rot.Pos.z, data.Rot.Order or 1, data.Rot.P5 or false)
+        SetEntityRotation(self.handle, data.Rot.Pos.x, data.Rot.Pos.y, data.Rot.Pos.z, data.Rot.Order or 1, data.Rot.P5 or false)
     end,
 
-    SetPedIntoVehicle = function(_, handle, data)
+    _SetPedIntoVehicle = function(self, data)
         local ped = data.Seat?.Ped or PlayerPedId()
         local seat = data.Seat?.Index or -1
-        SetPedIntoVehicle(ped, handle, seat)
+        SetPedIntoVehicle(ped, self.handle, seat)
     end,
 
-    PlaceOnGround = function(_, handle, data)
+    _PlaceOnGround = function(self, data)
         if not data?.PlaceOnGround then return end
-        PlaceEntityOnGroundProperly(handle, false)
+        PlaceEntityOnGroundProperly(self.handle, false)
     end,
-
-    SetPosition = function(self, pos) -- accepts vector3 vector4 or table with heading as w
-        if not pos then return end
-        -- position and heading
-        if pos.x and pos.w then
-            return SetEntityCoordsAndHeading(self.handle, pos.x, pos.y, pos.z, pos.w, false, false, false)
-        end
-
-        -- just position
-        if pos.x then
-            return SetEntityCoords(self.handle, pos.x, pos.y, pos.z, false, false, false, true)
-        end
-
-        -- just heading
-        if pos.w then
-            return SetEntityHeading(self.handle, pos.w)
-        end
-    end,
-
 })
-
 
 
 -----------------------------------
@@ -189,31 +218,17 @@ local Entity <const> = LIB.Class:Create({
 local Ped <const> = LIB.Class:Create(Entity)
 
 function Ped:Create(data)
-    Entity:LoadModel(data)
-
-    local handle <const> = CreatePed(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostPed, data.P7, data.P8)
-    if not Entity:ValidateEntity(handle) then
-        return
-    end
-
-    if data.Options?.OutfitPreset then
-        EquipMetaPedOutfitPreset(handle, data.Options?.OutfitPreset)
-    else
-        SetRandomOutfitVariation(handle, true) -- without this the ped will not be visible
-    end
-
-    Entity:TrackEntity(handle, 'Peds')
-    Entity:PlaceOnGround(handle, data.Options)
-
-    local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Ped:New(handle, netid, 'Ped', data.Model, data?.OnDelete)
-
-    if data.OnCreate then
-        data.OnCreate(instance)
-    end
+    local instance <const> = Ped:New('Peds', data)
 
     if not data.Options then
+        SetRandomOutfitVariation(instance.handle, true) -- without this the ped will not be visible
         return instance
+    else
+        if data.Options?.OutfitPreset then
+            EquipMetaPedOutfitPreset(instance.handle, data.Options?.OutfitPreset,true)
+        else
+            SetRandomOutfitVariation(instance.handle, true)
+        end
     end
 
     return instance
@@ -226,32 +241,7 @@ end
 local Object <const> = LIB.Class:Create(Entity)
 
 function Object:Create(data)
-    Entity:LoadModel(data)
-
-    local handle <const> = CreateObject(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.IsNetworked, data.ScriptHostObj, data.Dynamic, data.P7, data.P8)
-    if not Entity:ValidateEntity(handle) then
-        return
-    end
-
-    Entity:TrackEntity(handle, 'Objects')
-    Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetHeading(handle, data.Pos)
-    Entity:SetEntityRotation(handle, data.Options)
-
-    local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Object:New(handle, netid, 'Objects', data.Model, data?.OnDelete)
-
-
-    if data.OnCreate then
-        data.OnCreate(instance)
-    end
-
-    if not data.Options then
-        return instance
-    end
-
-
-    return instance
+    return Object:New('Objects', data)
 end
 
 ------------------------------------
@@ -261,28 +251,7 @@ end
 local Vehicle <const> = LIB.Class:Create(Entity)
 
 function Vehicle:Create(data)
-    Entity:LoadModel(data)
-    local handle <const> = CreateVehicle(data.Model, data.Pos.x, data.Pos.y, data.Pos.z, data.Pos?.w or 0.0, data.IsNetworked, data.ScriptHostVeh, data.DontAutoCreateDraftAnimals, data.P8)
-    if not Entity:ValidateEntity(handle) then
-        return
-    end
-
-    Entity:TrackEntity(handle, 'Vehicles')
-    Entity:PlaceOnGround(handle, data.Options)
-    Entity:SetPedIntoVehicle(handle, data.Options)
-
-    local netid <const> = Entity:GetNetworkID(handle, data.IsNetworked)
-    local instance <const> = Vehicle:New(handle, netid, 'Vehicles', data.Model, data?.OnDelete)
-
-    if data.OnCreate then
-        data.OnCreate(instance)
-    end
-
-    if not data.Options then
-        return instance
-    end
-
-    return instance
+    return Vehicle:New('Vehicles', data)
 end
 
 -- support for deleting entities created by this resource
@@ -299,7 +268,6 @@ AddEventHandler('onResourceStop', function(resource)
 
     print('Deleted all entities created by this resource')
 end)
-
 
 return {
     Ped = Ped,

@@ -1,10 +1,8 @@
 local function canProcceed()
-    local version <const>      = _VERSION
     local resourceName <const> = GetCurrentResourceName() ~= "vorp_lib"
     local isLibStarted <const> = GetResourceState("vorp_lib") == 'started'
     local noLib <const>        = resourceName and isLibStarted
     if not noLib then return false, 'vorp_lib must must be ensured before this resource' end
-    if not version:find("5.4") then return false, "This library requires lua 5.4 enable in your fxmanifest script" end
     return true
 end
 
@@ -130,5 +128,5 @@ _ENV.Import = Import
 ---@field CORE CORE_CLIENT | CORE_SERVER
 _ENV.LIB = {
     NOTIFY = Import("notify").Notify,
-    CORE = exports.vorp_core:GetCore()
+    CORE = exports.vorp_core:GetCore() -- for other frameworks just remove this and add your own. we will not support any other framework
 }
