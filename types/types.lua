@@ -2,16 +2,19 @@
 ---@meta
 
 ---@class ENTITY
----@field private New fun(self: ENTITY, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): ENTITY | nil
----@field private TrackEntity fun(self: ENTITY, handle: integer, entityType: string)
----@field private RemoveTrackedEntity fun(self: ENTITY, handle: integer, entityType: string)
----@field private ValidateEntity fun(self: ENTITY, handle: integer): boolean
----@field private GetNetworkID fun(self: ENTITY, handle: integer, isNetworked: boolean): integer
----@field private SetHeading fun(self: ENTITY, handle: integer, data: table)
----@field private SetEntityRotation fun(self: ENTITY, handle: integer, data: table)
----@field private SetPedIntoVehicle fun(self: ENTITY, handle: integer, data: table)
----@field private PlaceOnGround fun(self: ENTITY, handle: integer, data: table)
+---@field private TrackEntity fun(self: ENTITY)
+---@field private RemoveTrackedEntity fun(self: ENTITY)
+---@field private ValidateEntity fun(self: ENTITY): boolean
+---@field private SetHeading fun(self: ENTITY, data: table)
+---@field private SetEntityRotation fun(self: ENTITY, data: table)
+---@field private SetPedIntoVehicle fun(self: ENTITY, data: table)
+---@field private PlaceOnGround fun(self: ENTITY, data: table)
 ---@field private LoadModel fun(self: ENTITY, data: table)
+---@field public handle integer
+---@field public netid integer
+---@field private entityType string
+---@field public model string | integer
+---@field public OnDelete fun()
 ---@field public GetNetID fun(self: ENTITY): integer
 ---@field public GetHandle fun(self: ENTITY): integer
 ---@field public GetModel fun(self: ENTITY): string | integer
@@ -25,16 +28,16 @@
 
 
 ---@class PED : ENTITY
----@field public Create fun(self: PED, data: table): PED | nil
----@field private New fun(self: PED, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): PED | nil
+---@field public Create fun(self: PED, data: table): PED
+---@field public New fun(self: PED, entityType: string, data: table): PED
 
 ---@class OBJECT : ENTITY
----@field public Create fun(self: OBJECT, data: table): OBJECT | nil
----@field private New fun(self: OBJECT, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): OBJECT | nil
+---@field public Create fun(self: OBJECT, data: table): OBJECT
+---@field public New fun(self: OBJECT, entityType: string, data: table): OBJECT
 
 ---@class VEHICLE : ENTITY
----@field public Create fun(self: VEHICLE, data: table): VEHICLE | nil
----@field private New fun(self: VEHICLE, handle: integer, netid: integer, entityType: string, model: string | integer,OnDelete:fun()): VEHICLE | nil
+---@field public Create fun(self: VEHICLE, data: table): VEHICLE
+---@field public New fun(self: VEHICLE, entityType: string, data: table): VEHICLE
 
 
 ---@class EVENTS
