@@ -10,6 +10,7 @@ function class:Create(base, className)
     local private_properties <const> = setmetatable({}, { __mode = "k" })
     local private_owners <const>     = setmetatable({}, { __mode = "k" })
 
+    -- mark as class
     cls.__is_class                   = true
     cls._class_name                  = className or (base and base._class_name and (base._class_name .. " (extended)") or "Class")
 
@@ -91,14 +92,25 @@ function class:Create(base, className)
             return val
         end
 
-        if cls.get and cls.get[key] then
+        if base.get and base.get[key] then
+            local getter = base.get[key]
             return function(_, ...)
-                return cls.get[key](self, ...)
+                local old = current_class_context
+                current_class_context = base
+                local result = getter(self, ...)
+                current_class_context = old
+                return result
             end
         end
-        if cls.set and cls.set[key] then
+
+        if base.set and base.set[key] then
+            local setter = base.set[key]
             return function(_, ...)
-                return cls.set[key](self, ...)
+                local old = current_class_context
+                current_class_context = base
+                local result = setter(self, ...)
+                current_class_context = old
+                return result
             end
         end
 
@@ -125,14 +137,24 @@ function class:Create(base, className)
             end
 
             if base.get and base.get[key] then
+                local getter = base.get[key]
                 return function(_, ...)
-                    return base.get[key](self, ...)
+                    local old = current_class_context
+                    current_class_context = base
+                    local result = getter(self, ...)
+                    current_class_context = old
+                    return result
                 end
             end
 
             if base.set and base.set[key] then
+                local setter = base.set[key]
                 return function(_, ...)
-                    return base.set[key](self, ...)
+                    local old = current_class_context
+                    current_class_context = base
+                    local result = setter(self, ...)
+                    current_class_context = old
+                    return result
                 end
             end
         end
@@ -156,7 +178,14 @@ function class:Create(base, className)
         end
 
         if cls.set and cls.set[key] then
-            cls.set[key](self, value)
+            local setter = cls.set[key]
+            return (function(instance, val)
+                local old = current_class_context
+                current_class_context = cls
+                local result = setter(instance, val)
+                current_class_context = old
+                return result
+            end)(self, value)
         else
             rawset(self, key, value)
         end
