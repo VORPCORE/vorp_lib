@@ -1,85 +1,169 @@
 local class <const> = {}
 
 print("^3WARNING: ^7module CLASS is a work in progress use it at your own risk")
---TODO: add private methods
 
-function class:Create(base)
-    local cls   = {}
-    cls.__index = cls
+function class:Create(base, className)
+    local cls <const> = {}
     setmetatable(cls, { __index = base })
-    --[[ local private_data = setmetatable({}, { __mode = "k" }) ]]
+
+    local current_class_context      = nil
+    local private_properties <const> = setmetatable({}, { __mode = "k" })
+    local private_owners <const>     = setmetatable({}, { __mode = "k" })
+
+    cls.__is_class                   = true
+    cls._class_name                  = className or (base and base._class_name and (base._class_name .. " (extended)") or "Class")
+
+    local function isPrivate(key)
+        return type(key) == "string" and key:sub(1, 1) == "_"
+    end
+    local function isClass(t)
+        return type(t) == "table" and rawget(t, "__is_class") == true
+    end
+
+    if base and type(base) == "table" and not isClass(base) then
+        for k, v in pairs(base) do
+            cls[k] = v
+        end
+
+        base = nil -- no superclass in this case these are just members
+        setmetatable(cls, nil)
+    end
+
     function cls:New(...)
-        local numArgs = select('#', ...)
-        local firstArg = select(1, ...)
-        local instance = {}
-
-        if numArgs == 1 and type(firstArg) == "table" then
-            instance = setmetatable(firstArg, cls)
+        local n  = select("#", ...)
+        local a1 = select(1, ...)
+        local inst
+        if n == 1 and type(a1) == "table" then
+            inst = setmetatable(a1, cls)
         else
-            instance = setmetatable({}, cls)
+            inst = setmetatable({}, cls)
+        end
+        private_properties[inst] = {}
+
+        local old = current_class_context
+        current_class_context = cls
+        if inst.constructor then
+            inst:constructor(...)
+        elseif cls.constructor then
+            cls.constructor(inst, ...)
         end
 
-        if instance.constructor then
-            instance:constructor(...)
-        elseif cls.constructor then
-            cls.constructor(instance, ...)
-        end
-        -- private_data[instance] = {}
-        return instance
+        current_class_context = old
+        return inst
     end
 
     function cls:super(...)
         if base and base.constructor then
+            local old = current_class_context
+            current_class_context = base
             base.constructor(self, ...)
+            current_class_context = old
         end
     end
 
-    --[[    -- Set private data for the instance
-    function cls:setPrivate(key, value)
-        private_data[self][key] = value
-    end
+    local index    = function(self, key)
+        if isPrivate(key) then
+            local owner = private_owners[self] and private_owners[self][key]
+            if owner and current_class_context ~= owner then
+                error(("Cannot access private member '%s' from outside class %s"):format(tostring(key), owner._class_name or "Unknown"))
+            end
+            if private_properties[self] and private_properties[self][key] ~= nil then
+                return private_properties[self][key]
+            end
+        end
 
-    -- Get private data for the instance
-    function cls:getPrivate(key)
-        return private_data[self][key]
-    end ]]
-
-    cls.__index = function(self, key)
         local val = rawget(cls, key)
-        if val then
+        if val ~= nil then
+            if isPrivate(key) and type(val) == "function" and current_class_context ~= cls then
+                return function()
+                    error(("Cannot call private method '%s' from outside class %s"):format(tostring(key), cls._class_name))
+                end
+            end
+            if type(val) == "function" then
+                return function(instance, ...)
+                    local old = current_class_context
+                    current_class_context = cls
+                    local r = val(instance, ...)
+                    current_class_context = old
+                    return r
+                end
+            end
             return val
-        elseif cls.get and cls.get[key] then
+        end
+
+        if cls.get and cls.get[key] then
             return function(_, ...)
                 return cls.get[key](self, ...)
             end
-        elseif cls.set and cls.set[key] then
+        end
+        if cls.set and cls.set[key] then
             return function(_, ...)
                 return cls.set[key](self, ...)
             end
-        else
-            return base and base[key]
         end
+
+        if isClass(base) then
+            local bval = rawget(base, key)
+
+            if bval ~= nil then
+                if isPrivate(key) and type(bval) == "function" and current_class_context ~= base then
+                    return function()
+                        error(("Cannot call private method '%s' from outside class %s"):format(tostring(key), base._class_name or "Unknown"))
+                    end
+                end
+
+                if type(bval) == "function" then
+                    return function(instance, ...)
+                        local old = current_class_context
+                        current_class_context = base
+                        local r = bval(instance, ...)
+                        current_class_context = old
+                        return r
+                    end
+                end
+                return bval
+            end
+
+            if base.get and base.get[key] then
+                return function(_, ...)
+                    return base.get[key](self, ...)
+                end
+            end
+
+            if base.set and base.set[key] then
+                return function(_, ...)
+                    return base.set[key](self, ...)
+                end
+            end
+        end
+
+        return nil
     end
 
+    local newIndex = function(self, key, value)
+        if isPrivate(key) then
+            local owner = private_owners[self] and private_owners[self][key]
+            if owner and current_class_context ~= owner then
+                error(("Cannot modify private member '%s' from outside class %s"):format(tostring(key), owner._class_name or "Unknown"))
+            end
 
-    cls.__newindex = function(self, key, value)
+            if not private_properties[self] then private_properties[self] = {} end
+            if not private_owners[self] then private_owners[self] = {} end
+
+            private_owners[self][key] = current_class_context or cls
+            private_properties[self][key] = value
+            return
+        end
+
         if cls.set and cls.set[key] then
             cls.set[key](self, value)
         else
             rawset(self, key, value)
         end
     end
-    --[[
-    cls.__newindex = function(self, key, value)
-        if private_data[self] and private_data[self][key] then
-            print("Cannot modify private field: " .. tostring(key))
-        elseif cls.set and cls.set[key] then
-            cls.set[key](self, value)
-        else
-            rawset(self, key, value)
-        end
-    end
- ]]
+
+    cls.__index    = index
+    cls.__newindex = newIndex
 
     return cls
 end
