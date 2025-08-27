@@ -73,13 +73,15 @@ local intervals = LIB.Class:Create({
         self.state = false
     end,
     Resume = function(self, ...)
+        local args = ... and { ... } or {}
         if self.state then return print("interval is already running") end
         self.state = true
-        self.customArgs = { ... }
+        self.customArgs = args
         self:execute()
     end,
     Update = function(self, ...)
-        self.customArgs = { ... }
+        local args = ... and { ... } or {}
+        self.customArgs = args
     end,
     GetState = function(self)
         return self.state
@@ -100,7 +102,7 @@ local timeouts = LIB.Class:Create({
         CreateThread(function()
             Wait(self.delay)
             if not self.state then return end
-            self.callback(table.unpack(self.customArgs))
+            self.callback(self, table.unpack(self.customArgs))
         end)
     end,
     Destroy = function(self)
@@ -116,14 +118,17 @@ local timeouts = LIB.Class:Create({
     end,
 
     Resume = function(self, ...)
+        local args = ... and { ... } or {}
         if self.state then return print("timeout is already running to be resumed") end
         self.state = true
-        self.customArgs = { ... }
+
+        self.customArgs = args
         self:execute()
     end,
 
     Update = function(self, ...)
-        self.customArgs = { ... }
+        local args = ... and { ... } or {}
+        self.customArgs = args
     end,
     GetState = function(self)
         return self.state
