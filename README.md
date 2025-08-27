@@ -41,9 +41,9 @@ Complete entity creation and management system with automatic cleanup:
 
 1. Ensure you have **VORP Core** installed and running
 2. Add `vorp_lib` to your server resources folder
-3. Add the following to your `server.cfg` **after** VORP Core:
+3. Add the following to your `server.cfg`:
    ```cfg
-   ensure vorp_lib
+   ensure vorp_lib #at the top of vorp scripts
    add_ace resource.vorp_lib command.add_ace allow
    add_ace resource.vorp_lib command.remove_ace allow
    ```
