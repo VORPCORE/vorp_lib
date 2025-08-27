@@ -102,7 +102,7 @@ local timeouts = LIB.Class:Create({
         CreateThread(function()
             Wait(self.delay)
             if not self.state then return end
-            self.callback(self, table.unpack(self.customArgs))
+            self.callback(table.unpack(self.customArgs))
         end)
     end,
     Destroy = function(self)
