@@ -275,23 +275,3 @@ return {
     Vehicle = Vehicle
 }
 
---[[ EXAMPLES
-local LIB <const> = Import 'entities'
-
-local ped = LIB.Ped:Create({
-    Model = 'A_C_COW',
-    Pos = vector3(2854.6, 486.46, 63.98),
-    IsNetworked = true,
-    Options = {
-        PlaceOnGround = true,
-    },
-    OnCreate = function(self)
-        print('Ped created use your own logic here handle: ', self:GetHandle())
-    end,
-    OnDelete = function(handle, netid)
-        print('Ped deleted handle: ', handle, 'netid: ', netid)
-    end
-})
-
-
-]]

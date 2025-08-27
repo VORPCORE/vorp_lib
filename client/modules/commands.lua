@@ -199,7 +199,7 @@ function Command:Register(name, params, state)
     local instance <const> = Command:New(name, params)
     COMMANDS_REGISTERED[name] = instance
     if state then
-        instance:Start(params.AddSuggestion)
+        instance:Start(params.AddSuggestion) 
     end
 
     return instance
@@ -262,69 +262,3 @@ return {
     Command = Command
 }
 
-
---[[
-
-local LIB <const> = Import "commands"
-
-
-local command <const> = LIB.Command:Register("billtest", {
-
-    Suggestion = {
-        AddSuggestion = true, -- will add suggestion right away on register, other wise you can use command:AddSuggestion() to add it, by default it will add on character selected
-        Description = "description of command suggestion",
-        Arguments = {
-            { name = "Id",  help = "player id", type = "integer", required = true },
-            { name = "msg", help = "message",   type = "message", required = true }
-        }
-    },
-
-    Permissions = { -- or remove
-        Ace = "group.admin", -- or false this will only allow users with acename.admin to be executed
-    },
-
-    OnExecute = function(args, rawCommand, self)
-        print("command executed")
-    end,
-
-    OnError = function(error)
-        if error == 'missing_arguments' then
-            print('command usage: /billtest <id> <msg>')
-        end
-        print(error, "OnError")
-    end
-}, false) -- this param allows to not register just yet if true registers right away
-
--- when character is loaded
-
--- if not defined onExecute or onError, it will use the default ones
-command:OnExecute(function(args, rawCommand)
-    Core.NotifyObjective("command executed: " .. args[2], 5000)
-    -- command:Destroy()
-end)
-
-command:OnError(function(error)
-    if error == 'missing_arguments' then
-        Core.NotifyObjective("command usage: /billtest <id> <msg>", 5000)
-    end
-end)
-
-RegisterCommand("pause", function(source, args, rawCommand)
-    command:Pause()
-end, false)
-
---resume
-RegisterCommand("resume", function(source, args, rawCommand)
-    command:Resume()
-end, false)
-
---destroy
-RegisterCommand("destroy", function(source, args, rawCommand)
-    command:Destroy()
-end, false)
-
-RegisterCommand("start", function()
-    command:Start(true) -- add suggestion if it hasnt been added yet
-end, false)
-
-]]

@@ -197,35 +197,3 @@ end)
 return {
     Input = Inputs
 }
-
-
-
-
---[[ EXAMPLES
-
-local LIB <const> = Import "inputs"
-
--- register one input
-local input = LIB.Input:Register({ inputType = "Release", key = "E" }, function(instance)
-    print("Pressed", instance.key, instance.inputType)
-end, true) -- state is true then it will start automatically
-
--- multiple inputs
-local inputs = {
-    { inputType = "Press",   key = "E" },
-    { inputType = "Hold",    key = "W" },
-    { inputType = "Release", key = "S" },
-}
-
-local inputs = LIB.Input:Register(inputs, function(input)
-    if input.key == "E" then
-        print("E was pressed")
-    elseif input.key == "W" then
-        print("W is held")
-    elseif input.key == "S" then
-        print("S was released")
-    end
-end, true)
-
-
-]]

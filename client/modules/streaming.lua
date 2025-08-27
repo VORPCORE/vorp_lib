@@ -1,5 +1,4 @@
--- these need to be imported even if you just use one or 2, either we separate them in different modules or stay as they are.
--- these if imported they will be having its own instance meaning they will not be shared with any other clients, each script have its own, reducing the overhead
+
 ---@class STREAMING
 local Streaming = {}
 

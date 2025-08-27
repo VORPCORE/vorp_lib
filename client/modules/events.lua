@@ -184,22 +184,3 @@ return {
     Events = Events
 }
 
--- example usage
-
---local LIB = Import 'events' -- imports the events module
-
---local Event = LIB.Event:Register('EVENT_PED_CREATED', 0, function(data) -- registers an event listener to a instance
---    print(json.encode(data))
---end)
-
---Event:Start() -- starts the event listener for this instance
---Event:Pause() -- pauses the event listener for this instance
---Event:Resume() -- resumes the event listener for this instance
---Event:Destroy() -- destroys the event listener for this instance
-
--- for devmode just register any event and use the method events are optional allows to se all events being triggered
---Event:DevMode(true) -- turn on devmode
---Event:DevMode(false) -- turn off devmode
--- hash or string
---Event:DevMode(true, { `EVENT_PED_CREATED` }) -- turn on devmode and log only the event_ped_created
---Event:DevMode(true, { "EVENT_PED_CREATED", "EVENT_PED_DESTROYED" }) -- turn on devmode and log only the event_ped_created and event_ped_destroyed

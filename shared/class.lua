@@ -202,30 +202,3 @@ return {
 }
 
 
--- constructor can be a table or a number of arguments
--- exmaple
-
---[[
-class:Create({
-    constructor = function(self, data)
-        self.any = data.any
-        self.any_2 = data.any_2
-        self.any_3 = data.any_3
-    end
-})
-
-local event = class:New({  any = 0,  any_2= "any_2", any_3= {}})
-
--- OR
-
-class:Create({
-    constructor = function(self, name, group, callback  )
-        self.eventHash = name
-        self.eventGroup = group
-        self.eventCallback = callback
-    end
-})
-
-local event = class:New("name", "group", "callback")
-
--- ]]

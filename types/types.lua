@@ -1,4 +1,3 @@
--- WIP
 ---@meta
 
 ---@class ENTITY
@@ -26,7 +25,6 @@
 ---@field public GetHeading fun(self: ENTITY): number
 ---@field public GetRotation fun(self: ENTITY): vector3
 
-
 ---@class PED : ENTITY
 ---@field public Create fun(self: PED, data: table): PED
 ---@field public New fun(self: PED, entityType: string, data: table): PED
@@ -38,7 +36,6 @@
 ---@class VEHICLE : ENTITY
 ---@field public Create fun(self: VEHICLE, data: table): VEHICLE
 ---@field public New fun(self: VEHICLE, entityType: string, data: table): VEHICLE
-
 
 ---@class EVENTS
 ---@field public Register fun(self:EVENTS, name:string|integer, group:integer, callback:fun(), state:boolean):EVENTS
@@ -95,7 +92,6 @@
 ---@field public Warning fun( self:NOTIFY_SERVER, source: number, title: string, message: string, audioRef: string, audioName: string, duration?: number): nil
 ---@field public NotifyLeftRank fun( self:NOTIFY_SERVER, source: number, title: string, subtitle: string, dict: string, texture: string, duration?: number, color?: string): nil
 
-
 ---@class MAP
 ---@field public New fun(self:MAP, handle:number):Blip
 ---@field public TrackBlips fun(self:MAP, handle:number)
@@ -134,7 +130,6 @@
 ---@class BLIP: MAP
 ---@field public Create fun(self:BLIP, blipType:'entity'|'coords'|'area'|'radius', params:BLIP_PARAMS):BLIP
 
-
 ---@class INPUTS
 ---@field private New fun(self: INPUTS, inputParams: INPUT_PARAMS, callback: fun(input: INPUTS), state: boolean): INPUTS
 ---@field public IsRunning fun(self: INPUTS): boolean
@@ -158,7 +153,7 @@
 ---@field private getTypes fun(self: COMMANDS, args: table)
 ---@field public Register fun(self: COMMANDS, commandName: string, params: COMMAND_PARAMS, state: boolean?): COMMANDS
 ---@field public Pause fun(self: COMMANDS)
----@field public Start fun(self: COMMANDS)
+---@field public Start fun(self: COMMANDS, addSuggestion: boolean?)
 ---@field public Resume fun(self: COMMANDS)
 ---@field public Remove fun(self: COMMANDS)
 ---@field public Destroy fun(self: COMMANDS)
