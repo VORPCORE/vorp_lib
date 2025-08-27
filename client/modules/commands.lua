@@ -199,7 +199,7 @@ function Command:Register(name, params, state)
     local instance <const> = Command:New(name, params)
     COMMANDS_REGISTERED[name] = instance
     if state then
-        instance:Start()
+        instance:Start(params.AddSuggestion)
     end
 
     return instance
@@ -271,6 +271,7 @@ local LIB <const> = Import "commands"
 local command <const> = LIB.Command:Register("billtest", {
 
     Suggestion = {
+        AddSuggestion = true, -- will add suggestion right away on register, other wise you can use command:AddSuggestion() to add it, by default it will add on character selected
         Description = "description of command suggestion",
         Arguments = {
             { name = "Id",  help = "player id", type = "integer", required = true },

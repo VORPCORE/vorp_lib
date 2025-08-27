@@ -169,17 +169,6 @@ local prompt = LIB.Class:Create({
 
             UiPromptSetMashIndefinitelyMode(value.handle)
         end,
-
-        SetGroup = function(self, group, key, gorupid)
-            local value <const> = self.prompts[key]
-            if not value then return print(('prompt not found with key %s'):format(key)) end
-
-            UiPromptSetGroup(value.handle, group, 0)
-            -- we might also need to update the group label ?
-            if gorupid then
-                value.group = gorupid
-            end
-        end,
     },
 
     _SetUpPrompts = function(self, data)

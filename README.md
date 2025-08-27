@@ -1,98 +1,150 @@
-# vorp lib
+# VORP Lib
 
-A comprehensive library for RedM .
-
-### INSTALLATION
-
-- add `ensure vorp_lib` bellow vorp_core since it needs the export
-- make sure this is in your server.cfg
-  - add_ace resource.vorp_lib command.add_ace allow
-  - add_ace resource.vorp_lib command.remove_ace allow
-
-**Note:** This project is a work in progress. All content in this repository is subject to change, including folders, files, and logic.
+VORP Lib is a modular scripting library for RedM that simplifies game development by providing reusable, instance-based components with automatic cleanup. Designed specifically for VORP Core Framework, it helps developers write cleaner, more efficient scripts while eliminating common issues like memory leaks and global variable pollution.
 
 ## Features
 
-### Import System
+###  Import System
+- **Modular imports** - Import only what you need from the library, other resources, or your own scripts
+- **Zero global pollution** - All imports are scoped locally to prevent conflicts
+- **Efficient caching** - Files are loaded once and cached for performance
+- **Instance-based execution** - Each script gets its own independent instances
+- **Cross-resource imports** - Import from other resources using `@resource_name/path`
 
-- Import modules 
-- Reduce global pollution by importing locally modules, from:
-  - This library
-  - Other resources
-  - the resource you are using the import
-- Efficient caching system:
-  - Loads files only once
-- Instance-based execution:
-  - Each import runs independently within its script
-  - Eliminates overhead from shared code usage
+###  Entity Management
+Complete entity creation and management system with automatic cleanup:
+- **Peds** - Create and manage NPCs with outfit presets and callbacks
+- **Vehicles** - Spawn vehicles with passenger seating and configurations  
+- **Objects** - Place objects with rotation and ground placement options
+- **Lifecycle management** - Automatic cleanup on resource restart
 
-### Entity Creation
- creation of entities with a tracking management system
+###  Map & UI Systems
+- **Blips** - Create various blip types (coords, entity, area, radius) with full customization
+- **Prompts** - Coordinate-based interactive prompts with grouping support
+- **Input Controls** - Register key inputs (Press, Hold, Release) without manual loops
+- **Points** - Create enter/exit zones with radius detection and debug visualization
 
-- Entity 
-  - Peds
-  - Objects
-  - Vehicles
+###  Advanced Features
+- **Game Events** - Listen to native game events with automatic data parsing and dev mode
+- **Command System** - Register client/server commands with permissions and argument validation
+- **Asset Streaming** - Load models, animations, textures with automatic cleanup and timeouts
+- **DataView** - JavaScript-like binary data manipulation for advanced use cases
+- **OOP System** - Full object-oriented programming with classes and inheritance
 
-### Blip Management
+###  Developer Tools
+- **Automatic cleanup** - All resources are cleaned up on script restart for easy development
+- **Error handling** - Comprehensive validation and error reporting
+- **Debug modes** - Visual markers and logging for development
+- **TypeScript annotations** - IntelliSense support for better development experience
 
-create blips instanced to your script using methods
-- coords
-- entity
-- area
-- radius
+## Installation
 
-### Utility Functions
-with life cycle manegement
+1. Ensure you have **VORP Core** installed and running
+2. Add `vorp_lib` to your server resources folder
+3. Add the following to your `server.cfg` **after** VORP Core:
+   ```cfg
+   ensure vorp_lib
+   add_ace resource.vorp_lib command.add_ace allow
+   add_ace resource.vorp_lib command.remove_ace allow
+   ```
 
-- Switch
-- SetInterval
-- SetTimeout
+## Quick Start
 
-### Register Game Events
-listen to game events and register only what you need
-- Life cycle manegement with methods
-- DedMode to allow listen to all but some events and see the data
-
-### Register Inputs
-listent to inputs register only what you need
-
-- Life cycle manegement with methods
-
-### Register Prompts
-
-- Life cycle manegement with methods
-- group prompts or single
-
-### Game Notifcations
-incorporated when you import the lib just use NOTIFY key word
-
+### Import the library in your script's `fxmanifest.lua`:
 ```lua
-LIB.NOTIFY:Objective("text", 5000)
+shared_script "@vorp_lib/import.lua"
 ```
 
-
-### Vorp Core
-Core  export is accessible when you import the lib just use CORE keyword
-
+### Use global variables (available everywhere):
 ```lua
-local r = LIB.CORE.Callback.TriggerAwait("name")
+-- Access VORP Core without exports
+LIB.CORE.NotifyObjective(source, "Hello World", 5000)
+
+-- Use notifications directly
+LIB.NOTIFY:Objective("Hello World", 5000)
 ```
 
-### Commands
-- Life cycle manegement
+### Import specific modules:
+```lua
+-- Import entity system
+local Entity = Import 'entities' --[[@as ENTITY]]
+```
+
+### Import from other resources:
+starting with a `@`
+```lua
+-- Import from another script
+local Utils = Import "@my_script/shared/utils"
+
+-- Import multiple modules
+local Modules = Import({"prompts", "inputs", "points"})
+```
+
+### Import from own resource
+Starting by a slash `/` or a dot `.` will allow to import files within your scrip like config files
+```lua
+local Modules = Import "/myfolder/myfile"
+```
+
+### Mixed Imports
+
+```lua
+local Modules = Import({"@my_script/shared/utilss", "inputs", "/myfolder/myfile"})
+```
+
+## Documentation
+
+Full documentation with examples and API reference is available o nthe [docs](https://docs.vorp-core.com/introduction)
+
+## Contributing
+
+We welcome contributions to VORP Lib! Here's how you can help:
+
+###  Reporting Issues
+- Check existing [issues](https://github.com/VORPCORE/vorp_lib/issues) before creating new ones
+- Use the issue templates when available
+- Include detailed reproduction steps and environment information
+
+###  Feature Requests
+- Describe the feature and its use case clearly
+- Explain how it would benefit the community
+- Consider backward compatibility implications
+- Provide examples of the desired API if possible
 
 
-### DataView
-import data view to your projects
+###  Code Guidelines
+- Follow existing code style and patterns
+- Add proper error handling and validation
+- Include TypeScript annotations for IntelliSense support
+- Test your changes thoroughly before submitting
+- Update documentation if you're adding new features
 
-### Object-Oriented Programming (OOP) System
-Implement OOP in Lua with:
-- Class definitions
-- Inheritance
-- Property management with custom logic
-- Traditional Lua methods
-- Structured "Real OOP" approach with automatic setters and getters
+###  Pull Request Process
+1. Ensure your code follows the project's style guidelines
+2. Update documentation for any new features or changes
+3. Test your changes with the latest VORP Core version
+4. Create a detailed pull request description explaining:
+   - What changes were made and why
+   - How to test the changes
+   - Any breaking changes or migration notes
+5. Link to any related issues
+
+###  Module Development Guidelines
+When creating new modules:
+- Follow the instance-based pattern used by existing modules
+- Implement automatic cleanup on resource restart
+- Include proper parameter validation and error handling
+- Create usage examples and documentation
 
 
+## License
 
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Acknowledgments
+
+- Special thanks to [gottfriedleibniz](https://github.com/gottfriedleibniz) for the DataView implementation
+
+---
+
+**Note**: This library is under active development. While we strive for stability, breaking changes may occur until the v1.0 release. Check the changelog and migration guide when updating.

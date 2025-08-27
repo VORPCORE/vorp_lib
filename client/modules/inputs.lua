@@ -90,7 +90,7 @@ local input = LIB.Class:Create({
         end,
 
 
-        Update = function(self, data, key) 
+        Update = function(self, data, key)
             if not data then
                 error("data is required")
             end
@@ -99,17 +99,17 @@ local input = LIB.Class:Create({
                 error("data must be a table")
             end
 
-                if not key then
-                    error("key is required if using multiple inputs")
-                end
+            if not key then
+                error("key is required if using multiple inputs")
+            end
 
-                for _, input in ipairs(self.inputs) do
-                    -- input key was preserved for this
-                    if input.key == key then
-                        input.customParams = data
-                        break
-                    end
+            for _, input in ipairs(self.inputs) do
+                -- input key was preserved for this
+                if input.key == key then
+                    input.customParams = data
+                    break
                 end
+            end
         end,
 
         Start = function(self)
