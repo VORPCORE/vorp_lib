@@ -91,26 +91,28 @@ function class:Create(base, className)
             end
             return val
         end
-
-        if base.get and base.get[key] then
-            local getter = base.get[key]
-            return function(_, ...)
-                local old = current_class_context
-                current_class_context = base
-                local result = getter(self, ...)
-                current_class_context = old
-                return result
+        
+        if base then
+            if base.get and base.get[key] then
+                local getter = base.get[key]
+                return function(_, ...)
+                    local old = current_class_context
+                    current_class_context = base
+                    local result = getter(self, ...)
+                    current_class_context = old
+                    return result
+                end
             end
-        end
 
-        if base.set and base.set[key] then
-            local setter = base.set[key]
-            return function(_, ...)
-                local old = current_class_context
-                current_class_context = base
-                local result = setter(self, ...)
-                current_class_context = old
-                return result
+            if base.set and base.set[key] then
+                local setter = base.set[key]
+                return function(_, ...)
+                    local old = current_class_context
+                    current_class_context = base
+                    local result = setter(self, ...)
+                    current_class_context = old
+                    return result
+                end
             end
         end
 
@@ -200,5 +202,3 @@ end
 return {
     Class = class,
 }
-
-

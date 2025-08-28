@@ -104,7 +104,6 @@ local prompt = LIB.Class:Create({
         self.callback = data.callback
         self.marker = data.marker
         self.sleep = data.sleep
-        self.isRunning = false
     end,
 
     get           = {
@@ -251,7 +250,7 @@ local prompt = LIB.Class:Create({
         end
 
         CreateThread(function()
-            self:_SortPrompts()
+            self:SortPrompts()
             while self.isRunning do
                 -- can add here distance check to display prompts
                 local distance              = #(GetEntityCoords(PlayerPedId()) - self.coords)
@@ -273,7 +272,7 @@ local prompt = LIB.Class:Create({
         end)
     end,
     -- allows to use key input as index to avoid loops
-    _SortPrompts  = function(self)
+    SortPrompts  = function(self)
         -- only once
         if self.isSorted then return end
         self.isSorted = true

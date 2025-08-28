@@ -11,7 +11,7 @@ local switchs = LIB.Class:Create({
     constructor = function(self, value)
         self.cases = {}
         self.default = nil
-        self.value = value
+        self.value = value.value
     end,
     case = function(self, value, func)
         self.cases[value] = func
@@ -37,7 +37,7 @@ local switchs = LIB.Class:Create({
 ---@field state boolean
 ---@field customArgs? table
 ---@field start? boolean
----@field private execute fun(self:Interval):any
+---@field public Start fun(self:Interval):any
 ---@field public Pause fun(self:Interval)
 ---@field public Resume fun(self:Interval, ...:any)
 ---@field public Destroy fun(self:Interval)
@@ -48,13 +48,16 @@ local intervals = LIB.Class:Create({
     constructor = function(self, data)
         self.callback = data.callback
         self.delay = data.delay or 1000
-        self.state = false
         self.customArgs = data.customArgs or {}
         if data.start then
-            self:execute()
+            self:Start()
         end
     end,
-    execute = function(self)
+
+    Start = function(self)
+        if not self.callback then return end
+        if self.state then return print("interval is already running") end
+        self.state = true
         CreateThread(function()
             while self.state do
                 self.callback(self, table.unpack(self.customArgs))
@@ -62,27 +65,31 @@ local intervals = LIB.Class:Create({
             end
         end)
     end,
+
     Destroy = function(self)
         self.callback = nil
         self.delay = nil
         self.state = nil
         self.customArgs = nil
     end,
+
     Pause = function(self)
         if not self.state then return print("interval is not running") end
         self.state = false
     end,
+
     Resume = function(self, ...)
         local args = ... and { ... } or {}
         if self.state then return print("interval is already running") end
-        self.state = true
         self.customArgs = args
-        self:execute()
+        self:Start()
     end,
+
     Update = function(self, ...)
         local args = ... and { ... } or {}
         self.customArgs = args
     end,
+
     GetState = function(self)
         return self.state
     end
@@ -95,10 +102,14 @@ local timeouts = LIB.Class:Create({
         self.callback = data.callback
         self.delay = data.delay or 1000
         self.customArgs = data.customArgs or {}
-        self.state = true
+        if data.start then
+            self:Start()
+        end
     end,
-    execute = function(self)
+    Start = function(self)
+        if not self.callback then return end
         if not self.state then return end
+        self.state = true
         CreateThread(function()
             Wait(self.delay)
             if not self.state then return end
@@ -130,6 +141,7 @@ local timeouts = LIB.Class:Create({
         local args = ... and { ... } or {}
         self.customArgs = args
     end,
+
     GetState = function(self)
         return self.state
     end
@@ -139,13 +151,13 @@ local timeouts = LIB.Class:Create({
 
 ---@initializers
 local function switch(value)
-    return switchs:New({ value })
+    return switchs:New({ value = value })
 end
 local function setInterval(callback, delay, customArgs, start)
     return intervals:New({ callback = callback, delay = delay, customArgs = customArgs, start = start })
 end
-local function setTimeout(callback, delay, customArgs)
-    return timeouts:New({ callback = callback, delay = delay, customArgs = customArgs })
+local function setTimeout(callback, delay, customArgs, start)
+    return timeouts:New({ callback = callback, delay = delay, customArgs = customArgs, start = start })
 end
 
 

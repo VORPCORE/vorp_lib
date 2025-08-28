@@ -111,23 +111,23 @@ local input = LIB.Class:Create({
                 end
             end
         end,
+    },
 
-        Start = function(self)
-            if self.isRunning then return end
-            self.isRunning = true
+    Start = function(self)
+        if self.isRunning then return end
+        self.isRunning = true
 
-            CreateThread(function()
-                while self.isRunning do
-                    Wait(0)
-                    for _, input in ipairs(self.inputs) do
-                        if input.inputType(0, input.keyHash) then
-                            self.callback(input, input.customParams)
-                        end
+        CreateThread(function()
+            while self.isRunning do
+                Wait(0)
+                for _, input in ipairs(self.inputs) do
+                    if input.inputType(0, input.keyHash) then
+                        self.callback(input, input.customParams)
                     end
                 end
-            end)
-        end,
-    },
+            end
+        end)
+    end,
 
     get = {
         GetIsRunning = function(self)
@@ -195,5 +195,5 @@ end)
 
 
 return {
-    Input = Inputs
+    Inputs = Inputs
 }

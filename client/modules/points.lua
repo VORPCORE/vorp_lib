@@ -20,20 +20,21 @@ local points <const> = LIB.Class:Create({
         self.isActive = false
     end,
 
-    set = {
-
-        -- add ids as keys for the points
-        sortPoints = function(self)
-            local sortedPoints = {}
-            for _, point in ipairs(self.points) do
-                sortedPoints[point.id] = point
-
-                if point.debug and not self.debugActive then
-                    self:DebugPoints()
-                end
+     -- add ids as keys for the points
+    sortPoints = function(self)
+        local sortedPoints = {}
+        for _, point in ipairs(self.points) do
+            sortedPoints[point.id] = point
+            if point.debug and not self.debugActive then
+                self:DebugPoints()
             end
-            self.points = sortedPoints
-        end,
+        end
+        self.points = sortedPoints
+    end,
+
+ 
+
+       
 
         -- update points by id
         UpdatePoint = function(self, id, data)
@@ -72,10 +73,12 @@ local points <const> = LIB.Class:Create({
             CreateThread(function()
                 while self.debugActive do
                     for _, point in pairs(self.points) do
+
                         if point.debug and not point.deActivate then
+                            
                             DrawMarker(
                                 0x94FDAE17,
-                                point.center.x, point.center.y, -320.0,
+                                point.center.x, point.center.y, point.center.z,
                                 0.0, 0.0, 0.0,
                                 0.0, 0.0, 0.0,
                                 point.radius * 2.0, point.radius * 2.0, 400.0,
@@ -90,40 +93,7 @@ local points <const> = LIB.Class:Create({
             end)
         end,
 
-        Start = function(self)
-            if self.isActive then return print('already active') end
-            self.isActive = true
-
-            if self.isRegistered then return print('already registered') end
-            self.isRegistered = true
-
-            self:sortPoints()
-
-            CreateThread(function()
-                while self.isActive do
-                    local playerCoords <const> = GetEntityCoords(PlayerPedId())
-
-                    for _, point in pairs(self.points) do
-                        local distance <const> = #(playerCoords - point.center)
-                        if not point.deActivate then
-                            if distance <= point.radius then
-                                if not point.hasEntered then
-                                    point.hasEntered = true
-                                    self.onEnter(point, distance)
-                                end
-                            else
-                                if point.hasEntered then
-                                    point.hasEntered = false
-                                    self.onExit(point, distance)
-                                end
-                            end
-                        end
-                    end
-                    Wait(self.points?.wait or 500)
-                end
-            end)
-        end,
-
+     
 
         Pause = function(self)
             if not self.isActive then return print('its not active to pause it') end
@@ -143,7 +113,41 @@ local points <const> = LIB.Class:Create({
             self.points = {}
             self = nil -- does it actually destroy the instance ?
         end,
-    },
+ 
+
+    Start = function(self)
+        if self.isActive then return print('already active') end
+        self.isActive = true
+
+        if self.isRegistered then return print('already registered') end
+        self.isRegistered = true
+
+        self:sortPoints()
+
+        CreateThread(function()
+            while self.isActive do
+                local playerCoords <const> = GetEntityCoords(PlayerPedId())
+
+                for _, point in pairs(self.points) do
+                    local distance <const> = #(playerCoords - point.center)
+                    if not point.deActivate then
+                        if distance <= point.radius then
+                            if not point.hasEntered then
+                                point.hasEntered = true
+                                self.onEnter(point, distance)
+                            end
+                        else
+                            if point.hasEntered then
+                                point.hasEntered = false
+                                self.onExit(point, distance)
+                            end
+                        end
+                    end
+                end
+                Wait(self.points?.wait or 500)
+            end
+        end)
+    end,
 
     get = {
         IsPointActive = function(self, id)

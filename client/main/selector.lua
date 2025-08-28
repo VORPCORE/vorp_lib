@@ -86,10 +86,10 @@ local function selector(options)
 
         if not set then
             set = true
-            SendNUIMessage({ action = "select", players = players })
+            SendNUIMessage({ data = { type = "select", players = players } })
         end
 
-        SendNUIMessage({ action = "update", players = players }) -- update postion if they move?
+        SendNUIMessage({ data = { type = "update", players = players } }) -- update postion if they move?
 
         Wait(0)
     until playerSelected > 0

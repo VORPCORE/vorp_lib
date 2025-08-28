@@ -120,11 +120,12 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     window.addEventListener('message', function (event) {
-        const { action, players } = event.data;
-        if (action === 'select')
-            initSelector(players);
+        const { data } = event.data;
 
-        if (action === 'update')
-            updateSelector(players);
+        if (data.type === 'select')
+            initSelector(data.players);
+
+        if (data.type === 'update')
+            updateSelector(data.players);
     });
 });

@@ -124,8 +124,8 @@ _ENV.Import = Import
 
 
 ---@class LIB
----@field NOTIFY NOTIFY_CLIENT
----@field CORE CORE_CLIENT | CORE_SERVER
+---@field NOTIFY NOTIFY_CLIENT | NOTIFY_SERVER
+---@field CORE CORE_CLIENT | CORE_SERVER 
 _ENV.LIB = {
     NOTIFY = Import("notify").Notify,
     CORE = exports.vorp_core:GetCore() -- for other frameworks just remove this and add your own. we will not support any other frameworks related logic i nthis lib
