@@ -1,8 +1,6 @@
 local LIB <const> = Import "class"
 
 
-
-
 if not IsDuplicityVersion() then
     ---@class NOTIFY_CLIENT
     local Notify = {}

@@ -1,4 +1,3 @@
---* player selector module to allow selecting players with a ui where is more intuitive than using a command or input
 local isInSelection = false
 local playerSelected = 0
 
@@ -34,16 +33,16 @@ local function selector(options)
     end ]]
 
     local function getDistanceBetweenCoords(playerPos, targetPos)
-        local dx = targetPos.x - playerPos.x
-        local dy = targetPos.y - playerPos.y
-        local dz = targetPos.z - playerPos.z
+        local dx <const> = targetPos.x - playerPos.x
+        local dy <const> = targetPos.y - playerPos.y
+        local dz <const> = targetPos.z - playerPos.z
         return math.sqrt(dx * dx + dy * dy + dz * dz)
     end
 
     SetNuiFocus(true, true)
 
-    local playersNeeded = {}
-    local amount_of_players = options.amount_of_players or 4 -- fallback to default value
+    local playersNeeded <const> = {}
+    local amount_of_players <const> = options.amount_of_players or 4 -- fallback to default value
 
     for _, player in ipairs(activePlayers) do
         if #playersNeeded < amount_of_players then -- option for amount of players?
@@ -66,8 +65,7 @@ local function selector(options)
     local set = false
 
     repeat
-        -- track players coords in case they are moving around
-        local players = {}
+        local players <const> = {}
         for _, player in ipairs(playersNeeded) do
             local targetPed <const> = GetPlayerPed(player)
             local targetPos <const> = GetEntityCoords(targetPed)
@@ -86,15 +84,15 @@ local function selector(options)
 
         if not set then
             set = true
-            SendNUIMessage({ action = "select", players = players })
+            SendNUIMessage({ data = { type = "select", players = players } })
         end
 
-        SendNUIMessage({ action = "update", players = players }) -- update postion if they move?
+        SendNUIMessage({ data = { type = "update", players = players } }) -- update postion if they move?
 
         Wait(0)
     until playerSelected > 0
 
-    playersNeeded = {}
+    table.wipe(playersNeeded)
 
     SetNuiFocus(false, false)
     isInSelection = false

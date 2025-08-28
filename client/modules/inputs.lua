@@ -1,7 +1,9 @@
-local LIB <const> = Import "class"
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
 local REGISTERED_INPUTS <const> = {}
 
 local Wait <const> = Wait
+
+--TODO: add support for distance check on press etc
 
 print("^3WARNING: ^7module INPUTS is a work in progress use it at your own risk")
 
@@ -18,7 +20,7 @@ local INPUT_TYPES <const> = {
 -- there is a ton of controls, so make sure to pass the hash, or for general use you can pass these strings
 -- they need to be tested to see if they work
 ---@type table<string, string>
-local inputKeys <const> = {
+local INPUT_KEYS <const> = {
     A = `INPUT_MOVE_LEFT_ONLY`,
     B = `INPUT_OPEN_SATCHEL_MENU`,
     C = `INPUT_LOOK_BEHIND`,
@@ -52,7 +54,7 @@ local inputKeys <const> = {
     ["8"] = `INPUT_SELECT_QUICKSELECT_PRIMARY_LONGARM`
 }
 
-local input = LIB.Class:Create({
+local input = CLASS:Create({
     constructor = function(self, data)
         self.callback = data.callback
         self.inputType = data.inputType
@@ -134,22 +136,22 @@ local input = LIB.Class:Create({
             return self.isRunning
         end,
     }
-})
+}, 'INPUTS')
 
 
-function Inputs:InitializeInputs(inputParams)
+local function initializeInputs(inputParams)
     local function normalizeKey(key)
         if type(key) == 'string' then
-            if not inputKeys[key] then
+            if not INPUT_KEYS[key] then
                 local sub <const> = string.sub(key, 1, 1) -- if its just a letter then check table
                 if sub then
-                    if not inputKeys[key] then
+                    if not INPUT_KEYS[key] then
                         error(('input does not exist with this letter: %s'):format(key, sub))
                     end
                 end
                 key = joaat(key)
             end
-            key = inputKeys[key]
+            key = INPUT_KEYS[key]
         end
 
         return key
@@ -169,7 +171,7 @@ function Inputs:InitializeInputs(inputParams)
 end
 
 function Inputs:Register(inputParams, callback, state)
-    inputParams = self:InitializeInputs(inputParams)
+    inputParams = initializeInputs(inputParams)
     inputParams.callback = callback
 
     local instance <const> = input:New(inputParams)
@@ -195,5 +197,5 @@ end)
 
 
 return {
-    Input = Inputs
+    Inputs = Inputs
 }

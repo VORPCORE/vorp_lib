@@ -1,4 +1,4 @@
-local LIB <const> = Import "class"
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
 local GetEntityCoords <const> = GetEntityCoords
 local UiPromptSetActiveGroupThisFrame <const> = UiPromptSetActiveGroupThisFrame
@@ -9,7 +9,7 @@ print("^3WARNING: ^7module PROMPTS is a work in progress use it at your own risk
 ---@class PROMPTS
 local Prompts = {}
 
-local promptTypes <const> = {
+local PROMPT_TYPES <const> = {
     Hold = UiPromptHasHoldModeCompleted,
     Press = UiPromptIsJustPressed,
     Release = UiPromptIsJustReleased,
@@ -19,7 +19,7 @@ local promptTypes <const> = {
     Mash = UiPromptHasMashModeCompleted
 }
 
-local promptModes <const> = {
+local PROMPT_MODES <const> = {
     Hold = function(prompt, mode)
         UiPromptSetHoldMode(prompt, mode.holdTime or 1000)
     end,
@@ -37,8 +37,8 @@ local promptModes <const> = {
     end
 }
 
----@static
-local promptKeys <const> = {
+
+local PROMPT_KEYS <const> = {
     A = `INPUT_MOVE_LEFT_ONLY`,
     B = `INPUT_OPEN_SATCHEL_MENU`,
     C = `INPUT_LOOK_BEHIND`,
@@ -93,10 +93,8 @@ local promptKeys <const> = {
 }
 
 
-
-
-local prompt = LIB.Class:Create({
-    constructor   = function(self, data)
+local prompt <const> = CLASS:Create({
+    constructor        = function(self, data)
         self:_SetUpPrompts(data)
         self.coords = data.coords
         self.distance = data.distance
@@ -104,10 +102,9 @@ local prompt = LIB.Class:Create({
         self.callback = data.callback
         self.marker = data.marker
         self.sleep = data.sleep
-        self.isRunning = false
     end,
 
-    get           = {
+    get                = {
         GetHandle = function(self, key)
             return self.prompts?[key].handle
         end,
@@ -126,8 +123,8 @@ local prompt = LIB.Class:Create({
 
     },
     -- updates the prompt data
-    set           = {
-        SetLabel = function(self, label, key)
+    set                = {
+        SetLabel                = function(self, label, key)
             if type(label) ~= 'string' then return print('label must be a string') end
 
             local value <const> = self.prompts[key]
@@ -137,26 +134,26 @@ local prompt = LIB.Class:Create({
             value.label = label
         end,
 
-        SetGroupLabel = function(self, label)
+        SetGroupLabel           = function(self, label)
             if type(label) ~= 'string' then return print('label must be a string') end
             self.groupLabel = label
         end,
 
-        SetEnabled = function(self, enabled, key)
+        SetEnabled              = function(self, enabled, key)
             local value <const> = self.prompts[key]
             if not value then return print(('prompt not found with key %s'):format(key)) end
 
             UiPromptSetEnabled(value.handle, enabled)
         end,
 
-        SetVisible = function(self, visible, key)
+        SetVisible              = function(self, visible, key)
             local value <const> = self.prompts[key]
             if not value then return print(('prompt not found with key %s'):format(key)) end
 
             UiPromptSetVisible(value.handle, visible)
         end,
 
-        SetMashMode = function(self, mashCount, key)
+        SetMashMode             = function(self, mashCount, key)
             local value <const> = self.prompts[key]
             if not value then return print(('prompt not found with key %s'):format(key)) end
 
@@ -169,9 +166,69 @@ local prompt = LIB.Class:Create({
 
             UiPromptSetMashIndefinitelyMode(value.handle)
         end,
+        Destroy                 = function(self)
+            for _, value in ipairs(self.prompts) do
+                UiPromptDelete(value.handle)
+            end
+            self.isRunning = false
+            self = nil
+        end,
+
+        -- removes entry for this specific prompt
+        Remove                  = function(self, key)
+            local value <const> = self.prompts[key]
+            if not value then return print(('prompt not found with key %s'):format(key)) end
+            UiPromptDelete(value.handle)
+            self.prompts[key] = nil
+
+            if not next(self.prompts) then
+                self:Destroy()
+            end
+        end,
+
+        Pause                   = function(self)
+            if not self.isRunning then return end
+            self.isRunning = false
+        end,
+
+        Resume                  = function(self)
+            if self.isRunning then return end
+            self:Start()
+        end,
+
+        Start                   = function(self)
+            if self.isRunning then return end
+            self.isRunning = true
+
+            if self.marker then
+                self:_CreateMarker()
+            end
+
+            CreateThread(function()
+                self:SortPrompts()
+                while self.isRunning do
+                    -- can add here distance check to display prompts
+                    local distance             <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
+                    local distanceCheck <const> = self.distance or 2.0
+                    local sleep                  = self.sleep or 700
+
+                    if distance <= distanceCheck then
+                        sleep = 0
+                        UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', self.label), 0, 0, 0, 0)
+
+                        for _, value in pairs(self.prompts) do
+                            if value._promptType(value.handle) then
+                                self.callback(value, self)
+                            end
+                        end
+                    end
+                    Wait(sleep)
+                end
+            end)
+        end,
     },
 
-    _SetUpPrompts = function(self, data)
+    _SetUpPrompts      = function(self, data)
         local group <const> = GetRandomIntInRange(0, 0xffffff)
 
         for _, value in ipairs(data.prompts) do
@@ -181,7 +238,7 @@ local prompt = LIB.Class:Create({
             UiPromptSetText(prompt, text)
             UiPromptSetEnabled(prompt, true)
             UiPromptSetVisible(prompt, true)
-            promptModes[value.mode](prompt, value)
+            PROMPT_MODES[value.mode](prompt, value)
             UiPromptSetGroup(prompt, group, 0)
             UiPromptRegisterEnd(prompt)
             value.handle = prompt
@@ -190,7 +247,7 @@ local prompt = LIB.Class:Create({
         self.prompts = data.prompts
     end,
 
-    _CreateMarker = function(self)
+    _CreateMarker      = function(self)
         CreateThread(function()
             while self.isRunning do
                 local distance <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
@@ -212,97 +269,36 @@ local prompt = LIB.Class:Create({
         end)
     end,
 
-    Destroy       = function(self)
-        for _, value in ipairs(self.prompts) do
-            UiPromptDelete(value.handle)
-        end
-        self.isRunning = false
-        self = nil
-    end,
-
-    -- removes entry for this specific prompt
-    Remove        = function(self, key)
-        local value <const> = self.prompts[key]
-        if not value then return print(('prompt not found with key %s'):format(key)) end
-        UiPromptDelete(value.handle)
-        self.prompts[key] = nil
-
-        if not next(self.prompts) then
-            self:Destroy()
-        end
-    end,
-
-    Pause         = function(self)
-        if not self.isRunning then return end
-        self.isRunning = false
-    end,
-
-    Resume        = function(self)
-        if self.isRunning then return end
-        self:Start()
-    end,
-
-    Start         = function(self)
-        if self.isRunning then return end
-        self.isRunning = true
-
-        if self.marker then
-            self:_CreateMarker()
-        end
-
-        CreateThread(function()
-            self:_SortPrompts()
-            while self.isRunning do
-                -- can add here distance check to display prompts
-                local distance              = #(GetEntityCoords(PlayerPedId()) - self.coords)
-                local distanceCheck <const> = self.distance or 2.0
-                local sleep                 = self.sleep or 700
-
-                if distance <= distanceCheck then
-                    sleep = 0
-                    UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', self.label), 0, 0, 0, 0)
-
-                    for _, value in pairs(self.prompts) do
-                        if value._promptType(value.handle) then
-                            self.callback(value, self)
-                        end
-                    end
-                end
-                Wait(sleep)
-            end
-        end)
-    end,
     -- allows to use key input as index to avoid loops
-    _SortPrompts  = function(self)
+    _SortPrompts       = function(self)
         -- only once
         if self.isSorted then return end
         self.isSorted = true
 
-        local sortedPrompts = {}
+        local sortedPrompts <const> = {}
         for _, value in ipairs(self.prompts) do
             sortedPrompts[value.keyHash] = value
         end
         self.prompts = sortedPrompts
-    end
+    end,
 })
 
-
-function Prompts:InitializePrompts(data)
+local initializePrompts = function(data)
     local function normalizeKey(value)
-        if not promptKeys[value.key] then
+        if not PROMPT_KEYS[value.key] then
             local containsUnderscore <const> = string.find(value.key, '_')
             if not containsUnderscore then
-                error(('prompt key %s does not exist, available keys are %s'):format(value.key, table.concat(promptKeys, ', ')))
+                error(('prompt key %s does not exist, available keys are %s'):format(value.key, table.concat(PROMPT_KEYS, ', ')))
             end
             return joaat(value.key)
         end
-        return promptKeys[value.key]
+        return PROMPT_KEYS[value.key]
     end
 
     -- if isArray then
     for _, value in ipairs(data.prompts) do
-        if not promptTypes[value.type] then
-            error(('prompt type %s does not exist, available types are %s'):format(value.type, table.concat(promptTypes, ', ')))
+        if not PROMPT_TYPES[value.type] then
+            error(('prompt type %s does not exist, available types are %s'):format(value.type, table.concat(PROMPT_TYPES, ', ')))
         end
 
         -- if type is a hash then no need to convert
@@ -310,19 +306,19 @@ function Prompts:InitializePrompts(data)
             value.keyHash = normalizeKey(value)
         end
 
-        if not promptModes[value.mode] then
-            error(('prompt mode %s does not exist, available modes are %s'):format(value.mode, table.concat(promptModes, ', ')))
+        if not PROMPT_MODES[value.mode] then
+            error(('prompt mode %s does not exist, available modes are %s'):format(value.mode, table.concat(PROMPT_MODES, ', ')))
         end
 
-        value._promptType = promptTypes[value.type]
+        value._promptType = PROMPT_TYPES[value.type]
     end
 
     return data
 end
 
--- support only one way to register prompts if multiple and they want one just add one array lol
+
 function Prompts:Register(data, callback, state)
-    local processedData = self:InitializePrompts(data)
+    local processedData <const> = initializePrompts(data)
     processedData.callback = callback
     processedData.coords = data.coords
     processedData.distance = data.distance
@@ -330,7 +326,7 @@ function Prompts:Register(data, callback, state)
     processedData.marker = data.marker
     processedData.sleep = data.sleep
 
-    local instance = prompt:New(processedData)
+    local instance <const> = prompt:New(processedData)
     if state then
         instance:Start()
     end

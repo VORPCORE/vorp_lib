@@ -1,6 +1,7 @@
 -- ALL IS WIP
-local LIB <const> = Import { 'gameEvents', 'dataview', "class" }
-local GameEvents <const> = LIB.GameEvents
+local Lib <const> = Import { 'gameEvents', 'dataview', "class" }
+local GameEvents <const> = Lib.GameEvents
+local CLASS <const> = Lib.Class --[[@as CLASS]]
 
 print("^3WARNING: ^7module EVENTS is a work in progress use it at your own risk")
 
@@ -13,7 +14,7 @@ local REGISTERED_EVENTS <const> = {}
 ---@class EVENTS
 local Events = {}
 
-local event <const> = LIB.Class:Create({
+local event <const> = CLASS:Create({
 
     constructor = function(self, name, group, callback)
         self.eventHash = name
@@ -22,86 +23,7 @@ local event <const> = LIB.Class:Create({
         self.isRunning = false
         self.developerMode = false
     end,
-
     set = {
-        Start = function(self)
-            if not self.isRunning then
-                self.isRunning = true
-                CreateThread(function()
-                    local eventgroup = self.eventGroup
-                    while self.isRunning do
-                        local size = GetNumberOfEvents(eventgroup)
-                        if size > 0 then
-                            for i = 0, size - 1 do
-                                local eventAtIndex = GetEventAtIndex(eventgroup, i)
-
-                                if self.developerMode then
-                                    if not EVENTS_TO_IGNORE[eventAtIndex] then
-                                        local data = GameEvents[eventAtIndex]
-                                        if data.datasize ~= 0 then
-                                            local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:_AllocateData(data, eventDataStruct)
-                                            local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
-                                            local datafields = {}
-                                            if data_exists then
-                                                datafields = self:_GetData(data, eventDataStruct)
-                                            end
-                                            print("^3DEVMODE: EVENT AT INDEX^7", GameEvents[eventAtIndex]?.name, json.encode(datafields, { indent = true }))
-                                        end
-                                    end
-                                else
-                                    if self.eventHash == eventAtIndex and GameEvents[self.eventHash] then
-                                        local data = GameEvents[self.eventHash]
-
-                                        if data.datasize ~= 0 then
-                                            local eventDataStruct = LIB.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:_AllocateData(data, eventDataStruct)
-                                            local data_exists = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
-                                            local datafields = {}
-                                            if data_exists then
-                                                datafields = self:GetData(data, eventDataStruct)
-                                            end
-
-
-                                            self.eventCallback(datafields)
-                                        else
-                                            self.eventCallback()
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                        Wait(0)
-                    end
-                end)
-            end
-        end,
-
-        _GetData = function(_, event, eventDataStruct)
-            local datafields = {}
-
-            for p = 0, event.datasize - 1, 1 do
-                local current_data_element = event.dataelements[p]
-                if current_data_element and current_data_element.type == 'float' then
-                    datafields[#datafields + 1] = eventDataStruct:GetFloat32(8 * p)
-                else
-                    datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * p)
-                end
-            end
-            return datafields
-        end,
-
-        _AllocateData = function(_, event, eventDataStruct)
-            for p = 0, event.datasize - 1, 1 do
-                local current_data_element = event.dataelements[p]
-                if current_data_element and current_data_element.type == 'float' then
-                    eventDataStruct:SetFloat32(8 * p, 0)
-                else
-                    eventDataStruct:SetInt32(8 * p, 0)
-                end
-            end
-        end,
-
         Pause = function(self)
             self.isRunning = false
         end,
@@ -142,7 +64,84 @@ local event <const> = LIB.Class:Create({
         end,
 
 
-    }
+        Start = function(self)
+            if not self.isRunning then
+                self.isRunning = true
+                CreateThread(function()
+                    local eventgroup <const> = self.eventGroup
+                    while self.isRunning do
+                        local size <const> = GetNumberOfEvents(eventgroup)
+                        if size > 0 then
+                            for i = 0, size - 1 do
+                                local eventAtIndex <const> = GetEventAtIndex(eventgroup, i)
+
+                                if self.developerMode then
+                                    if not EVENTS_TO_IGNORE[eventAtIndex] then
+                                        local data <const> = GameEvents[eventAtIndex]
+                                        if data.datasize ~= 0 then
+                                            local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
+                                            self:_AllocateData(data, eventDataStruct)
+                                            local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local datafields = {}
+                                            if data_exists then
+                                                datafields = self:_GetData(data, eventDataStruct)
+                                            end
+                                            print("^3DEVMODE: EVENT AT INDEX^7", GameEvents[eventAtIndex]?.name, json.encode(datafields, { indent = true }))
+                                        end
+                                    end
+                                else
+                                    if self.eventHash == eventAtIndex and GameEvents[self.eventHash] then
+                                        local data <const> = GameEvents[self.eventHash]
+
+                                        if data.datasize ~= 0 then
+                                            local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
+                                            self:_AllocateData(data, eventDataStruct)
+                                            local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local datafields = {}
+                                            if data_exists then
+                                                datafields = self:_GetData(data, eventDataStruct)
+                                            end
+
+
+                                            self.eventCallback(datafields)
+                                        else
+                                            self.eventCallback()
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        Wait(0)
+                    end
+                end)
+            end
+        end,
+    },
+
+    _GetData = function(_, event, eventDataStruct)
+        local datafields = {}
+
+        for p = 0, event.datasize - 1, 1 do
+            local current_data_element = event.dataelements[p]
+            if current_data_element and current_data_element.type == 'float' then
+                datafields[#datafields + 1] = eventDataStruct:GetFloat32(8 * p)
+            else
+                datafields[#datafields + 1] = eventDataStruct:GetInt32(8 * p)
+            end
+        end
+        return datafields
+    end,
+
+    _AllocateData = function(_, event, eventDataStruct)
+        for p = 0, event.datasize - 1, 1 do
+            local current_data_element = event.dataelements[p]
+            if current_data_element and current_data_element.type == 'float' then
+                eventDataStruct:SetFloat32(8 * p, 0)
+            else
+                eventDataStruct:SetInt32(8 * p, 0)
+            end
+        end
+    end,
 
 })
 
@@ -183,4 +182,3 @@ end)
 return {
     Events = Events
 }
-

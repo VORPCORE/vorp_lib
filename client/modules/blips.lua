@@ -1,9 +1,9 @@
-local LIB <const>              = Import 'class'
+local CLASS <const>              = Import('class').Class --[[@as CLASS]]
 
 ---@type table<number, Blip>
 local REGISTERED_BLIPS <const> = {}
 
-local COLORS <const>           = {
+local BLIP_COLORS <const>           = {
     blue = "BLIP_MODIFIER_MP_COLOR_1",
     red = "BLIP_MODIFIER_MP_COLOR_2",
     purple = "BLIP_MODIFIER_MP_COLOR_3",
@@ -40,7 +40,7 @@ local COLORS <const>           = {
 
 --* BASE CLASS / SUPER CLASS / PARENT CLASS
 ---@class MAP
-local Map                      = LIB.Class:Create({
+local Map                      = CLASS:Create({
 
     constructor = function(self, handle)
         self.handle = handle
@@ -82,9 +82,9 @@ local Map                      = LIB.Class:Create({
             BlipAddModifier(self.handle, modifier)
         end,
 
-        -- same as above but only colors in case they want to use blue,red,yellow as key values
+        -- same as above but only BLIP_colors in case they want to use blue,red,yellow as key values
         AddModifierColor = function(self, modifier)
-            if not COLORS[modifier] then return error(('Color does not exist'):format(modifier)) end
+            if not BLIP_COLORS[modifier] then return error(('Color does not exist'):format(modifier)) end
             BlipAddModifier(self.handle, modifier)
         end,
 
@@ -100,7 +100,7 @@ local Map                      = LIB.Class:Create({
 
         GetBlipColor = function(_, color)
             local function errorCatch(value)
-                if not COLORS[value] then error(('Color not valid %s'):format(value), 2) end
+                if not BLIP_COLORS[value] then error(('Color not valid %s'):format(value), 2) end
             end
 
             if type(color) ~= "table" then
@@ -110,10 +110,10 @@ local Map                      = LIB.Class:Create({
 
             for k, value in ipairs(color) do
                 errorCatch(value)
-                t[k] = COLORS[value]
+                t[k] = BLIP_COLORS[value]
             end
 
-            return table.unpack(t) -- multiple or single colors
+            return table.unpack(t) -- multiple or single BLIP_colors
         end,
     },
 
@@ -129,7 +129,7 @@ local Map                      = LIB.Class:Create({
 
 --* DERIVED CLASS / SUB CLASS / CHILD CLASS
 ---@class Blip: MAP
-local Blip                     = LIB.Class:Create(Map)
+local Blip                     = CLASS:Create(Map)
 
 function Blip:Create(blipType, params)
     local handle

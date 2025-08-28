@@ -169,8 +169,9 @@
 ---@field public OnExecute? fun(source: number, args: table, rawCommand: string, self: COMMANDS)
 ---@field public OnError? fun(error: string)
 ---@field public State boolean?
+---@field public AddSuggestion? boolean?
 
----@class POINTS
+---@class POINTS 
 ---@field private New fun(self: POINTS, data: POINTS_PARAMS): POINTS
 ---@field public Start fun(self: POINTS)
 ---@field public Pause fun(self: POINTS)
@@ -184,15 +185,46 @@
 
 
 ---@class POINTS_PARAMS
----@field public id string
----@field public coords vector3
----@field public distance number
----@field public wait number
----@field public onEnter fun(self: POINTS)
----@field public onExit fun(self: POINTS)
-
+---@field public Arguments { id: string, center: vector3, radius: number, wait: number, debug: boolean, deActivate: boolean }[]
 
 ---@class FUNCTIONS
 ---@field public Switch fun(self: FUNCTIONS): FUNCTIONS
 ---@field public SetInterval fun(self: FUNCTIONS): FUNCTIONS
 ---@field public SetTimeout fun(self: FUNCTIONS): FUNCTIONS
+
+
+---@class CLASS
+---@field public Create fun(self: CLASS, data: table, name: string?)
+
+
+---@class Switch
+---@field cases table
+---@field value any
+---@field public default fun(self:Switch, value:any):any
+---@field public execute fun(self:Switch):any
+
+---@class Interval
+---@field callback fun(self:Interval):any
+---@field delay integer
+---@field id string
+---@field state boolean
+---@field customArgs? table
+---@field start? boolean
+---@field public Start fun(self:Interval):any
+---@field public Pause fun(self:Interval)
+---@field public Resume fun(self:Interval, ...:any)
+---@field public Destroy fun(self:Interval)
+---@field public Update fun(self:Interval, ...:any)
+
+
+---@class Timeout
+---@field callback fun(self:Timeout):any
+---@field delay integer
+---@field id string
+---@field state boolean
+---@field customArgs? table
+---@field start? boolean
+---@field public Start fun(self:Timeout):any
+---@field public Pause fun(self:Timeout)
+---@field public Resume fun(self:Timeout, ...:any)
+---@field public Destroy fun(self:Timeout)

@@ -54,7 +54,7 @@ function class:Create(base, className)
     end
 
     function cls:super(...)
-        if base and base.constructor then
+        if base?.constructor then
             local old = current_class_context
             current_class_context = base
             base.constructor(self, ...)
@@ -68,7 +68,8 @@ function class:Create(base, className)
             if owner and current_class_context ~= owner then
                 error(("Cannot access private member '%s' from outside class %s"):format(tostring(key), owner._class_name or "Unknown"))
             end
-            if private_properties[self] and private_properties[self][key] ~= nil then
+
+            if private_properties[self] and private_properties[self][key] then
                 return private_properties[self][key]
             end
         end
@@ -92,7 +93,8 @@ function class:Create(base, className)
             return val
         end
 
-        if base.get and base.get[key] then
+
+        if base?.get?[key] then
             local getter = base.get[key]
             return function(_, ...)
                 local old = current_class_context
@@ -103,7 +105,18 @@ function class:Create(base, className)
             end
         end
 
-        if base.set and base.set[key] then
+        if cls?.get[key] then
+            local getter = cls.get[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = cls
+                local result = getter(self, ...)
+                current_class_context = old
+                return result
+            end
+        end
+
+        if base?.set?[key] then
             local setter = base.set[key]
             return function(_, ...)
                 local old = current_class_context
@@ -114,10 +127,22 @@ function class:Create(base, className)
             end
         end
 
+        if cls?.set[key] then
+            local setter = cls.set[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = cls
+                local result = setter(self, ...)
+                current_class_context = old
+                return result
+            end
+        end
+
+
         if isClass(base) then
             local bval = rawget(base, key)
 
-            if bval ~= nil then
+            if bval then
                 if isPrivate(key) and type(bval) == "function" and current_class_context ~= base then
                     return function()
                         error(("Cannot call private method '%s' from outside class %s"):format(tostring(key), base._class_name or "Unknown"))
@@ -136,7 +161,7 @@ function class:Create(base, className)
                 return bval
             end
 
-            if base.get and base.get[key] then
+            if base?.get[key] then
                 local getter = base.get[key]
                 return function(_, ...)
                     local old = current_class_context
@@ -147,7 +172,7 @@ function class:Create(base, className)
                 end
             end
 
-            if base.set and base.set[key] then
+            if base?.set[key] then
                 local setter = base.set[key]
                 return function(_, ...)
                     local old = current_class_context
@@ -200,5 +225,3 @@ end
 return {
     Class = class,
 }
-
-

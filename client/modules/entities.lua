@@ -1,4 +1,5 @@
-local LIB <const> = Import  'class' 
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
+
 
 print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
 
@@ -9,16 +10,19 @@ local REGISTERED_ENTITIES <const> = {
     Vehicles = {}
 }
 
+--TODO: support creation of multiple entities at once , all entities will share the same methods and get exact data through handle/netid ?
+--TODO: support blips to entities
+--TODO: support entity ownership like horses and vehicles
+
 ------------------------------------
 --* BASE CLASS / SUPERCLASS / PARENT CLASS
 --* ENTITY manager
----@class ENTITY
-local Entity <const> = LIB.Class:Create({
+
+local Entity <const> = CLASS:Create({
 
     ---@Constructor
     constructor = function(self, entityType, data)
         self.model = data.Model
-        ---@private
         self._entityType = entityType
 
         self:_LoadModel(data)
@@ -187,7 +191,6 @@ local Entity <const> = LIB.Class:Create({
         return true
     end,
 
-
     _SetHeading = function(self, data)
         if not data.w then return end
         SetEntityHeading(self.handle, data.w)
@@ -208,15 +211,15 @@ local Entity <const> = LIB.Class:Create({
         if not data?.PlaceOnGround then return end
         PlaceEntityOnGroundProperly(self.handle, false)
     end,
-})
+
+}, 'ENTITY')
 
 
 -----------------------------------
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* PEDS
 ---@class PED : ENTITY
-local Ped <const> = LIB.Class:Create(Entity)
-
+local Ped <const> = CLASS:Create(Entity)
 function Ped:Create(data)
     local instance <const> = Ped:New('Peds', data)
 
@@ -225,7 +228,7 @@ function Ped:Create(data)
         return instance
     else
         if data.Options?.OutfitPreset then
-            EquipMetaPedOutfitPreset(instance.handle, data.Options?.OutfitPreset,true)
+            EquipMetaPedOutfitPreset(instance.handle, data.Options?.OutfitPreset, true)
         else
             SetRandomOutfitVariation(instance.handle, true)
         end
@@ -238,8 +241,7 @@ end
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* OBJECTS
 ---@class OBJECT : ENTITY
-local Object <const> = LIB.Class:Create(Entity)
-
+local Object <const> = CLASS:Create(Entity)
 function Object:Create(data)
     return Object:New('Objects', data)
 end
@@ -248,8 +250,7 @@ end
 --* DERIVED CLASSES / SUBCLASSES / CHILD CLASSES
 --* VEHICLES
 ---@class VEHICLE : ENTITY
-local Vehicle <const> = LIB.Class:Create(Entity)
-
+local Vehicle <const> = CLASS:Create(Entity)
 function Vehicle:Create(data)
     return Vehicle:New('Vehicles', data)
 end
@@ -274,4 +275,3 @@ return {
     Object = Object,
     Vehicle = Vehicle
 }
-

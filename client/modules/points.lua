@@ -1,4 +1,4 @@
-local LIB <const> = Import 'class'
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
 print("^3WARNING: ^7module POINTS is a work in progress use it at your own risk")
 
@@ -10,7 +10,7 @@ local REGISTERED_POINTS <const> = {}
 local GetEntityCoords <const> = GetEntityCoords
 local Wait <const> = Wait
 
-local points <const> = LIB.Class:Create({
+local points <const> = CLASS:Create({
 
     constructor = function(self, data)
         self.points = data.Arguments
@@ -20,21 +20,19 @@ local points <const> = LIB.Class:Create({
         self.isActive = false
     end,
 
-    set = {
-
-        -- add ids as keys for the points
-        sortPoints = function(self)
-            local sortedPoints = {}
-            for _, point in ipairs(self.points) do
-                sortedPoints[point.id] = point
-
-                if point.debug and not self.debugActive then
-                    self:DebugPoints()
-                end
+    -- add ids as keys for the points
+    _sortPoints = function(self)
+        local sortedPoints = {}
+        for _, point in ipairs(self.points) do
+            sortedPoints[point.id] = point
+            if point.debug and not self.debugActive then
+                self:DebugPoints()
             end
-            self.points = sortedPoints
-        end,
+        end
+        self.points = sortedPoints
+    end,
 
+    set = {
         -- update points by id
         UpdatePoint = function(self, id, data)
             local point = self.points[id]
@@ -75,7 +73,7 @@ local points <const> = LIB.Class:Create({
                         if point.debug and not point.deActivate then
                             DrawMarker(
                                 0x94FDAE17,
-                                point.center.x, point.center.y, -320.0,
+                                point.center.x, point.center.y, point.center.z,
                                 0.0, 0.0, 0.0,
                                 0.0, 0.0, 0.0,
                                 point.radius * 2.0, point.radius * 2.0, 400.0,
@@ -90,6 +88,28 @@ local points <const> = LIB.Class:Create({
             end)
         end,
 
+
+
+        Pause = function(self)
+            if not self.isActive then return print('its not active to pause it') end
+            self.isActive = false
+        end,
+
+        Resume = function(self)
+            if self.isActive then return print('its already active to resume it') end
+            self.isActive = false
+            self.isRegistered = false
+            self:Start()
+        end,
+
+        Destroy = function(self)
+            self.isActive = nil
+            self.isRegistered = nil
+            self.points = {}
+            self = nil -- does it actually destroy the instance ?
+        end,
+
+
         Start = function(self)
             if self.isActive then return print('already active') end
             self.isActive = true
@@ -97,7 +117,7 @@ local points <const> = LIB.Class:Create({
             if self.isRegistered then return print('already registered') end
             self.isRegistered = true
 
-            self:sortPoints()
+            self:_sortPoints()
 
             CreateThread(function()
                 while self.isActive do
@@ -122,26 +142,6 @@ local points <const> = LIB.Class:Create({
                     Wait(self.points?.wait or 500)
                 end
             end)
-        end,
-
-
-        Pause = function(self)
-            if not self.isActive then return print('its not active to pause it') end
-            self.isActive = false
-        end,
-
-        Resume = function(self)
-            if self.isActive then return print('its already active to resume it') end
-            self.isActive = false
-            self.isRegistered = false
-            self:Start()
-        end,
-
-        Destroy = function(self)
-            self.isActive = nil
-            self.isRegistered = nil
-            self.points = {}
-            self = nil -- does it actually destroy the instance ?
         end,
     },
 
@@ -194,5 +194,3 @@ end)
 return {
     Points = Points
 }
-
-

@@ -1,4 +1,4 @@
-local LIB <const> = Import 'class'
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
 print("^3WARNING: ^7module COMMANDS is a work in progress use it at your own risk")
 
@@ -14,7 +14,7 @@ local ERROR_TYPES <const> = {
 
 
 ---@class COMMANDS
-local Command <const> = LIB.Class:Create({
+local Command <const> = CLASS:Create({
 
     constructor = function(self, name, params)
         self.name = name
@@ -199,7 +199,7 @@ function Command:Register(name, params, state)
     local instance <const> = Command:New(name, params)
     COMMANDS_REGISTERED[name] = instance
     if state then
-        instance:Start(params.AddSuggestion) 
+        instance:Start(params.AddSuggestion)
     end
 
     return instance
@@ -261,4 +261,3 @@ end)
 return {
     Command = Command
 }
-
