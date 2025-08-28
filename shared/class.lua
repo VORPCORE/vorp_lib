@@ -12,7 +12,8 @@ function class:Create(base, className)
 
     -- mark as class
     cls.__is_class                   = true
-    cls._class_name                  = className or (base and base._class_name and (base._class_name .. " (extended)") or "Class")
+    cls._class_name                  = className or
+    (base and base._class_name and (base._class_name .. " (extended)") or "Class")
 
     local function isPrivate(key)
         return type(key) == "string" and key:sub(1, 1) == "_"
@@ -91,30 +92,52 @@ function class:Create(base, className)
             end
             return val
         end
-        
-        if base then
-            if base.get and base.get[key] then
-                local getter = base.get[key]
-                return function(_, ...)
-                    local old = current_class_context
-                    current_class_context = base
-                    local result = getter(self, ...)
-                    current_class_context = old
-                    return result
-                end
-            end
 
-            if base.set and base.set[key] then
-                local setter = base.set[key]
-                return function(_, ...)
-                    local old = current_class_context
-                    current_class_context = base
-                    local result = setter(self, ...)
-                    current_class_context = old
-                    return result
-                end
+
+        if base?.get?[key] then
+            local getter = base.get[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = base
+                local result = getter(self, ...)
+                current_class_context = old
+                return result
             end
         end
+
+        if cls?.get[key] then
+            local getter = cls.get[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = cls
+                local result = getter(self, ...)
+                current_class_context = old
+                return result
+            end
+        end
+
+        if base?.set?[key] then
+            local setter = base.set[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = base
+                local result = setter(self, ...)
+                current_class_context = old
+                return result
+            end
+        end
+
+        if cls?.set[key] then
+            local setter = cls.set[key]
+            return function(_, ...)
+                local old = current_class_context
+                current_class_context = cls
+                local result = setter(self, ...)
+                current_class_context = old
+                return result
+            end
+        end
+
 
         if isClass(base) then
             local bval = rawget(base, key)
@@ -138,7 +161,7 @@ function class:Create(base, className)
                 return bval
             end
 
-            if base.get and base.get[key] then
+            if base?.get[key] then
                 local getter = base.get[key]
                 return function(_, ...)
                     local old = current_class_context
@@ -149,7 +172,7 @@ function class:Create(base, className)
                 end
             end
 
-            if base.set and base.set[key] then
+            if base?.set[key] then
                 local setter = base.set[key]
                 return function(_, ...)
                     local old = current_class_context
