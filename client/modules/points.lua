@@ -20,6 +20,8 @@ local points <const> = CLASS:Create({
         self.isActive = false
     end,
 
+
+
     -- add ids as keys for the points
     _sortPoints = function(self)
         local sortedPoints = {}
@@ -62,7 +64,6 @@ local points <const> = CLASS:Create({
             end
         end,
 
-
         DebugPoints = function(self)
             if self.debugActive then return end
             self.debugActive = true
@@ -70,7 +71,9 @@ local points <const> = CLASS:Create({
             CreateThread(function()
                 while self.debugActive do
                     for _, point in pairs(self.points) do
+
                         if point.debug and not point.deActivate then
+                            
                             DrawMarker(
                                 0x94FDAE17,
                                 point.center.x, point.center.y, point.center.z,
@@ -87,8 +90,6 @@ local points <const> = CLASS:Create({
                 end
             end)
         end,
-
-
 
         Pause = function(self)
             if not self.isActive then return print('its not active to pause it') end
@@ -108,7 +109,6 @@ local points <const> = CLASS:Create({
             self.points = {}
             self = nil -- does it actually destroy the instance ?
         end,
-
 
         Start = function(self)
             if self.isActive then return print('already active') end

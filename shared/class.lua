@@ -12,7 +12,8 @@ function class:Create(base, className)
 
     -- mark as class
     cls.__is_class                   = true
-    cls._class_name                  = className or (base and base._class_name and (base._class_name .. " (extended)") or "Class")
+    cls._class_name                  = className or
+    (base and base._class_name and (base._class_name .. " (extended)") or "Class")
 
     local function isPrivate(key)
         return type(key) == "string" and key:sub(1, 1) == "_"

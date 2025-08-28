@@ -23,6 +23,7 @@ local event <const> = CLASS:Create({
         self.isRunning = false
         self.developerMode = false
     end,
+
     set = {
         Pause = function(self)
             self.isRunning = false
@@ -58,11 +59,8 @@ local event <const> = CLASS:Create({
                         EVENTS_TO_IGNORE[v] = true
                     end
                 end
-            else
-                table.wipe(EVENTS_TO_IGNORE)
             end
         end,
-
 
         Start = function(self)
             if not self.isRunning then
@@ -119,10 +117,10 @@ local event <const> = CLASS:Create({
     },
 
     _GetData = function(_, event, eventDataStruct)
-        local datafields = {}
+        local datafields <const> = {}
 
         for p = 0, event.datasize - 1, 1 do
-            local current_data_element = event.dataelements[p]
+            local current_data_element <const> = event.dataelements[p]
             if current_data_element and current_data_element.type == 'float' then
                 datafields[#datafields + 1] = eventDataStruct:GetFloat32(8 * p)
             else
@@ -134,7 +132,7 @@ local event <const> = CLASS:Create({
 
     _AllocateData = function(_, event, eventDataStruct)
         for p = 0, event.datasize - 1, 1 do
-            local current_data_element = event.dataelements[p]
+            local current_data_element <const> = event.dataelements[p]
             if current_data_element and current_data_element.type == 'float' then
                 eventDataStruct:SetFloat32(8 * p, 0)
             else
@@ -142,7 +140,6 @@ local event <const> = CLASS:Create({
             end
         end
     end,
-
 })
 
 ---@methods

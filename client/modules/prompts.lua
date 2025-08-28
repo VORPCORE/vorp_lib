@@ -268,19 +268,6 @@ local prompt <const> = CLASS:Create({
             end
         end)
     end,
-
-    -- allows to use key input as index to avoid loops
-    _SortPrompts       = function(self)
-        -- only once
-        if self.isSorted then return end
-        self.isSorted = true
-
-        local sortedPrompts <const> = {}
-        for _, value in ipairs(self.prompts) do
-            sortedPrompts[value.keyHash] = value
-        end
-        self.prompts = sortedPrompts
-    end,
 })
 
 local initializePrompts = function(data)

@@ -22,7 +22,6 @@ local switchs <const> = CLASS:Create({
     end
 })
 
-
 local intervals <const> = CLASS:Create({
     constructor = function(self, data)
         self.callback = data.callback
