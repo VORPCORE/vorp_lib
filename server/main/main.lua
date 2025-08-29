@@ -44,18 +44,18 @@ end)
 --end
 
 
--- add to its own module ?
+-- add to its own module ? might not make sense to use this on server?
 --------------------------------------------------------------------------------------------------------------------------------
---exports('SetDefaultDensityMultipliers', function(source,name, value, enable)
---    TriggerClientEvent('vorp_lib:Client:SetDefaultDensityMultiplier', source, name, value, enable)
---end)
+exports('SetDefaultDensityMultipliers', function(source, name, value, enable)
+    TriggerClientEvent('vorp_lib:Client:SetDefaultDensityMultiplier', source, name, value, enable)
+end)
 --
 ---- this allows to set temporary density multipliers wihtout changing the default values so we can use the getters
---exports('SetTemporaryDensityMultipliers', function(source, name, value, enable)
---    TriggerClientEvent('vorp_lib:Client:SetTemporaryDensityMultiplier',source, name, value, enable)
---end)
+exports('SetTemporaryDensityMultipliers', function(source, name, value, enable)
+    TriggerClientEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', source, name, value, enable)
+end)
 --
---exports('RemoveTemporayDensityMultipliers', function(source, name)
---    TriggerClientEvent('vorp_lib:Client:RemoveTemporaryDensityMultiplier', source, name)
---end)
+exports('RemoveTemporayDensityMultipliers', function(source, name)
+    TriggerClientEvent('vorp_lib:Client:RemoveTemporaryDensityMultiplier', source, name)
+end)
 --------------------------------------------------------------------------------------------------------------------------------

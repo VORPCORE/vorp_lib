@@ -39,33 +39,31 @@ RegisterNUICallback('endProgressBar', function(result, cb)
     cb('ok')
 end)
 
-exports('progressSync', function(data)
-    if isActive then
-        local queuePromise = promise.new()
-        table.insert(progressQueue, {
-            data = data,
-            callback = function(result)
-                queuePromise:resolve(result)
-            end
-        })
-        return Citizen.Await(queuePromise)
+exports('progressStart', function(data, onComplete)
+    if not onComplete then
+        if isActive then
+            local queuePromise = promise.new()
+            table.insert(progressQueue, {
+                data = data,
+                callback = function(result)
+                    queuePromise:resolve(result)
+                end
+            })
+            return Citizen.Await(queuePromise)
+        else
+            promises = promise.new()
+            executeProgress(data, nil)
+            return Citizen.Await(promises)
+        end
     else
-        promises = promise.new()
-        executeProgress(data, nil)
-        return Citizen.Await(promises)
-    end
-end)
-
-exports('progressAsync', function(data, onComplete)
-    if not onComplete then return error('onComplete function is required') end
-
-    if isActive then
-        table.insert(progressQueue, {
-            data = data,
-            callback = onComplete
-        })
-    else
-        executeProgress(data, onComplete)
+        if isActive then
+            table.insert(progressQueue, {
+                data = data,
+                callback = onComplete
+            })
+        else
+            executeProgress(data, onComplete)
+        end
     end
 end)
 
