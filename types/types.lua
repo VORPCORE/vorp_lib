@@ -38,7 +38,7 @@
 ---@field public New fun(self: VEHICLE, entityType: string, data: table): VEHICLE
 
 ---@class EVENTS
----@field public Register fun(self:EVENTS, name:string|integer, group:integer, callback:fun(), state:boolean):EVENTS
+---@field public Register fun(self:EVENTS, name:string|integer, group:integer, callback:fun(data:table), state:boolean):EVENTS
 ---@field public Start fun(self:EVENTS)
 ---@field public Pause fun(self:EVENTS)
 ---@field public Resume fun(self:EVENTS)
