@@ -136,7 +136,7 @@ local prompt <const> = CLASS:Create({
 
         SetGroupLabel           = function(self, label)
             if type(label) ~= 'string' then return print('label must be a string') end
-            self.groupLabel = label
+            self.label = label
         end,
 
         SetEnabled              = function(self, enabled, key)
