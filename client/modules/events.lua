@@ -65,6 +65,8 @@ local event <const> = CLASS:Create({
         Start = function(self)
             if not self.isRunning then
                 self.isRunning = true
+                self.allocate = self._AllocateData
+                self.getData = self._GetData
                 CreateThread(function()
                     local eventgroup <const> = self.eventGroup
                     while self.isRunning do
@@ -78,11 +80,11 @@ local event <const> = CLASS:Create({
                                         local data <const> = GameEvents[eventAtIndex]
                                         if data.datasize ~= 0 then
                                             local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:_AllocateData(data, eventDataStruct)
+                                            self.allocate(data, eventDataStruct)
                                             local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
-                                                datafields = self:_GetData(data, eventDataStruct)
+                                                datafields = self.getData(data, eventDataStruct)
                                             end
                                             print("^3DEVMODE: EVENT AT INDEX^7", GameEvents[eventAtIndex]?.name, json.encode(datafields, { indent = true }))
                                         end
@@ -93,11 +95,11 @@ local event <const> = CLASS:Create({
 
                                         if data.datasize ~= 0 then
                                             local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
-                                            self:_AllocateData(data, eventDataStruct)
+                                            self.allocate(data, eventDataStruct)
                                             local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
-                                                datafields = self:_GetData(data, eventDataStruct)
+                                                datafields = self.getData(data, eventDataStruct)
                                             end
 
 
@@ -116,7 +118,7 @@ local event <const> = CLASS:Create({
         end,
     },
 
-    _GetData = function(_, event, eventDataStruct)
+    _GetData = function(event, eventDataStruct)
         local datafields <const> = {}
 
         for p = 0, event.datasize - 1, 1 do
@@ -130,7 +132,7 @@ local event <const> = CLASS:Create({
         return datafields
     end,
 
-    _AllocateData = function(_, event, eventDataStruct)
+    _AllocateData = function(event, eventDataStruct)
         for p = 0, event.datasize - 1, 1 do
             local current_data_element <const> = event.dataelements[p]
             if current_data_element and current_data_element.type == 'float' then
