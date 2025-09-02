@@ -92,13 +92,12 @@ local PROMPT_KEYS <const> = {
 
 }
 
+--TODO: listen on vorp menu change to pause locations and resume when menu is closed for optimisation
 
 local prompt <const> = CLASS:Create({
     constructor   = function(self, data)
         self:_SetUpPrompts(data)
-        self.coords = data.coords
-        self.distance = data.distance
-        self.label = data.label
+        self.locations = data.locations
         self.callback = data.callback
         self.marker = data.marker
         self.sleep = data.sleep
@@ -132,11 +131,6 @@ local prompt <const> = CLASS:Create({
 
             UiPromptSetText(value.handle, VarString(10, 'LITERAL_STRING', label))
             value.label = label
-        end,
-
-        SetGroupLabel           = function(self, label)
-            if type(label) ~= 'string' then return print('label must be a string') end
-            self.label = label
         end,
 
         SetEnabled              = function(self, enabled, key)
@@ -196,6 +190,34 @@ local prompt <const> = CLASS:Create({
             self:Start()
         end,
 
+        PauseLocation           = function(self, index)
+            local value <const> = self.locations[index]
+            if not value then return print(('location not found with index %s'):format(index)) end
+            value.pause = true
+        end,
+
+        ResumeLocation          = function(self, index)
+            local value <const> = self.locations[index]
+            if not value then return print(('location not found with index %s'):format(index)) end
+            value.pause = false
+        end,
+
+        RemoveLocation          = function(self, index)
+            local value <const> = self.locations[index]
+            if not value then return print(('location not found with index %s'):format(index)) end
+            table.remove(self.locations, index)
+        end,
+
+        AddLocation             = function(self, location)
+            table.insert(self.locations, location)
+        end,
+
+        SetLocationLabel        = function(self, index, label)
+            local value <const> = self.locations[index]
+            if not value then return print(('location not found with index %s'):format(index)) end
+            value.label = label
+        end,
+
         Start                   = function(self)
             if self.isRunning then return end
             self.isRunning = true
@@ -206,21 +228,26 @@ local prompt <const> = CLASS:Create({
 
             CreateThread(function()
                 while self.isRunning do
-                    -- can add here distance check to display prompts
-                    local distance <const>             = #(GetEntityCoords(PlayerPedId()) - self.coords)
-                    local distanceCheck <const>        = self.distance or 2.0
-                    local sleep                        = self.sleep or 700
+                    local sleep = self.sleep or 700
 
-                    if distance <= distanceCheck then
-                        sleep = 0
-                        UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', self.label), 0, 0, 0, 0)
+                    for index, value in ipairs(self.locations) do
+                        if not value.pause then
+                            local distance <const>      = #(GetEntityCoords(PlayerPedId()) - value.coords)
+                            local distanceCheck <const> = value.distance or 2.0
 
-                        for _, value in pairs(self.prompts) do
-                            if value._promptType(value.handle) then
-                                self.callback(value, self)
+                            if distance <= distanceCheck then
+                                sleep = 0
+                                UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', value.label), 0, 0, 0, 0)
+
+                                for _, prompt in ipairs(self.prompts) do
+                                    if prompt._promptType(prompt.handle) then
+                                        self.callback(prompt, index, self)
+                                    end
+                                end
                             end
                         end
                     end
+
                     Wait(sleep)
                 end
             end)
@@ -249,25 +276,32 @@ local prompt <const> = CLASS:Create({
     _CreateMarker = function(self)
         CreateThread(function()
             while self.isRunning do
-                local distance <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
-                if distance <= self.marker.distance then
-                    DrawMarker(
-                        self.marker.type,
-                        self.coords.x, self.coords.y, self.coords.z,
-                        0.0, 0.0, 0.0,
-                        0.0, 0.0, 0.0,
-                        self.marker.scale.x, self.marker.scale.y, self.marker.scale.z,
-                        self.marker.color.r, self.marker.color.g, self.marker.color.b, self.marker.color.a,
-                        false, false, 2, false, nil,
-                        false, false
-                    )
+                local sleep = self.sleep or 700
+                for _, value in ipairs(self.locations) do
+                    if not value.pause then
+                        local distance <const> = #(GetEntityCoords(PlayerPedId()) - value.coords)
+                        if distance <= value.marker.distance then
+                            sleep = 0
+                            DrawMarker(
+                                value.marker.type,
+                                value.coords.x, value.coords.y, value.coords.z,
+                                0.0, 0.0, 0.0,
+                                0.0, 0.0, 0.0,
+                                value.marker.scale.x, value.marker.scale.y, value.marker.scale.z,
+                                value.marker.color.r, value.marker.color.g, value.marker.color.b, value.marker.color.a,
+                                false, false, 2, false, nil,
+                                false, false
+                            )
+                        end
+                    end
                 end
 
-                Wait(0)
+                Wait(sleep)
             end
         end)
     end,
 })
+
 
 local initializePrompts = function(data)
     local function normalizeKey(value)
@@ -308,9 +342,7 @@ end
 function Prompts:Register(data, callback, state)
     local processedData <const> = initializePrompts(data)
     processedData.callback = callback
-    processedData.coords = data.coords
-    processedData.distance = data.distance
-    processedData.label = data.label
+    processedData.locations = data.locations
     processedData.marker = data.marker
     processedData.sleep = data.sleep
 
@@ -318,6 +350,20 @@ function Prompts:Register(data, callback, state)
     if state then
         instance:Start()
     end
+    -- listen on vorp menu close to resume locations
+    AddEventHandler("vorp_menu:closemenu", function()
+        for _, value in pairs(instance.prompts) do
+            value:Resume()
+        end
+    end)
+
+    -- listen on vorp menu open to pause locations
+    AddEventHandler("vorp_menu:openmenu", function()
+        for _, value in pairs(instance.prompts) do
+            value:Pause()
+        end
+    end)
+
 
     return instance
 end
