@@ -171,7 +171,7 @@
 ---@field public State boolean?
 ---@field public AddSuggestion? boolean?
 
----@class POINTS 
+---@class POINTS
 ---@field private New fun(self: POINTS, data: POINTS_PARAMS): POINTS
 ---@field public Start fun(self: POINTS)
 ---@field public Pause fun(self: POINTS)
@@ -228,3 +228,36 @@
 ---@field public Pause fun(self:Timeout)
 ---@field public Resume fun(self:Timeout, ...:any)
 ---@field public Destroy fun(self:Timeout)
+
+
+---@class PROMPTS
+---@field private New fun(self: PROMPTS, data: PROMPTS_PARAMS): PROMPTS
+---@field private _SetUpPrompts fun(self: PROMPTS, data: PROMPTS_PARAMS)
+---@field private _CreateMarker fun(self: PROMPTS)
+---@field public Start fun(self: PROMPTS)
+---@field public Pause fun(self: PROMPTS)
+---@field public Resume fun(self: PROMPTS)
+---@field public Destroy fun(self: PROMPTS)
+---@field public Register fun(self: PROMPTS, data: PROMPTS_PARAMS, callback: fun(prompt: table, index: number, self: PROMPTS), state: boolean?): PROMPTS
+---@field public SetLocationLabel fun(self: PROMPTS, index: number, label: string)
+---@field public PauseLocation fun(self: PROMPTS, index: number)
+---@field public ResumeLocation fun(self: PROMPTS, index: number)
+---@field public RemoveLocation fun(self: PROMPTS, index: number)
+---@field public AddLocation fun(self: PROMPTS, location: table)
+---@field public RemoveModifier fun(self: PROMPTS, modifier: string)
+---@field public AddModifier fun(self: PROMPTS, modifier: string)
+---@field public SetLabel fun(self: PROMPTS, label: string, key: string)
+---@field public SetEnabled fun(self: PROMPTS, enabled: boolean, key: string)
+---@field public SetVisible fun(self: PROMPTS, visible: boolean, key: string)
+---@field public SetMashMode fun(self: PROMPTS, mashCount: number, key: string)
+---@field public SetMashIndefinitelyMode fun(self: PROMPTS, key: string)
+---@field public GetPromptGroup fun(self: PROMPTS, key: string)
+---@field public GetGroupLabel fun(self: PROMPTS, key: string)
+---@field public IsRunning fun(self: PROMPTS)
+---@field public GetHandle fun(self: PROMPTS): number
+
+---@class PROMPTS_PARAMS
+---@field public locations {coords: vector3, label: string, distance: number, marker: {type: string, scale: {x: number, y: number, z: number}, color: {r: number, g: number, b: number, a: number}, p7: number, entity: number, pos: vector3, heading: number, rotation: vector3}?, pause: boolean?}[]
+---@field public marker? boolean
+---@field public sleep? number
+---@field public prompts {type: string, key: string | number, label: string, mode: string}[]
