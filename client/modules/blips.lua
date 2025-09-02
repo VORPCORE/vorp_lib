@@ -84,6 +84,7 @@ local Map                      = CLASS:Create({
 
         -- same as above but only BLIP_colors in case they want to use blue,red,yellow as key values
         AddModifierColor = function(self, modifier)
+            if not modifier then return end
             if not BLIP_COLORS[modifier] then return error(('Color does not exist'):format(modifier)) end
             BlipAddModifier(self.handle, modifier)
         end,
