@@ -39,9 +39,8 @@ Complete entity creation and management system with automatic cleanup:
 
 ## Installation
 
-1. Ensure you have **VORP Core** installed and running
-2. Add `vorp_lib` to your server resources folder
-3. Add the following to your `server.cfg`:
+1. Add `vorp_lib` to your server resources folder
+2. Add the following to your `server.cfg`:
    ```cfg
    ensure vorp_lib #at the top of vorp scripts
    add_ace resource.vorp_lib command.add_ace allow
@@ -51,45 +50,9 @@ Complete entity creation and management system with automatic cleanup:
 ## Quick Start
 
 ### Import the library in your script's `fxmanifest.lua`:
+
 ```lua
 shared_script "@vorp_lib/import.lua"
-```
-
-### Use global variables (available everywhere):
-```lua
--- Access VORP Core without exports
-LIB.CORE.NotifyObjective(source, "Hello World", 5000)
-
--- Use notifications directly
-LIB.NOTIFY:Objective("Hello World", 5000)
-```
-
-### Import specific modules:
-```lua
--- Import entity system
-local Entity = Import 'entities' --[[@as ENTITY]]
-```
-
-### Import from other resources:
-starting with a `@`
-```lua
--- Import from another script
-local Utils = Import "@my_script/shared/utils"
-
--- Import multiple modules
-local Modules = Import({"prompts", "inputs", "points"})
-```
-
-### Import from own resource
-Starting by a slash `/` or a dot `.` will allow to import files within your scrip like config files
-```lua
-local Modules = Import "/myfolder/myfile"
-```
-
-### Mixed Imports
-
-```lua
-local Modules = Import({"@my_script/shared/utilss", "inputs", "/myfolder/myfile"})
 ```
 
 ## Documentation
@@ -139,7 +102,7 @@ When creating new modules:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU GENERAL PUBLIC LICENSE
 
 ## Acknowledgments
 
