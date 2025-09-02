@@ -94,7 +94,7 @@ local PROMPT_KEYS <const> = {
 
 
 local prompt <const> = CLASS:Create({
-    constructor        = function(self, data)
+    constructor   = function(self, data)
         self:_SetUpPrompts(data)
         self.coords = data.coords
         self.distance = data.distance
@@ -104,7 +104,7 @@ local prompt <const> = CLASS:Create({
         self.sleep = data.sleep
     end,
 
-    get                = {
+    get           = {
         GetHandle = function(self, key)
             return self.prompts?[key].handle
         end,
@@ -123,7 +123,7 @@ local prompt <const> = CLASS:Create({
 
     },
     -- updates the prompt data
-    set                = {
+    set           = {
         SetLabel                = function(self, label, key)
             if type(label) ~= 'string' then return print('label must be a string') end
 
@@ -205,12 +205,11 @@ local prompt <const> = CLASS:Create({
             end
 
             CreateThread(function()
-                self:SortPrompts()
                 while self.isRunning do
                     -- can add here distance check to display prompts
-                    local distance             <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
-                    local distanceCheck <const> = self.distance or 2.0
-                    local sleep                  = self.sleep or 700
+                    local distance <const>             = #(GetEntityCoords(PlayerPedId()) - self.coords)
+                    local distanceCheck <const>        = self.distance or 2.0
+                    local sleep                        = self.sleep or 700
 
                     if distance <= distanceCheck then
                         sleep = 0
@@ -228,7 +227,7 @@ local prompt <const> = CLASS:Create({
         end,
     },
 
-    _SetUpPrompts      = function(self, data)
+    _SetUpPrompts = function(self, data)
         local group <const> = GetRandomIntInRange(0, 0xffffff)
 
         for _, value in ipairs(data.prompts) do
@@ -247,7 +246,7 @@ local prompt <const> = CLASS:Create({
         self.prompts = data.prompts
     end,
 
-    _CreateMarker      = function(self)
+    _CreateMarker = function(self)
         CreateThread(function()
             while self.isRunning do
                 local distance <const> = #(GetEntityCoords(PlayerPedId()) - self.coords)
