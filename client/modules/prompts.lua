@@ -290,6 +290,8 @@ local initializePrompts = function(data)
         -- if type is a hash then no need to convert
         if type(value.key) == 'string' then
             value.keyHash = normalizeKey(value)
+        else
+            value.keyHash = value.key
         end
 
         if not PROMPT_MODES[value.mode] then
