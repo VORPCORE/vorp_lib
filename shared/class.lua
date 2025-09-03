@@ -13,7 +13,7 @@ function class:Create(base, className)
     -- mark as class
     cls.__is_class                   = true
     cls._class_name                  = className or
-    (base and base._class_name and (base._class_name .. " (extended)") or "Class")
+        (base and base._class_name and (base._class_name .. " (extended)") or "Class")
 
     local function isPrivate(key)
         return type(key) == "string" and key:sub(1, 1) == "_"
@@ -94,7 +94,6 @@ function class:Create(base, className)
             return val
         end
 
-
         if base?.get?[key] then
             local getter = base.get[key]
             return function(_, ...)
@@ -106,7 +105,7 @@ function class:Create(base, className)
             end
         end
 
-        if cls?.get[key] then
+        if cls?.get?[key] then
             local getter = cls.get[key]
             return function(_, ...)
                 local old = current_class_context
@@ -128,7 +127,7 @@ function class:Create(base, className)
             end
         end
 
-        if cls?.set[key] then
+        if cls?.set?[key] then
             local setter = cls.set[key]
             return function(_, ...)
                 local old = current_class_context
