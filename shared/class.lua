@@ -1,7 +1,5 @@
 local class <const> = {}
 
-print("^3WARNING: ^7module CLASS is a work in progress use it at your own risk")
-
 function class:Create(base, className)
     local cls <const> = {}
     setmetatable(cls, { __index = base })

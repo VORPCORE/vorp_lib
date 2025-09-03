@@ -1,7 +1,5 @@
 local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
-print("^3WARNING: ^7module POINTS is a work in progress use it at your own risk")
-
 ---@class POINTS
 local Points = {}
 
@@ -9,6 +7,7 @@ local REGISTERED_POINTS <const> = {}
 
 local GetEntityCoords <const> = GetEntityCoords
 local Wait <const> = Wait
+local DrawMarker <const> = DrawMarker
 
 local points <const> = CLASS:Create({
 
@@ -19,7 +18,6 @@ local points <const> = CLASS:Create({
         self.isRegistered = false
         self.isActive = false
     end,
-
 
 
     -- add ids as keys for the points

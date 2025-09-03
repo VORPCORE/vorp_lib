@@ -3,13 +3,15 @@ local Lib <const> = Import { 'gameEvents', 'dataview', "class" }
 local GameEvents <const> = Lib.GameEvents
 local CLASS <const> = Lib.Class --[[@as CLASS]]
 
-print("^3WARNING: ^7module EVENTS is a work in progress use it at your own risk")
-
 local SCRIPT_EVENT_QUEUE_AI <const> = 0
 local SCRIPT_EVENT_QUEUE_NETWORK <const> = 1
 local EVENTS_TO_IGNORE <const> = {}
 local REGISTERED_EVENTS <const> = {}
 
+local GetNumberOfEvents <const> = GetNumberOfEvents
+local GetEventAtIndex <const> = GetEventAtIndex
+local Wait <const> = Wait
+local InvokeNative <const> = Citizen.InvokeNative
 
 ---@class EVENTS
 local Events = {}
@@ -81,7 +83,7 @@ local event <const> = CLASS:Create({
                                         if data.datasize ~= 0 then
                                             local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
                                             self.allocate(data, eventDataStruct)
-                                            local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local data_exists <const> = InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
                                                 datafields = self.getData(data, eventDataStruct)
@@ -96,7 +98,7 @@ local event <const> = CLASS:Create({
                                         if data.datasize ~= 0 then
                                             local eventDataStruct <const> = Lib.DataView.ArrayBuffer(8 * data.datasize)
                                             self.allocate(data, eventDataStruct)
-                                            local data_exists <const> = Citizen.InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
+                                            local data_exists <const> = InvokeNative(0x57EC5FA4D4D6AFCA, eventgroup, i, eventDataStruct:Buffer(), data.datasize)
                                             local datafields = {}
                                             if data_exists then
                                                 datafields = self.getData(data, eventDataStruct)

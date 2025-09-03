@@ -1,7 +1,5 @@
 local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
-print("^3WARNING: ^7module COMMANDS is a work in progress use it at your own risk")
-
 local COMMANDS_REGISTERED <const> = {}
 
 local ERROR_TYPES <const> = {

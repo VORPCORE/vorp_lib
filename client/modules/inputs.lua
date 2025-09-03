@@ -5,8 +5,6 @@ local Wait <const> = Wait
 
 --TODO: add support for distance check on press etc
 
-print("^3WARNING: ^7module INPUTS is a work in progress use it at your own risk")
-
 ---@class INPUTS
 local Inputs = {}
 

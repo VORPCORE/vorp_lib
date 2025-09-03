@@ -1,8 +1,5 @@
 local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
-
-print("^3WARNING: ^7module ENTITY is a work in progress use it at your own risk")
-
 ---@type table<string, table<integer, integer>> Keep track of entities created
 local REGISTERED_ENTITIES <const> = {
     Objects = {},

@@ -3,8 +3,8 @@ local CLASS <const> = Import('class').Class --[[@as CLASS]]
 local GetEntityCoords <const> = GetEntityCoords
 local UiPromptSetActiveGroupThisFrame <const> = UiPromptSetActiveGroupThisFrame
 local VarString <const> = VarString
-
-print("^3WARNING: ^7module PROMPTS is a work in progress use it at your own risk")
+local DrawMarker <const> = DrawMarker
+local Wait <const> = Wait
 
 ---@class PROMPTS
 local Prompts = {}
