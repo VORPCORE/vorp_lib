@@ -95,8 +95,8 @@ function importModules:LoadModule(resource, path)
     local ok <const>, ret <const> = pcall(chunk)
     assert(ok, ret)
 
-    local mod <const> = ret ~= nil and ret or env -- module may return a table; else env
-    loadedModules[resource][path] = mod           -- ← store result
+    local mod <const> = ret ~= nil and ret or env
+    loadedModules[resource][path] = mod
     return mod
 end
 
