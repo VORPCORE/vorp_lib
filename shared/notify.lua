@@ -1,4 +1,4 @@
-local LIB <const> = Import "class"
+--[[ local LIB <const> = Import "class"
 
 
 if not IsDuplicityVersion() then
@@ -381,3 +381,6 @@ else
         Notify = notificationServer
     }
 end
+]]
+
+print("this module have been disabled use vorp core notify instead")
