@@ -15,9 +15,9 @@ local side <const>          = IsDuplicityVersion() and 'server' or 'client'
 local loadedModules <const> = {}
 
 
-local importModules   = {}
-importModules.__index = importModules
-importModules.__call  = function()
+local importModules <const> = {}
+importModules.__index       = importModules
+importModules.__call        = function()
     return "importModules"
 end
 
@@ -78,21 +78,26 @@ function importModules:Normalize(value)
 end
 
 function importModules:LoadModule(resource, path)
-    if not loadedModules[resource] then
-        loadedModules[resource] = {}
+    loadedModules[resource] = loadedModules[resource] or {}
+
+    local cached <const> = loadedModules[resource][path]
+    if cached ~= nil then
+        return cached
     end
 
-    if not loadedModules[resource][path] then
-        local rawLua <const> = LoadResourceFile(resource, path)
-        if not rawLua then
-            error("Failed to load file: " .. resource .. "/" .. path .. " does not exist or the path is wrong", 1)
-        end
-        local call, err = load(rawLua, path, 't', _ENV)
-        assert(call, err)
-        loadedModules[resource][path] = call
-    end
+    local raw <const> = LoadResourceFile(resource, path)
+    assert(raw, ("Failed to load file: %s/%s does not exist or the path is wrong"):format(resource, path))
 
-    return loadedModules[resource][path]()
+    local env <const> = setmetatable({}, { __index = _ENV })
+    local chunk, err = load(raw, ("@%s/%s"):format(resource, path), 't', env)
+    assert(chunk, err)
+
+    local ok <const>, ret <const> = pcall(chunk)
+    assert(ok, ret)
+
+    local mod <const> = ret ~= nil and ret or env -- module may return a table; else env
+    loadedModules[resource][path] = mod           -- ← store result
+    return mod
 end
 
 function importModules:GetModules(value)
@@ -101,9 +106,15 @@ function importModules:GetModules(value)
 
     for _, file in ipairs(data) do
         local resource <const>, path <const> = self:GetPath(file)
-        local module <const> = self:LoadModule(resource, path)
-        for k, v in pairs(module) do
-            results[k] = v
+        local mod <const> = self:LoadModule(resource, path)
+
+        if type(mod) == "table" then
+            for k, v in pairs(mod) do
+                results[k] = v
+            end
+        else
+            local name <const> = path:match("([^/%.]+)%.lua$") or path
+            results[name] = mod
         end
     end
     return results
@@ -114,19 +125,10 @@ function importModules:New(moduels)
     return import:GetModules(moduels)
 end
 
---- [documentation]() **learn how to use it**
+--- [documentation](https://docs.vorp-core.com/api-reference/lib) **learn how to use it**
 ---@param modules table| string Import a module or multiple modules from the library or from any resource
 function Import(modules)
     return importModules:New(modules)
 end
 
 _ENV.Import = Import
-
-
----@class LIB
----@field NOTIFY NOTIFY_CLIENT | NOTIFY_SERVER
----@field CORE CORE_CLIENT | CORE_SERVER 
-_ENV.LIB = {
-    NOTIFY = Import("notify").Notify,
-    CORE = exports.vorp_core:GetCore() -- for other frameworks just remove this and add your own. we will not support any other frameworks related logic in this lib
-}
