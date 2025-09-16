@@ -9,6 +9,8 @@ local Wait <const> = Wait
 ---@class PROMPTS
 local Prompts = {}
 
+local instances = {}
+
 local PROMPT_TYPES <const> = {
     Hold = UiPromptHasHoldModeCompleted,
     Press = UiPromptIsJustPressed,
@@ -165,6 +167,13 @@ local prompt <const> = CLASS:Create({
                 UiPromptDelete(value.handle)
             end
             self.isRunning = false
+
+            for i, instance in ipairs(instances) do
+                if instance == self then
+                    table.remove(instances, i)
+                    break
+                end
+            end
             self = nil
         end,
 
@@ -347,26 +356,33 @@ function Prompts:Register(data, callback, state)
     processedData.sleep = data.sleep
 
     local instance <const> = prompt:New(processedData)
+
+    table.insert(instances, instance)
+
     if state then
         instance:Start()
     end
-    -- listen on vorp menu close to resume locations
-    AddEventHandler("vorp_menu:closemenu", function()
-        for _, value in pairs(instance.prompts) do
-            value:Resume()
-        end
-    end)
-
-    -- listen on vorp menu open to pause locations
-    AddEventHandler("vorp_menu:openmenu", function()
-        for _, value in pairs(instance.prompts) do
-            value:Pause()
-        end
-    end)
 
 
     return instance
 end
+
+-- resume pause when menus are open or closed for optimisation
+AddEventHandler("vorp_menu:closemenu", function()
+    for _, instance in ipairs(instances) do
+        if instance and instance.Resume then
+            instance:Resume()
+        end
+    end
+end)
+
+AddEventHandler("vorp_menu:openmenu", function()
+    for _, instance in ipairs(instances) do
+        if instance and instance.Pause then
+            instance:Pause()
+        end
+    end
+end)
 
 return {
     Prompts = Prompts,
