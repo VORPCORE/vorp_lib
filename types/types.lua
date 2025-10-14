@@ -154,6 +154,48 @@
 ---@class POINTS_PARAMS
 ---@field public Arguments { id: string, center: vector3, radius: number, wait: number, debug: boolean, deActivate: boolean }[]
 
+---@alias POLYZONE_TYPE 'poly' | 'circle' | 'box'
+
+---@class POLYZONE_PARAMS
+---@field public id? string
+---@field public type? POLYZONE_TYPE
+---@field public points? (vector3 | {x: number, y: number, z: number})[]
+---@field public center? vector3 | {x: number, y: number, z: number}
+---@field public radius? number
+---@field public length? number
+---@field public width? number
+---@field public heading? number
+---@field public sleep? number
+---@field public sleepInside? number
+---@field public debug? boolean
+---@field public padding? number
+---@field public minZ? number
+---@field public maxZ? number
+---@field public onEnter? fun(zone: POLYZONE_INSTANCE, coords: vector3)
+---@field public onExit? fun(zone: POLYZONE_INSTANCE, coords: vector3)
+---@field public onInside? fun(zone: POLYZONE_INSTANCE, coords: vector3)
+
+---@class POLYZONE_INSTANCE
+---@field public Start fun(self: POLYZONE_INSTANCE)
+---@field public Pause fun(self: POLYZONE_INSTANCE)
+---@field public Resume fun(self: POLYZONE_INSTANCE)
+---@field public Destroy fun(self: POLYZONE_INSTANCE)
+---@field public GetId fun(self: POLYZONE_INSTANCE): string
+---@field public GetType fun(self: POLYZONE_INSTANCE): POLYZONE_TYPE
+---@field public IsRunning fun(self: POLYZONE_INSTANCE): boolean
+---@field public IsInside fun(self: POLYZONE_INSTANCE): boolean
+---@field public SetCallbacks fun(self: POLYZONE_INSTANCE, onEnter: fun(zone: POLYZONE_INSTANCE, coords: vector3)?, onExit: fun(zone: POLYZONE_INSTANCE, coords: vector3)?, onInside: fun(zone: POLYZONE_INSTANCE, coords: vector3)?)
+---@field public UpdatePolygon fun(self: POLYZONE_INSTANCE, points: (vector3 | {x: number, y: number, z: number})[])
+---@field public UpdateCircle fun(self: POLYZONE_INSTANCE, center: vector3 | {x: number, y: number, z: number}, radius: number)
+---@field public UpdateBox fun(self: POLYZONE_INSTANCE, center: vector3 | {x: number, y: number, z: number}, length: number, width: number, heading: number?)
+---@field public SetHeight fun(self: POLYZONE_INSTANCE, minZ: number?, maxZ: number?)
+---@field public SetDebug fun(self: POLYZONE_INSTANCE, enabled: boolean)
+---@field public SetTickRates fun(self: POLYZONE_INSTANCE, outsideMs: number?, insideMs: number?)
+
+---@class POLYZONES
+---@field public Register fun(self: POLYZONES, data: POLYZONE_PARAMS, state: boolean?): POLYZONE_INSTANCE
+---@field public Destroy fun(self: POLYZONES, instance: POLYZONE_INSTANCE)
+
 ---@class FUNCTIONS
 ---@field public Switch fun(self: FUNCTIONS): FUNCTIONS
 ---@field public SetInterval fun(self: FUNCTIONS): FUNCTIONS
