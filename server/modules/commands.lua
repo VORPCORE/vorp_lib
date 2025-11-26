@@ -328,34 +328,34 @@ end)
 -- FOR DEBUGGING
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
-    Wait(5000)
+  -- Wait(5000)
     -- for when we restart the resouce to test the commands
    -- if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
 
-    local character <const> = {
-        job = LocalPlayer.state.Character.Job,
-        grade = LocalPlayer.state.Character.Grade,
-        group = LocalPlayer.state.Character.Group,
-        charIdentifier = LocalPlayer.state.Character.CharId,
-    }
+   -- local character <const> = {
+   --     job = LocalPlayer.state.Character.Job,
+    --    grade = LocalPlayer.state.Character.Grade,
+    --    group = LocalPlayer.state.Character.Group,
+    --    charIdentifier = LocalPlayer.state.Character.CharId,
+   -- }
 
-    for _, command in pairs(COMMANDS_REGISTERED) do
+   -- for _, command in pairs(COMMANDS_REGISTERED) do
         -- if its active then add suggestions?
-        if command.isActive then
-            if command.permissions?.Ace then
-                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-                    local allowed <const> = hasPermissions(command.permissions, character, nil, source)
-                    if allowed then
-                        command:AddSuggestion(source)
-                    end
-                end
-            else
-                if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-                    command:AddSuggestion(source)
-                end
-            end
-        end
-    end
+     --   if command.isActive then
+      --      if command.permissions?.Ace then
+      --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+      --              local allowed <const> = hasPermissions(command.permissions, character, nil, source)
+      --              if allowed then
+      --                  command:AddSuggestion(source)
+      --           end
+      --          end
+      --      else
+      --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+     --               command:AddSuggestion(source)
+     --          end
+      --      end
+     --   end
+   -- end
 end)
 
 
