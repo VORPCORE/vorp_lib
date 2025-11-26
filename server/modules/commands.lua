@@ -330,7 +330,7 @@ AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
     Wait(5000)
     -- for when we restart the resouce to test the commands
-    if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
+   -- if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
 
     local character <const> = {
         job = LocalPlayer.state.Character.Job,
