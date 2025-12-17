@@ -132,3 +132,65 @@ function Import(modules)
 end
 
 _ENV.Import = Import
+
+
+
+if side == "client" then
+    ---@class CACHE
+    ---@field Ped integer player ped id
+    ---@field Player integer player id
+    ---@field ServerID integer player server id
+    ---@field Mount integer current mounted ped id
+    ---@field Vehicle integer current in vehicle ped id
+    ---@field Weapon integer current held weapon ped id
+    CACHE = {}
+
+    CreateThread(function()
+        CACHE.Ped = 0
+        CACHE.Player = PlayerId()
+        CACHE.ServerID = GetPlayerServerId(CACHE.Player)
+        CACHE.Mount = 0
+        CACHE.Vehicle = 0
+        CACHE.Weapon = 0
+        while true do
+            Wait(500) -- every half second?
+            local ped <const> = PlayerPedId()
+            if CACHE.Ped ~= ped then
+                CACHE.Ped = ped
+            end
+
+            local mount <const> = GetMount(CACHE.Ped)
+            if mount ~= 0 then
+                if CACHE.Mount ~= mount then
+                    CACHE.Mount = mount
+                end
+            else
+                if CACHE.Mount ~= 0 then
+                    CACHE.Mount = 0
+                end
+            end
+
+            local vehicle <const> = GetVehiclePedIsIn(CACHE.Ped, false)
+            if vehicle ~= 0 then
+                if CACHE.Vehicle ~= vehicle then
+                    CACHE.Vehicle = vehicle
+                end
+            else
+                if CACHE.Vehicle ~= 0 then
+                    CACHE.Vehicle = 0
+                end
+            end
+
+            local weapon <const> = GetPedCurrentHeldWeapon(CACHE.Ped)
+            if weapon ~= 0 then
+                if CACHE.Weapon ~= weapon then
+                    CACHE.Weapon = weapon
+                end
+            else
+                if CACHE.Weapon ~= 0 then
+                    CACHE.Weapon = 0
+                end
+            end
+        end
+    end)
+end
