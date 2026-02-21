@@ -152,43 +152,64 @@ if side == "client" then
         CACHE.Mount = 0
         CACHE.Vehicle = 0
         CACHE.Weapon = 0
+        CACHE.IsDead = false
+
+        -- adjustable vars
+        CACHE.SkipMount = false
+        CACHE.SkipVehicle = false
+        CACHE.SkipWeapon = false
+        CACHE.SkipIsDead = false
+        CACHE.Wait = 500
         while true do
-            Wait(500) -- every half second?
+            Wait(CACHE.Wait)
             local ped <const> = PlayerPedId()
             if CACHE.Ped ~= ped then
                 CACHE.Ped = ped
             end
 
-            local mount <const> = GetMount(CACHE.Ped)
-            if mount ~= 0 then
-                if CACHE.Mount ~= mount then
-                    CACHE.Mount = mount
-                end
-            else
-                if CACHE.Mount ~= 0 then
-                    CACHE.Mount = 0
-                end
-            end
-
-            local vehicle <const> = GetVehiclePedIsIn(CACHE.Ped, false)
-            if vehicle ~= 0 then
-                if CACHE.Vehicle ~= vehicle then
-                    CACHE.Vehicle = vehicle
-                end
-            else
-                if CACHE.Vehicle ~= 0 then
-                    CACHE.Vehicle = 0
+            if not CACHE.SkipMount then
+                local mount <const> = GetMount(CACHE.Ped)
+                if mount ~= 0 then
+                    if CACHE.Mount ~= mount then
+                        CACHE.Mount = mount
+                    end
+                else
+                    if CACHE.Mount ~= 0 then
+                        CACHE.Mount = 0
+                    end
                 end
             end
 
-            local weapon <const> = GetPedCurrentHeldWeapon(CACHE.Ped)
-            if weapon ~= 0 then
-                if CACHE.Weapon ~= weapon then
-                    CACHE.Weapon = weapon
+            if not CACHE.SkipVehicle then
+                local vehicle <const> = GetVehiclePedIsIn(CACHE.Ped, false)
+                if vehicle ~= 0 then
+                    if CACHE.Vehicle ~= vehicle then
+                        CACHE.Vehicle = vehicle
+                    end
+                else
+                    if CACHE.Vehicle ~= 0 then
+                        CACHE.Vehicle = 0
+                    end
                 end
-            else
-                if CACHE.Weapon ~= 0 then
-                    CACHE.Weapon = 0
+            end
+
+            if not CACHE.SkipWeapon then
+                local weapon <const> = GetPedCurrentHeldWeapon(CACHE.Ped)
+                if weapon ~= 0 then
+                    if CACHE.Weapon ~= weapon then
+                        CACHE.Weapon = weapon
+                    end
+                else
+                    if CACHE.Weapon ~= 0 then
+                        CACHE.Weapon = 0
+                    end
+                end
+            end
+
+            if not CACHE.SkipIsDead then
+                local isDead <const> = IsPlayerDead(CACHE.Player)
+                if isDead ~= CACHE.IsDead then
+                    CACHE.IsDead = isDead
                 end
             end
         end
