@@ -74,6 +74,21 @@
 ---@field public FromCamera fun(distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 ---@field public FromEntity fun(entity: integer, distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 
+---@class LOGGER_OPTIONS
+---@field public resource string?
+---@field public prefix string?
+---@field public debug boolean?
+---@field public colorize boolean?
+
+---@class LOGGER
+---@field public Log fun(level: string, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Info fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Warn fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Error fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Debug fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public SetDebugEnabled fun(enabled: boolean)
+---@field public GetDebugEnabled fun(): boolean
+
 ---@class MAP
 ---@field public New fun(self:MAP, handle:number):Blip
 ---@field public TrackBlips fun(self:MAP, handle:number)

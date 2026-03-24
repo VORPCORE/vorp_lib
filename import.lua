@@ -39,6 +39,7 @@ local content <const> = {
         functions = true,
         notify = true,
         locale = true,
+        logger = true,
     },
 }
 
