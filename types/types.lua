@@ -76,21 +76,22 @@
 ---@field public RemoveModifier fun(self:MAP, modifier:string|integer)
 ---@field public GetHandle fun(self:MAP):number
 ---@field public AddModifierColor fun(self:MAP, modifier:string | integer)
+---@field public Create fun(self:MAP, type:string , params:BLIP_PARAMS):BLIP
 
 ---@class BLIP_PARAMS
 ---@field public Options? BLIP_OPTIONS
 ---@field public Entity? number if type is entity, you need to provide a handle
 ---@field public Pos? vector3
----@field public Blip? number bliphash the style of the blip
+---@field public Blip? number| string bliphash the style of the blip
 ---@field public Scale? vector3 for type area only
 ---@field public Radius? number for type radius or area
 ---@field public P7? number default is 0
 ---@field public OnCreate? fun(instance:Blip)
 
 ---@class BLIP_OPTIONS
----@field public sprite? number
+---@field public sprite? number | string
 ---@field public name? string
----@field public style? number
+---@field public style? number | string
 ---@field public modifier? string
 ---@field public color? string
 
