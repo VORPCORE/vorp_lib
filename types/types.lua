@@ -58,6 +58,21 @@
 ---@field public LoadClipSet fun(clipSet: string, timeout: number?)
 ---@field public LoadScene fun(pos: vector3 | {x: number, y: number, z: number}, offset: vector3 | {x: number, y: number, z: number}, radius: number, p7: integer)
 
+---@class RAYCAST_RESULT
+---@field public hit boolean
+---@field public state integer
+---@field public handle integer
+---@field public didHit integer
+---@field public coords vector3
+---@field public normal vector3
+---@field public entity integer
+---@field public material integer?
+
+---@class RAYCAST
+---@field public Flags {World: integer, Vehicles: integer, Peds: integer, Ragdolls: integer, Objects: integer, Pickups: integer, Glass: integer, Rivers: integer, Foliage: integer, All: integer}
+---@field public Cast fun(startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: integer?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromCamera fun(distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromEntity fun(entity: integer, distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 
 ---@class MAP
 ---@field public New fun(self:MAP, handle:number):Blip
