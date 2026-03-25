@@ -8,7 +8,7 @@ local LEVELS <const> = {
 }
 
 local function getResourceName()
-    local invoking = GetInvokingResource and GetInvokingResource() or nil
+    local invoking = GetInvokingResource()
     if invoking and invoking ~= "" then
         return invoking
     end
