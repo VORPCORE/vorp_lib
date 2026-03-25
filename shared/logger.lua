@@ -1,13 +1,5 @@
 local CLASS <const> = Import('class').Class --[[@as CLASS]]
 
----@class LOGGER_CONTEXT: table<string, any>
-
----@class LOGGER_OPTIONS
----@field public resource string?
----@field public prefix string?
----@field public debug boolean?
----@field public colorize boolean?
-
 local LEVELS <const> = {
     INFO = { label = "INFO", color = "^2" },
     WARN = { label = "WARN", color = "^3" },
@@ -134,13 +126,11 @@ local function buildMessage(...)
     return table.concat(parts)
 end
 
----@class LOGGER
 local LoggerClass <const> = CLASS:Create({
     constructor = function(self)
         self.debugEnabled = false
     end,
 
-    ---@param level string
     Log = function(self, level, ...)
         local argCount <const> = select("#", ...)
         local args = { ... }
@@ -206,12 +196,10 @@ local LoggerClass <const> = CLASS:Create({
         self:Log("DEBUG", ...)
     end,
 
-    ---@param enabled boolean
     SetDebugEnabled = function(self, enabled)
         self.debugEnabled = enabled == true
     end,
 
-    ---@return boolean
     GetDebugEnabled = function(self)
         return self.debugEnabled
     end
