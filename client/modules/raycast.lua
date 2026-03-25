@@ -5,7 +5,6 @@ local abs <const> = math.abs
 local cos <const> = math.cos
 local sin <const> = math.sin
 local rad <const> = math.rad
-local PlayerPedId <const> = PlayerPedId
 local GetGameTimer <const> = GetGameTimer
 local Wait <const> = Wait
 local StartShapeTestLosProbe <const> = StartShapeTestLosProbe
@@ -37,7 +36,8 @@ local function rotationToDirection(rotation)
     return vector3(-sin(yaw) * cosPitch, cos(yaw) * cosPitch, sin(pitch))
 end
 
-local function buildResult(state, handle, didHit, hitCoords, surfaceNormal, entityHit, materialHash)
+local function getShapeTestResult(handle)
+    local state, didHit, hitCoords, surfaceNormal, materialHash, entityHit = GetShapeTestResultIncludingMaterial(handle)
     return {
         state = state,
         handle = handle,
@@ -50,26 +50,7 @@ local function buildResult(state, handle, didHit, hitCoords, surfaceNormal, enti
     }
 end
 
-local function getShapeTestResult(handle)
-    local state, didHit, hitCoords, surfaceNormal, materialHash, entityHit = GetShapeTestResultIncludingMaterial(handle)
-    return buildResult(state, handle, didHit, hitCoords, surfaceNormal, entityHit, materialHash)
-end
-
-local function normalizeFlags(flags)
-    if type(flags) == "number" then
-        return flags
-    end
-
-    if type(flags) == "string" then
-        return FLAGS[flags] or FLAGS.All
-    end
-
-    return FLAGS.All
-end
-
 local RaycastClass <const> = CLASS:Create({
-    Flags = FLAGS,
-
     _Cast = function(self, startCoords, endCoords, flags, ignoreEntity, options)
         if not startCoords then
             error("raycast: startCoords is required", 2)
@@ -81,7 +62,14 @@ local RaycastClass <const> = CLASS:Create({
 
         local start <const> = vector3(startCoords.x, startCoords.y, startCoords.z)
         local finish <const> = vector3(endCoords.x, endCoords.y, endCoords.z)
-        flags = normalizeFlags(flags)
+        if flags ~= nil then
+            flags = FLAGS[flags]
+            if not flags then
+                error("raycast: invalid flag name", 2)
+            end
+        else
+            flags = FLAGS.World
+        end
         local target <const> = ignoreEntity or PlayerPedId()
         local traceType <const> = options?.traceType or 7
         local timeout <const> = options?.timeout or 1000
@@ -138,6 +126,7 @@ local RaycastClass <const> = CLASS:Create({
 }, "RAYCAST")
 
 local Raycast <const> = RaycastClass:New()
+Raycast.Flags = FLAGS
 
 return {
     Raycast = Raycast
