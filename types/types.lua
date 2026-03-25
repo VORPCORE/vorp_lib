@@ -70,9 +70,9 @@
 
 ---@class RAYCAST
 ---@field public Flags {World: integer, Vehicles: integer, Peds: integer, Ragdolls: integer, Objects: integer, Pickups: integer, Glass: integer, Rivers: integer, Foliage: integer, All: integer}
----@field public Cast fun(startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: integer?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
----@field public FromCamera fun(distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
----@field public FromEntity fun(entity: integer, distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public Cast fun(self: RAYCAST, startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: integer?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromCamera fun(self: RAYCAST, distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromEntity fun(self: RAYCAST, entity: integer, distance: number?, flags: integer?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 
 ---@class LOGGER_OPTIONS
 ---@field public resource string?
@@ -81,13 +81,13 @@
 ---@field public colorize boolean?
 
 ---@class LOGGER
----@field public Log fun(level: string, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Info fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Warn fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Error fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Debug fun(message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public SetDebugEnabled fun(enabled: boolean)
----@field public GetDebugEnabled fun(): boolean
+---@field public Log fun(self: LOGGER, level: string, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Info fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Warn fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Error fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Debug fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public SetDebugEnabled fun(self: LOGGER, enabled: boolean)
+---@field public GetDebugEnabled fun(self: LOGGER): boolean
 
 ---@class MAP
 ---@field public New fun(self:MAP, handle:number):Blip

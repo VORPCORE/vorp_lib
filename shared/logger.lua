@@ -1,3 +1,5 @@
+local CLASS <const> = Import('class').Class --[[@as CLASS]]
+
 ---@class LOGGER_CONTEXT: table<string, any>
 
 ---@class LOGGER_OPTIONS
@@ -5,11 +7,6 @@
 ---@field public prefix string?
 ---@field public debug boolean?
 ---@field public colorize boolean?
-
----@class LOGGER
-local Logger = {}
-
-local DEBUG_ENABLED = false
 
 local LEVELS <const> = {
     INFO = { label = "INFO", color = "^2" },
@@ -112,75 +109,84 @@ local function normalizeLevel(level)
     return LEVELS[key] and key or "INFO"
 end
 
----@param level string
----@param message any
----@param context LOGGER_CONTEXT?
----@param options LOGGER_OPTIONS?
-function Logger.Log(level, message, context, options)
-    local normalizedLevel <const> = normalizeLevel(level)
-    local metadata <const> = LEVELS[normalizedLevel]
-    local shouldForceDebug <const> = options?.debug == true
+---@class LOGGER
+local LoggerClass <const> = CLASS:Create({
+    constructor = function(self)
+        self.debugEnabled = false
+    end,
 
-    if normalizedLevel == "DEBUG" and not DEBUG_ENABLED and not shouldForceDebug then
-        return
+    ---@param level string
+    ---@param message any
+    ---@param context LOGGER_CONTEXT?
+    ---@param options LOGGER_OPTIONS?
+    Log = function(self, level, message, context, options)
+        local normalizedLevel <const> = normalizeLevel(level)
+        local metadata <const> = LEVELS[normalizedLevel]
+        local shouldForceDebug <const> = options?.debug == true
+
+        if normalizedLevel == "DEBUG" and not self.debugEnabled and not shouldForceDebug then
+            return
+        end
+
+        local colorize <const> = options?.colorize ~= false
+        local resourceName <const> = options?.resource or getResourceName()
+        local timestamp <const> = getTime()
+        local prefix <const> = options?.prefix and ("[%s] "):format(options.prefix) or ""
+        local contextString <const> = buildContext(context)
+
+        local resourcePart <const> = applyColor(colorize, "^6", ("[%s]"):format(resourceName))
+        local timePart <const> = applyColor(colorize, "^5", ("[%s]"):format(timestamp))
+        local levelPart <const> = applyColor(colorize, metadata.color, ("[%s]"):format(metadata.label))
+        local body <const> = ("%s%s"):format(prefix, tostring(message))
+
+        local line = ("%s %s %s %s"):format(resourcePart, timePart, levelPart, body)
+        if contextString then
+            line = ("%s | %s"):format(line, contextString)
+        end
+
+        print(line)
+    end,
+
+    ---@param message any
+    ---@param context LOGGER_CONTEXT?
+    ---@param options LOGGER_OPTIONS?
+    Info = function(self, message, context, options)
+        self:Log("INFO", message, context, options)
+    end,
+
+    ---@param message any
+    ---@param context LOGGER_CONTEXT?
+    ---@param options LOGGER_OPTIONS?
+    Warn = function(self, message, context, options)
+        self:Log("WARN", message, context, options)
+    end,
+
+    ---@param message any
+    ---@param context LOGGER_CONTEXT?
+    ---@param options LOGGER_OPTIONS?
+    Error = function(self, message, context, options)
+        self:Log("ERROR", message, context, options)
+    end,
+
+    ---@param message any
+    ---@param context LOGGER_CONTEXT?
+    ---@param options LOGGER_OPTIONS?
+    Debug = function(self, message, context, options)
+        self:Log("DEBUG", message, context, options)
+    end,
+
+    ---@param enabled boolean
+    SetDebugEnabled = function(self, enabled)
+        self.debugEnabled = enabled == true
+    end,
+
+    ---@return boolean
+    GetDebugEnabled = function(self)
+        return self.debugEnabled
     end
+}, "LOGGER")
 
-    local colorize <const> = options?.colorize ~= false
-    local resourceName <const> = options?.resource or getResourceName()
-    local timestamp <const> = getTime()
-    local prefix <const> = options?.prefix and ("[%s] "):format(options.prefix) or ""
-    local contextString <const> = buildContext(context)
-
-    local resourcePart <const> = applyColor(colorize, "^6", ("[%s]"):format(resourceName))
-    local timePart <const> = applyColor(colorize, "^5", ("[%s]"):format(timestamp))
-    local levelPart <const> = applyColor(colorize, metadata.color, ("[%s]"):format(metadata.label))
-    local body <const> = ("%s%s"):format(prefix, tostring(message))
-
-    local line = ("%s %s %s %s"):format(resourcePart, timePart, levelPart, body)
-    if contextString then
-        line = ("%s | %s"):format(line, contextString)
-    end
-
-    print(line)
-end
-
----@param message any
----@param context LOGGER_CONTEXT?
----@param options LOGGER_OPTIONS?
-function Logger.Info(message, context, options)
-    Logger.Log("INFO", message, context, options)
-end
-
----@param message any
----@param context LOGGER_CONTEXT?
----@param options LOGGER_OPTIONS?
-function Logger.Warn(message, context, options)
-    Logger.Log("WARN", message, context, options)
-end
-
----@param message any
----@param context LOGGER_CONTEXT?
----@param options LOGGER_OPTIONS?
-function Logger.Error(message, context, options)
-    Logger.Log("ERROR", message, context, options)
-end
-
----@param message any
----@param context LOGGER_CONTEXT?
----@param options LOGGER_OPTIONS?
-function Logger.Debug(message, context, options)
-    Logger.Log("DEBUG", message, context, options)
-end
-
----@param enabled boolean
-function Logger.SetDebugEnabled(enabled)
-    DEBUG_ENABLED = enabled == true
-end
-
----@return boolean
-function Logger.GetDebugEnabled()
-    return DEBUG_ENABLED
-end
+local Logger <const> = LoggerClass:New()
 
 return {
     Logger = Logger
