@@ -81,11 +81,11 @@
 ---@field public colorize boolean?
 
 ---@class LOGGER
----@field public Log fun(self: LOGGER, level: string, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Info fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Warn fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Error fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
----@field public Debug fun(self: LOGGER, message: any, context: table<string, any>?, options: LOGGER_OPTIONS?)
+---@field public Log fun(self: LOGGER, level: string, ...: any)
+---@field public Info fun(self: LOGGER, ...: any)
+---@field public Warn fun(self: LOGGER, ...: any)
+---@field public Error fun(self: LOGGER, ...: any)
+---@field public Debug fun(self: LOGGER, ...: any)
 ---@field public SetDebugEnabled fun(self: LOGGER, enabled: boolean)
 ---@field public GetDebugEnabled fun(self: LOGGER): boolean
 

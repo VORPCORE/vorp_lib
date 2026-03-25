@@ -109,6 +109,31 @@ local function normalizeLevel(level)
     return LEVELS[key] and key or "INFO"
 end
 
+local function isOptionsTable(value)
+    if type(value) ~= "table" then
+        return false
+    end
+
+    return value.resource ~= nil
+        or value.prefix ~= nil
+        or value.debug ~= nil
+        or value.colorize ~= nil
+end
+
+local function buildMessage(...)
+    local length <const> = select("#", ...)
+    if length == 0 then
+        return ""
+    end
+
+    local parts <const> = {}
+    for i = 1, length do
+        parts[i] = encodeValue(select(i, ...))
+    end
+
+    return table.concat(parts)
+end
+
 ---@class LOGGER
 local LoggerClass <const> = CLASS:Create({
     constructor = function(self)
@@ -116,10 +141,28 @@ local LoggerClass <const> = CLASS:Create({
     end,
 
     ---@param level string
-    ---@param message any
-    ---@param context LOGGER_CONTEXT?
-    ---@param options LOGGER_OPTIONS?
-    Log = function(self, level, message, context, options)
+    Log = function(self, level, ...)
+        local argCount <const> = select("#", ...)
+        local args = { ... }
+        local options
+        local context
+
+        if argCount > 0 and isOptionsTable(args[argCount]) then
+            options = args[argCount]
+            args[argCount] = nil
+        end
+
+        local messageEnd = argCount
+        if options then
+            messageEnd = messageEnd - 1
+        end
+
+        if messageEnd > 0 and type(args[messageEnd]) == "table" then
+            context = args[messageEnd]
+            args[messageEnd] = nil
+            messageEnd = messageEnd - 1
+        end
+
         local normalizedLevel <const> = normalizeLevel(level)
         local metadata <const> = LEVELS[normalizedLevel]
         local shouldForceDebug <const> = options?.debug == true
@@ -133,11 +176,11 @@ local LoggerClass <const> = CLASS:Create({
         local timestamp <const> = getTime()
         local prefix <const> = options?.prefix and ("[%s] "):format(options.prefix) or ""
         local contextString <const> = buildContext(context)
+        local body <const> = ("%s%s"):format(prefix, buildMessage(table.unpack(args, 1, messageEnd)))
 
         local resourcePart <const> = applyColor(colorize, "^6", ("[%s]"):format(resourceName))
         local timePart <const> = applyColor(colorize, "^5", ("[%s]"):format(timestamp))
         local levelPart <const> = applyColor(colorize, metadata.color, ("[%s]"):format(metadata.label))
-        local body <const> = ("%s%s"):format(prefix, tostring(message))
 
         local line = ("%s %s %s %s"):format(resourcePart, timePart, levelPart, body)
         if contextString then
@@ -147,32 +190,20 @@ local LoggerClass <const> = CLASS:Create({
         print(line)
     end,
 
-    ---@param message any
-    ---@param context LOGGER_CONTEXT?
-    ---@param options LOGGER_OPTIONS?
-    Info = function(self, message, context, options)
-        self:Log("INFO", message, context, options)
+    Info = function(self, ...)
+        self:Log("INFO", ...)
     end,
 
-    ---@param message any
-    ---@param context LOGGER_CONTEXT?
-    ---@param options LOGGER_OPTIONS?
-    Warn = function(self, message, context, options)
-        self:Log("WARN", message, context, options)
+    Warn = function(self, ...)
+        self:Log("WARN", ...)
     end,
 
-    ---@param message any
-    ---@param context LOGGER_CONTEXT?
-    ---@param options LOGGER_OPTIONS?
-    Error = function(self, message, context, options)
-        self:Log("ERROR", message, context, options)
+    Error = function(self, ...)
+        self:Log("ERROR", ...)
     end,
 
-    ---@param message any
-    ---@param context LOGGER_CONTEXT?
-    ---@param options LOGGER_OPTIONS?
-    Debug = function(self, message, context, options)
-        self:Log("DEBUG", message, context, options)
+    Debug = function(self, ...)
+        self:Log("DEBUG", ...)
     end,
 
     ---@param enabled boolean
