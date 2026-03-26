@@ -68,14 +68,24 @@
 ---@field public entity integer
 ---@field public material integer?
 
+---@alias RAYCAST_FLAG
+---| 'World'
+---| 'Vehicles'
+---| 'Peds'
+---| 'Ragdolls'
+---| 'Objects'
+---| 'Pickups'
+---| 'Glass'
+---| 'Rivers'
+---| 'Foliage'
+---| 'All'
+
 ---@class RAYCAST
----@field public Flags {World: integer, Vehicles: integer, Peds: integer, Ragdolls: integer, Objects: integer, Pickups: integer, Glass: integer, Rivers: integer, Foliage: integer, All: integer}
----@field private _Cast fun(self: RAYCAST, startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: string?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
----@field public FromCamera fun(self: RAYCAST, distance: number?, flags: string?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
----@field public FromEntity fun(self: RAYCAST, entity: integer, distance: number?, flags: string?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field private _Cast fun(self: RAYCAST, startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromCamera fun(self: RAYCAST, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromEntity fun(self: RAYCAST, entity: integer, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 
 ---@class LOGGER_OPTIONS
----@field public resource string?
 ---@field public prefix string?
 ---@field public debug boolean?
 ---@field public colorize boolean?

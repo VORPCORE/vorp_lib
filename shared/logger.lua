@@ -7,15 +7,6 @@ local LEVELS <const> = {
     DEBUG = { label = "DEBUG", color = "^4" }
 }
 
-local function getResourceName()
-    local invoking = GetInvokingResource()
-    if invoking and invoking ~= "" then
-        return invoking
-    end
-
-    return GetCurrentResourceName()
-end
-
 local function padTime(value)
     return ("%02d"):format(value)
 end
@@ -106,8 +97,7 @@ local function isOptionsTable(value)
         return false
     end
 
-    return value.resource ~= nil
-        or value.prefix ~= nil
+    return value.prefix ~= nil
         or value.debug ~= nil
         or value.colorize ~= nil
 end
@@ -162,17 +152,15 @@ local LoggerClass <const> = CLASS:Create({
         end
 
         local colorize <const> = options?.colorize ~= false
-        local resourceName <const> = options?.resource or getResourceName()
         local timestamp <const> = getTime()
         local prefix <const> = options?.prefix and ("[%s] "):format(options.prefix) or ""
         local contextString <const> = buildContext(context)
         local body <const> = ("%s%s"):format(prefix, buildMessage(table.unpack(args, 1, messageEnd)))
 
-        local resourcePart <const> = applyColor(colorize, "^6", ("[%s]"):format(resourceName))
         local timePart <const> = applyColor(colorize, "^5", ("[%s]"):format(timestamp))
         local levelPart <const> = applyColor(colorize, metadata.color, ("[%s]"):format(metadata.label))
 
-        local line = ("%s %s %s %s"):format(resourcePart, timePart, levelPart, body)
+        local line = ("%s %s %s"):format(timePart, levelPart, body)
         if contextString then
             line = ("%s | %s"):format(line, contextString)
         end

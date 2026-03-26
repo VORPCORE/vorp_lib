@@ -62,14 +62,7 @@ local RaycastClass <const> = CLASS:Create({
 
         local start <const> = vector3(startCoords.x, startCoords.y, startCoords.z)
         local finish <const> = vector3(endCoords.x, endCoords.y, endCoords.z)
-        if flags ~= nil then
-            flags = FLAGS[flags]
-            if not flags then
-                error("raycast: invalid flag name", 2)
-            end
-        else
-            flags = FLAGS.World
-        end
+        flags = FLAGS[flags] or FLAGS.World
         local target <const> = ignoreEntity or PlayerPedId()
         local traceType <const> = options?.traceType or 7
         local timeout <const> = options?.timeout or 1000
@@ -126,7 +119,6 @@ local RaycastClass <const> = CLASS:Create({
 }, "RAYCAST")
 
 local Raycast <const> = RaycastClass:New()
-Raycast.Flags = FLAGS
 
 return {
     Raycast = Raycast
