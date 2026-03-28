@@ -58,6 +58,46 @@
 ---@field public LoadClipSet fun(clipSet: string, timeout: number?)
 ---@field public LoadScene fun(pos: vector3 | {x: number, y: number, z: number}, offset: vector3 | {x: number, y: number, z: number}, radius: number, p7: integer)
 
+---@class RAYCAST_RESULT
+---@field public hit boolean
+---@field public state integer
+---@field public handle integer
+---@field public didHit integer
+---@field public coords vector3
+---@field public normal vector3
+---@field public entity integer
+---@field public material integer?
+
+---@alias RAYCAST_FLAG
+---| 'World'
+---| 'Vehicles'
+---| 'Peds'
+---| 'Ragdolls'
+---| 'Objects'
+---| 'Pickups'
+---| 'Glass'
+---| 'Rivers'
+---| 'Foliage'
+---| 'All'
+
+---@class RAYCAST
+---@field private _Cast fun(self: RAYCAST, startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromCamera fun(self: RAYCAST, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public FromEntity fun(self: RAYCAST, entity: integer, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+
+---@class LOGGER_OPTIONS
+---@field public prefix string?
+---@field public debug boolean?
+---@field public colorize boolean?
+
+---@class LOGGER
+---@field public Log fun(self: LOGGER, level: string, ...: any)
+---@field public Info fun(self: LOGGER, ...: any)
+---@field public Warn fun(self: LOGGER, ...: any)
+---@field public Error fun(self: LOGGER, ...: any)
+---@field public Debug fun(self: LOGGER, ...: any)
+---@field public SetDebugEnabled fun(self: LOGGER, enabled: boolean)
+---@field public GetDebugEnabled fun(self: LOGGER): boolean
 
 ---@class MAP
 ---@field public New fun(self:MAP, handle:number):Blip
