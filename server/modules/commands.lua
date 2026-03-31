@@ -1,5 +1,7 @@
 local LIB <const> = Import 'class'
 
+local Core <const> = exports.vorp_core:GetCore()
+
 ---@type table<string, {}>
 local COMMANDS_REGISTERED <const> = {}
 
@@ -81,7 +83,7 @@ end
 
 
 
----@class Command
+---@class COMMANDS
 local Command <const> = LIB.Class:Create({
 
     constructor = function(self, name, params)
@@ -179,12 +181,12 @@ local Command <const> = LIB.Class:Create({
             RegisterCommand(self.name, function(source, args, rawCommand)
                 if not self.isActive then return self.error(ERROR_TYPES.ACTIVE) end
 
-                local errorType <const> = self:validate(args, source, permissions)
+                local errorType <const> = self:_validate(args, source, permissions)
                 if errorType then
                     return self.error and self.error(errorType) or print(errorType)
                 end
 
-                args = self:getTypes(args)
+                args = self:_getTypes(args)
 
                 self.execute(source, args, rawCommand, self)
             end, isRestricted)
@@ -203,7 +205,7 @@ local Command <const> = LIB.Class:Create({
             self = nil -- does it actually destroy it?
         end,
 
-        isRequiredArgument = function(self, args)
+        _isRequiredArgument = function(self, args)
             for i = 1, #self.suggestion.Arguments do
                 if self.suggestion.Arguments[i].required and (not args[i] or args[i] == "") then
                     return ERROR_TYPES.MISSING_ARGUMENTS
@@ -211,8 +213,8 @@ local Command <const> = LIB.Class:Create({
             end
         end,
 
-        validate = function(self, args, source, permissions)
-            local requiredError <const> = self:isRequiredArgument(args)
+        _validate = function(self, args, source, permissions)
+            local requiredError <const> = self:_isRequiredArgument(args)
             if requiredError then
                 return requiredError
             end
@@ -242,7 +244,7 @@ local Command <const> = LIB.Class:Create({
             return errorType
         end,
 
-        getTypes = function(self, args)
+        _getTypes = function(self, args)
             local arguments <const> = self.suggestion?.Arguments
             if arguments and next(arguments) then
                 for i = 1, #arguments do
@@ -328,34 +330,34 @@ end)
 -- FOR DEBUGGING
 AddEventHandler('onResourceStart', function(resource)
     if resource ~= GetCurrentResourceName() then return end
-  -- Wait(5000)
+    -- Wait(5000)
     -- for when we restart the resouce to test the commands
-   -- if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
+    -- if not LocalPlayer.state.IsInSession then return end -- if not then its not restarting the resource
 
-   -- local character <const> = {
-   --     job = LocalPlayer.state.Character.Job,
+    -- local character <const> = {
+    --     job = LocalPlayer.state.Character.Job,
     --    grade = LocalPlayer.state.Character.Grade,
     --    group = LocalPlayer.state.Character.Group,
     --    charIdentifier = LocalPlayer.state.Character.CharId,
-   -- }
+    -- }
 
-   -- for _, command in pairs(COMMANDS_REGISTERED) do
-        -- if its active then add suggestions?
-     --   if command.isActive then
-      --      if command.permissions?.Ace then
-      --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-      --              local allowed <const> = hasPermissions(command.permissions, character, nil, source)
-      --              if allowed then
-      --                  command:AddSuggestion(source)
-      --           end
-      --          end
-      --      else
-      --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
-     --               command:AddSuggestion(source)
-     --          end
-      --      end
-     --   end
-   -- end
+    -- for _, command in pairs(COMMANDS_REGISTERED) do
+    -- if its active then add suggestions?
+    --   if command.isActive then
+    --      if command.permissions?.Ace then
+    --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+    --              local allowed <const> = hasPermissions(command.permissions, character, nil, source)
+    --              if allowed then
+    --                  command:AddSuggestion(source)
+    --           end
+    --          end
+    --      else
+    --          if command.suggestion?.Arguments and next(command.suggestion.Arguments) then
+    --               command:AddSuggestion(source)
+    --          end
+    --      end
+    --   end
+    -- end
 end)
 
 
@@ -380,10 +382,9 @@ AddEventHandler('vorp:SelectedCharacter', function(source, character)
     end
 end)
 
---[[ return {
+return {
     Command = Command
 }
- ]]
 
 
 -- example from here

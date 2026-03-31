@@ -121,9 +121,9 @@ local LoggerClass <const> = CLASS:Create({
         self.debugEnabled = false
     end,
 
-    Log = function(self, level, ...)
+    _Log = function(self, level, ...)
         local argCount <const> = select("#", ...)
-        local args = { ... }
+        local args <const> = { ... }
         local options
         local context
 
@@ -169,23 +169,23 @@ local LoggerClass <const> = CLASS:Create({
     end,
 
     Info = function(self, ...)
-        self:Log("INFO", ...)
+        self:_Log("INFO", ...)
     end,
 
     Warn = function(self, ...)
-        self:Log("WARN", ...)
+        self:_Log("WARN", ...)
     end,
 
     Error = function(self, ...)
-        self:Log("ERROR", ...)
+        self:_Log("ERROR", ...)
     end,
 
     Debug = function(self, ...)
-        self:Log("DEBUG", ...)
+        self:_Log("DEBUG", ...)
     end,
 
     SetDebugEnabled = function(self, enabled)
-        self.debugEnabled = enabled == true
+        self.debugEnabled = enabled
     end,
 
     GetDebugEnabled = function(self)

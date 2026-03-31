@@ -1,21 +1,21 @@
-local CLASS <const> = Import('class').Class --[[@as CLASS]]
+local CLASS <const>                       = Import('class').Class --[[@as CLASS]]
 
-local vector3 <const> = vector3
-local abs <const> = math.abs
-local cos <const> = math.cos
-local sin <const> = math.sin
-local rad <const> = math.rad
-local GetGameTimer <const> = GetGameTimer
-local Wait <const> = Wait
-local StartShapeTestLosProbe <const> = StartShapeTestLosProbe
-local GetShapeTestResultIncludingMaterial <const> = GetShapeTestResultIncludingMaterial
-local GetGameplayCamCoord <const> = GetGameplayCamCoord
-local GetGameplayCamRot <const> = GetGameplayCamRot
-local DoesEntityExist <const> = DoesEntityExist
-local GetEntityCoords <const> = GetEntityCoords
-local GetEntityForwardVector <const> = GetEntityForwardVector
+local vector3                             = vector3
+local abs                                 = math.abs
+local cos                                 = math.cos
+local sin                                 = math.sin
+local rad                                 = math.rad
+local GetGameTimer                        = GetGameTimer
+local Wait                                = Wait
+local StartShapeTestLosProbe              = StartShapeTestLosProbe
+local GetShapeTestResultIncludingMaterial = GetShapeTestResultIncludingMaterial
+local GetGameplayCamCoord                 = GetGameplayCamCoord
+local GetGameplayCamRot                   = GetGameplayCamRot
+local DoesEntityExist                     = DoesEntityExist
+local GetEntityCoords                     = GetEntityCoords
+local GetEntityForwardVector              = GetEntityForwardVector
 
-local FLAGS <const> = {
+local FLAGS <const>                       = {
     World = 1,
     Vehicles = 2,
     Peds = 4,
@@ -37,7 +37,7 @@ local function rotationToDirection(rotation)
 end
 
 local function getShapeTestResult(handle)
-    local state, didHit, hitCoords, surfaceNormal, materialHash, entityHit = GetShapeTestResultIncludingMaterial(handle)
+    local state <const>, didHit <const>, hitCoords <const>, surfaceNormal <const>, materialHash <const>, entityHit <const> = GetShapeTestResultIncludingMaterial(handle)
     return {
         state = state,
         handle = handle,
@@ -50,16 +50,9 @@ local function getShapeTestResult(handle)
     }
 end
 
+---@class RAYCAST
 local RaycastClass <const> = CLASS:Create({
     _Cast = function(self, startCoords, endCoords, flags, ignoreEntity, options)
-        if not startCoords then
-            error("raycast: startCoords is required", 2)
-        end
-
-        if not endCoords then
-            error("raycast: endCoords is required", 2)
-        end
-
         local start <const> = vector3(startCoords.x, startCoords.y, startCoords.z)
         local finish <const> = vector3(endCoords.x, endCoords.y, endCoords.z)
         flags = FLAGS[flags] or FLAGS.World
@@ -68,13 +61,7 @@ local RaycastClass <const> = CLASS:Create({
         local timeout <const> = options?.timeout or 1000
         local delay <const> = options?.wait or 0
 
-        local handle <const> = StartShapeTestLosProbe(
-            start.x, start.y, start.z,
-            finish.x, finish.y, finish.z,
-            flags,
-            target,
-            traceType
-        )
+        local handle <const> = StartShapeTestLosProbe(start.x, start.y, start.z, finish.x, finish.y, finish.z, flags, target, traceType)
 
         local startTime <const> = GetGameTimer()
         local result = getShapeTestResult(handle)
@@ -103,7 +90,7 @@ local RaycastClass <const> = CLASS:Create({
     end,
 
     FromEntity = function(self, entity, distance, flags, ignoreEntity, options)
-        if not entity or not DoesEntityExist(entity) then
+        if not DoesEntityExist(entity) then
             error("raycast: entity does not exist", 2)
         end
 

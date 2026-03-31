@@ -84,6 +84,7 @@
 ---@field private _Cast fun(self: RAYCAST, startCoords: vector3 | {x: number, y: number, z: number}, endCoords: vector3 | {x: number, y: number, z: number}, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 ---@field public FromCamera fun(self: RAYCAST, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
 ---@field public FromEntity fun(self: RAYCAST, entity: integer, distance: number?, flags: RAYCAST_FLAG?, ignoreEntity: integer?, options: {offset?: vector3 | {x: number, y: number, z: number}, traceType?: integer, timeout?: integer, wait?: integer}?): RAYCAST_RESULT
+---@field public New fun(self: RAYCAST): RAYCAST
 
 ---@class LOGGER_OPTIONS
 ---@field public prefix string?
@@ -91,7 +92,7 @@
 ---@field public colorize boolean?
 
 ---@class LOGGER
----@field public Log fun(self: LOGGER, level: string, ...: any)
+---@field public _Log fun(self: LOGGER, level: string, ...: any)
 ---@field public Info fun(self: LOGGER, ...: any)
 ---@field public Warn fun(self: LOGGER, ...: any)
 ---@field public Error fun(self: LOGGER, ...: any)
@@ -156,9 +157,9 @@
 
 ---@class COMMANDS
 ---@field private New fun(self: COMMANDS, commandName: string, params: COMMAND_PARAMS, state: boolean?): COMMANDS
----@field private isRequiredArgument fun(self: COMMANDS, args: table)
----@field private validate fun(self: COMMANDS, args: table)
----@field private getTypes fun(self: COMMANDS, args: table)
+---@field private _isRequiredArgument fun(self: COMMANDS, args: table)
+---@field private _validate fun(self: COMMANDS, args: table)
+---@field private _getTypes fun(self: COMMANDS, args: table)
 ---@field public Register fun(self: COMMANDS, commandName: string, params: COMMAND_PARAMS, state: boolean?): COMMANDS
 ---@field public Pause fun(self: COMMANDS)
 ---@field public Start fun(self: COMMANDS, addSuggestion: boolean?)
