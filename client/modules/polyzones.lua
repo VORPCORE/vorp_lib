@@ -369,19 +369,11 @@ local zone <const> = CLASS:Create({
             for i = 0, segments - 1 do
                 local angle <const> = i * increment
                 local nextAngle <const> = (i + 1) * increment
-                local pointA <const> = vector3(
-                    self.center.x + (self.radius * cos(angle)),
-                    self.center.y + (self.radius * sin(angle)),
-                    minZ
-                )
-                local pointB <const> = vector3(
-                    self.center.x + (self.radius * cos(nextAngle)),
-                    self.center.y + (self.radius * sin(nextAngle)),
-                    minZ
-                )
-                DrawLine(pointA, pointB, color.r, color.g, color.b, color.a)
-                DrawLine(pointA + vector3(0.0, 0.0, maxZ - minZ), pointB + vector3(0.0, 0.0, maxZ - minZ), color.r, color.g, color.b, color.a)
-                DrawLine(pointA, pointA + vector3(0.0, 0.0, maxZ - minZ), color.r, color.g, color.b, color.a)
+                local pointA <const> = vector3(self.center.x + (self.radius * cos(angle)), self.center.y + (self.radius * sin(angle)), minZ)
+                local pointB <const> = vector3(self.center.x + (self.radius * cos(nextAngle)), self.center.y + (self.radius * sin(nextAngle)), minZ)
+                DrawLine(pointA.x, pointA.y, pointA.z, pointB.x, pointB.y, pointB.z, color.r, color.g, color.b, color.a)
+                DrawLine(pointA.x, pointA.y, pointA.z + (maxZ - minZ), pointB.x, pointB.y, pointB.z + (maxZ - minZ), color.r, color.g, color.b, color.a)
+                DrawLine(pointA.x, pointA.y, pointA.z, pointA.x, pointA.y, pointA.z + (maxZ - minZ), color.r, color.g, color.b, color.a)
             end
             return
         end
@@ -408,9 +400,9 @@ local zone <const> = CLASS:Create({
                 local highA <const> = lowA + vector3(0.0, 0.0, maxZ - minZ)
                 local highB <const> = lowB + vector3(0.0, 0.0, maxZ - minZ)
 
-                DrawLine(lowA, lowB, color.r, color.g, color.b, color.a)
-                DrawLine(highA, highB, color.r, color.g, color.b, color.a)
-                DrawLine(lowA, highA, color.r, color.g, color.b, color.a)
+                DrawLine(lowA.x, lowA.y, lowA.z, lowB.x, lowB.y, lowB.z, color.r, color.g, color.b, color.a)
+                DrawLine(highA.x, highA.y, highA.z, highB.x, highB.y, highB.z, color.r, color.g, color.b, color.a)
+                DrawLine(lowA.x, lowA.y, lowA.z, highA.x, highA.y, highA.z, color.r, color.g, color.b, color.a)
             end
             return
         end
@@ -427,9 +419,9 @@ local zone <const> = CLASS:Create({
             local highA <const> = vector3(current.x, current.y, maxZ)
             local highB <const> = vector3(nextPoint.x, nextPoint.y, maxZ)
 
-            DrawLine(lowA, lowB, color.r, color.g, color.b, color.a)
-            DrawLine(highA, highB, color.r, color.g, color.b, color.a)
-            DrawLine(lowA, highA, color.r, color.g, color.b, color.a)
+            DrawLine(lowA.x, lowA.y, lowA.z, lowB.x, lowB.y, lowB.z, color.r, color.g, color.b, color.a)
+            DrawLine(highA.x, highA.y, highA.z, highB.x, highB.y, highB.z, color.r, color.g, color.b, color.a)
+            DrawLine(lowA.x, lowA.y, lowA.z, highA.x, highA.y, highA.z, color.r, color.g, color.b, color.a)
         end
     end,
 })
