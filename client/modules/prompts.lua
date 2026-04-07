@@ -9,7 +9,7 @@ local Wait <const> = Wait
 ---@class PROMPTS
 local Prompts = {}
 
-local instances = {}
+local instances <const> = {}
 
 local PROMPT_TYPES <const> = {
     Hold = UiPromptHasHoldModeCompleted,
@@ -238,19 +238,17 @@ local prompt <const> = CLASS:Create({
             CreateThread(function()
                 while self.isRunning do
                     local sleep = self.sleep or 700
-
                     for index, value in ipairs(self.locations) do
                         if not value.pause then
-                            local distance <const>      = #(GetEntityCoords(PlayerPedId()) - value.coords)
+                            local distance <const>      = #(GetEntityCoords(CACHE.Ped) - value.coords)
                             local distanceCheck <const> = value.distance or 2.0
-
-                            if distance <= distanceCheck then
+                            if distance < distanceCheck then
                                 sleep = 0
                                 UiPromptSetActiveGroupThisFrame(self.group, VarString(10, 'LITERAL_STRING', value.label), 0, 0, 0, 0)
 
                                 for _, prompt in ipairs(self.prompts) do
                                     if prompt._promptType(prompt.handle) then
-                                        self.callback(prompt, index, self)
+                                        self.callback(prompt, index, self, value)
                                     end
                                 end
                             end
@@ -288,7 +286,7 @@ local prompt <const> = CLASS:Create({
                 local sleep = self.sleep or 700
                 for _, value in ipairs(self.locations) do
                     if not value.pause then
-                        local distance <const> = #(GetEntityCoords(PlayerPedId()) - value.coords)
+                        local distance <const> = #(GetEntityCoords(CACHE.Ped) - value.coords)
                         if distance <= value.marker.distance then
                             sleep = 0
                             DrawMarker(
@@ -298,8 +296,8 @@ local prompt <const> = CLASS:Create({
                                 0.0, 0.0, 0.0,
                                 value.marker.scale.x, value.marker.scale.y, value.marker.scale.z,
                                 value.marker.color.r, value.marker.color.g, value.marker.color.b, value.marker.color.a,
-                                false, false, 2, false, nil,
-                                false, false
+                                false, false, 2, false, "",
+                                "", false
                             )
                         end
                     end
