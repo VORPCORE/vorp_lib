@@ -289,7 +289,7 @@
 ---@field public Pause fun(self: PROMPTS)
 ---@field public Resume fun(self: PROMPTS)
 ---@field public Destroy fun(self: PROMPTS)
----@field public Register fun(self: PROMPTS, data: PROMPTS_PARAMS, callback: fun(prompt: table, index: number, self: PROMPTS), state: boolean?): PROMPTS
+---@field public Register fun(self: PROMPTS, data: PROMPTS_PARAMS, callback: fun(prompt: table, index: number, self: PROMPTS, value: any), state: boolean?): PROMPTS
 ---@field public SetLocationLabel fun(self: PROMPTS, index: number, label: string)
 ---@field public PauseLocation fun(self: PROMPTS, index: number)
 ---@field public ResumeLocation fun(self: PROMPTS, index: number)
