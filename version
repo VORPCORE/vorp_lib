@@ -1,3 +1,8 @@
+<0.3>
+- added raycast module
+- added logger module 
+- added isDead to CACHE + skipp checks (check docs)
+- fix server register commands
 <0.2>
 - added polyzones module (see docs)
 - added cache system (see docs)
