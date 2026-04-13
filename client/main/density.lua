@@ -126,6 +126,18 @@ RegisterNetEvent('vorp_lib:Client:SetDefaultDensityMultiplier', function(name, v
     end
 end)
 
+local isSet = false
+RegisterNetEvent('vorp_lib:Internal:SetDefaultDensityMultiplier', function(data)
+   if isSet return end -- only once from vorp core
+   isSet = true
+   for name,v in pairs(data) do
+       if MULTIPLIERS[name] then -- verify it matches structure
+          MULTIPLIERS[name].enable = v.enable
+          MULTIPLIERS[name].value = v.value
+       end
+   end     
+end)
+
 RegisterNetEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', function(name, value, enable)
     if not MULTIPLIERS[name] then return error(("^1[ERROR] ^3%s^0 is not a valid density multiplier"):format(name)) end
     if enable then
