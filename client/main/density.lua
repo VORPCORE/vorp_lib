@@ -128,14 +128,14 @@ end)
 
 local isSet = false
 RegisterNetEvent('vorp_lib:Internal:SetDefaultDensityMultiplier', function(data)
-   if isSet return end -- only once from vorp core
-   isSet = true
-   for name,v in pairs(data) do
-       if MULTIPLIERS[name] then -- verify it matches structure
-          MULTIPLIERS[name].enable = v.enable
-          MULTIPLIERS[name].value = v.value
-       end
-   end     
+    if isSet then return end -- only once from vorp core
+    isSet = true
+    for name, v in pairs(data) do
+        if MULTIPLIERS[name] then -- verify it matches structure
+            MULTIPLIERS[name].enable = v.enable
+            MULTIPLIERS[name].value = v.value
+        end
+    end
 end)
 
 RegisterNetEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', function(name, value, enable)
