@@ -51,8 +51,8 @@ exports('SetDefaultDensityMultipliers', function(source, name, value, enable)
 end)
 --
 ---- this allows to set temporary density multipliers wihtout changing the default values so we can use the getters
-exports('SetTemporaryDensityMultipliers', function(source, name, value, enable)
-    TriggerClientEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', source, name, value, enable)
+exports('SetTemporaryDensityMultipliers', function(source, name, value)
+    TriggerClientEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', source, name, value)
 end)
 --
 exports('RemoveTemporayDensityMultipliers', function(source, name)

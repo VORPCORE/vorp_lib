@@ -138,12 +138,10 @@ RegisterNetEvent('vorp_lib:Internal:SetDefaultDensityMultiplier', function(data)
     end
 end)
 
-RegisterNetEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', function(name, value, enable)
+RegisterNetEvent('vorp_lib:Client:SetTemporaryDensityMultiplier', function(name, value)
     if not MULTIPLIERS[name] then return error(("^1[ERROR] ^3%s^0 is not a valid density multiplier"):format(name)) end
-    if enable then
-        MULTIPLIERS[name].enable = enable
-        MULTIPLIERS[name].temp_value = value
-    end
+    MULTIPLIERS[name].enable = true
+    MULTIPLIERS[name].temp_value = value
 end)
 
 RegisterNetEvent('vorp_lib:Client:RemoveTemporaryDensityMultiplier', function(name)
