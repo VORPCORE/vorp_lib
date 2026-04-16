@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const copyToClipboard = (text) => {
+    const c opyToClipboard = (text) => {
         const el = document.createElement('textarea');
         el.value = text;
         document.body.appendChild(el);
@@ -9,11 +9,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(el);
     };
 
-    window.addEventListener('message', (event) => {
+        window.addEventListener('message', (event) => {
         const { data } = event.data;
+        if (!data || !data.type) return;
 
-        if (!data || data.type !== 'copy') return;
-
-        copyToClipboard(data.text);
+        if (data.type === 'copy')
+            copyToClipboard(data.text);
     });
 });
