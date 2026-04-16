@@ -1,5 +1,11 @@
 ---@meta
 
+--- CLIENT SIDE NUI
+---@param text string text to copy to the clipboard
+---@return boolean success
+---@return string? error
+function exports.vorp_lib:copyText(text) end
+
 ---@class ENTITY
 ---@field private TrackEntity fun(self: ENTITY)
 ---@field private RemoveTrackedEntity fun(self: ENTITY)

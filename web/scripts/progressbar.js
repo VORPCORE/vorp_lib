@@ -92,6 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener('message', function (event) {
         const { data, duration } = event.data;
+        if (!data || !data.type) return;
 
         if (data.type === 'linear') {
             showProgressBars(data, duration);

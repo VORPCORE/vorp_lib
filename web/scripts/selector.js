@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     window.addEventListener('message', function (event) {
         const { data } = event.data;
+        if (!data || !data.type) return;
 
         if (data.type === 'select')
             initSelector(data.players);
