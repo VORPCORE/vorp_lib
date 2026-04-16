@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.removeChild(el);
     };
 
-        window.addEventListener('message', (event) => {
+    window.addEventListener('message', (event) => {
         const { data } = event.data;
         if (!data || !data.type) return;
 
