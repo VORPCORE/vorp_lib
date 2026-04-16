@@ -1,14 +1,13 @@
-exports('copyText', function(text)
+exports('copyToClipBoard', function(text)
     if not text or type(text) ~= "string" then
-        return false, "invalid text"
+        return
     end
-
+    SetNuiFocus(true, false)
     SendNUIMessage({
         data = {
-            type = 'copyText',
+            type = 'copy',
             text = text
         }
     })
-
-    return true
+    Wait(500)
 end)
