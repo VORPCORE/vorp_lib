@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-    const c opyToClipboard = (text) => {
+    const copyToClipboard = (text) => {
         const el = document.createElement('textarea');
         el.value = text;
         document.body.appendChild(el);
