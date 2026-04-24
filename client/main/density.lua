@@ -118,11 +118,16 @@ exports('GetDensityMultipliers', function(name)
 end)
 
 -- FROM SERVER SIDE
-RegisterNetEvent('vorp_lib:Client:SetDefaultDensityMultiplier', function(name, value, enable)
-    if not MULTIPLIERS[name] then return error(("^1[ERROR] ^3%s^0 is not a valid density multiplier"):format(name)) end
-    if enable then
-        MULTIPLIERS[name].enable = enable
-        MULTIPLIERS[name].value = value
+RegisterNetEvent('vorp_lib:Client:SetDefaultDensityMultiplier', function(data)
+    for name, v in pairs(data) do
+        if not MULTIPLIERS[name] then
+            print(("^1[ERROR] ^3%s^0 is not a valid density multiplier"):format(name))
+        else
+            if v.enable then
+                MULTIPLIERS[name].enable = v.enable
+                MULTIPLIERS[name].value = v.value
+            end
+        end
     end
 end)
 
