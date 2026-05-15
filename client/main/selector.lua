@@ -22,15 +22,7 @@ local function selector(options)
         return false
     end
 
-    -- if theres only me  dont need to select anyone ? or do we still allow?
     local activePlayers <const> = GetActivePlayers()
-    --[[   if options.allow_self and #activePlayers == 1 then
-        if activePlayers[1] == PlayerId() then
-            local selfId <const> = GetPlayerServerId(PlayerId())
-            isInSelection = false
-            return selfId
-        end
-    end ]]
 
     local function getDistanceBetweenCoords(playerPos, targetPos)
         local dx <const> = targetPos.x - playerPos.x
@@ -39,22 +31,29 @@ local function selector(options)
         return math.sqrt(dx * dx + dy * dy + dz * dz)
     end
 
-    SetNuiFocus(true, true)
-
     local playersNeeded <const> = {}
     local amount_of_players <const> = options.amount_of_players or 4 -- fallback to default value
 
+    local interior2 <const> = GetInteriorFromEntity(playerPed)
     for _, player in ipairs(activePlayers) do
-        if #playersNeeded < amount_of_players then -- option for amount of players?
+        if #playersNeeded < amount_of_players then
             local playerPos <const> = GetEntityCoords(playerPed)
             local targetPed <const> = GetPlayerPed(player)
             local targetPos <const> = GetEntityCoords(targetPed)
-            local dist <const> = #(playerPos - targetPos)
-            if dist <= (options.distance or 8.0) then -- option for distance?
-                if options.allow_self and player == PlayerId() then
-                    table.insert(playersNeeded, player)
-                else
-                    table.insert(playersNeeded, player)
+            local interior <const> = GetInteriorFromEntity(targetPed)
+            if interior == interior2 then
+                local isInLineOfSight <const> = HasEntityClearLosToEntityInFront(playerPed, targetPed, 3167)
+                if isInLineOfSight then
+                    local dist <const> = #(playerPos - targetPos)
+                    if dist <= (options.distance or 8.0) then -- option for distance?
+                        if options.allow_self and player == PlayerId() then
+                            playersNeeded[#playersNeeded] = player
+                        else
+                            if player ~= PlayerId() then
+                                playersNeeded[#playersNeeded] = player
+                            end
+                        end
+                    end
                 end
             end
         else
@@ -62,24 +61,40 @@ local function selector(options)
         end
     end
 
-    local set = false
+    if #playersNeeded == 0 then
+        return false
+    end
 
+    local set = false
+    SetNuiFocus(true, true)
     repeat
         local players <const> = {}
         for _, player in ipairs(playersNeeded) do
             local targetPed <const> = GetPlayerPed(player)
             local targetPos <const> = GetEntityCoords(targetPed)
             local playerPos <const> = GetEntityCoords(playerPed) -- who used item
-            local coords <const> = GetWorldPositionOfEntityBone(targetPed, GetPedBoneIndex(targetPed, 21030))
-            local onScreen <const>, _x <const>, _y <const> = GetScreenCoordFromWorldCoord(coords.x, coords.y, coords.z + .3)
-            if onScreen then
-                table.insert(players, {
-                    id = GetPlayerServerId(player),
-                    x = _x,
-                    y = _y,
-                    distance = getDistanceBetweenCoords(playerPos, targetPos)
-                })
+            local interior <const> = GetInteriorFromEntity(targetPed)
+            if interior == interior2 then
+                local coords <const> = GetWorldPositionOfEntityBone(targetPed, GetPedBoneIndex(targetPed, 21030))
+                local onScreen <const>, _x <const>, _y <const> = GetScreenCoordFromWorldCoord(coords.x, coords.y,
+                coords.z + .3)
+                if onScreen then
+                    players[#players] = {
+                        id = GetPlayerServerId(player),
+                        x = _x,
+                        y = _y,
+                        distance = getDistanceBetweenCoords(playerPos, targetPos)
+                    }
+                end
             end
+        end
+
+        if IsPlayerDead(PlayerId()) then
+            playerSelected = -1
+        end
+
+        if playerSelected == -1 then
+            break
         end
 
         if not set then
@@ -95,6 +110,7 @@ local function selector(options)
     table.wipe(playersNeeded)
 
     SetNuiFocus(false, false)
+    print(playerSelected)
     isInSelection = false
 
     -- was cancelled pressed ESC
