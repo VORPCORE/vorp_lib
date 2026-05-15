@@ -1,0 +1,156 @@
+body {
+  overflow: hidden;
+  user-select: none;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+#root canvas {
+  pointer-events: auto;
+}
+
+#gizmo-controls {
+  position: fixed;
+  right: 1.4vw;
+  bottom: 2.5vh;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 1.1vh;
+  pointer-events: none;
+}
+
+#gizmo-controls.is-hidden {
+  display: none;
+}
+
+#gizmo-controls:not(.is-hidden) {
+  pointer-events: auto;
+}
+
+#gizmo-controls .gizmo-controls-title {
+  text-align: right;
+  width: 100%;
+}
+
+.gizmo-hint-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85vh;
+}
+
+.gizmo-hint-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65vw;
+}
+
+.kbd,
+.gizmo-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6vw;
+  min-height: 1.35vw;
+  padding: 0.2vh 0.45vw;
+  border: 1px solid #888;
+  border-bottom: 2px solid #555;
+  border-radius: 3px;
+  background: #f0ece4;
+  box-shadow: 0 1px 0 #aaa;
+  color: #1a1611;
+  font-family: crock, serif;
+  font-size: 0.65vw;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+  transform: translateY(0);
+  transition: transform 0.06s ease, box-shadow 0.06s ease, border-color 0.06s ease;
+}
+
+.kbd:hover,
+.gizmo-kbd:hover {
+  background: #f7f3eb;
+}
+
+.kbd.is-pressed,
+.gizmo-kbd.is-pressed {
+  transform: translateY(1px);
+  border-bottom-width: 1px;
+  box-shadow: none;
+}
+
+.gizmo-hint-label {
+  color: #f4efe6;
+  font-family: crock, serif;
+  font-size: max(13px, 0.78vw);
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-align: right;
+  white-space: nowrap;
+  text-shadow:
+    0 1px 1px #000,
+    0 2px 4px rgba(0, 0, 0, 0.95),
+    0 0 10px rgba(0, 0, 0, 0.65);
+}
+
+.gizmo-kbd:focus-visible {
+  outline: 1px solid rgba(220, 210, 190, 0.9);
+  outline-offset: 2px;
+}
+
+#gizmo-camera-controls {
+  position: fixed;
+  left: 1.4vw;
+  bottom: 2.5vh;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.1vh;
+}
+
+#gizmo-camera-controls.is-hidden {
+  display: none;
+}
+
+#gizmo-camera-controls:not(.is-hidden) {
+  pointer-events: auto;
+}
+
+#gizmo-camera-controls .gizmo-camera-title {
+  text-align: left;
+}
+
+#gizmo-camera-controls .gizmo-hint-row--camera {
+  justify-content: flex-start;
+}
+
+#gizmo-camera-controls .gizmo-hint-label {
+  text-align: left;
+}
+
+.gizmo-hint-group.is-hidden {
+  display: none;
+}
+
+.gizmo-kbd--cam {
+  cursor: default;
+}
