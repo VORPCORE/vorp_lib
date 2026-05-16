@@ -217,19 +217,3 @@ exports('StopGizmo', function()
     })
 end)
 
--- example
---exports.vorp_lib:StartGizmo(entity, alpha, placeOnGround, deleteOnStop, createCam, data, {
---    lang = {
---        controlsTitle = 'Controls',
---        cameraTitle = 'Camera',
---        transform = 'Transform',
---        rotate = 'Rotate',
---        placeOnGround = 'Place on ground',
---        apply = 'Apply',
---        cancel = 'Cancel',
---    },
---    dist = {
---        min = 2,
---        max = 10,
---    },
---})
