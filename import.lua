@@ -142,8 +142,11 @@ if side == "client" then
     ---@field Player integer player id
     ---@field ServerID integer player server id
     ---@field Mount integer current mounted ped id
+    ---@field LastMount integer last mounted ped id
     ---@field Vehicle integer current in vehicle ped id
+    ---@field LastVehicle integer last in vehicle ped id
     ---@field Weapon integer current held weapon ped id
+    ---@field LastWeapon integer last held weapon ped id
     CACHE = {}
 
     CreateThread(function()
@@ -151,8 +154,11 @@ if side == "client" then
         CACHE.Player = PlayerId()
         CACHE.ServerID = GetPlayerServerId(CACHE.Player)
         CACHE.Mount = 0
+        CACHE.LastMount = 0
         CACHE.Vehicle = 0
+        CACHE.LastVehicle = 0
         CACHE.Weapon = 0
+        CACHE.LastWeapon = 0
         CACHE.IsDead = false
 
         -- adjustable vars
@@ -172,6 +178,7 @@ if side == "client" then
                 local mount <const> = GetMount(CACHE.Ped)
                 if mount ~= 0 then
                     if CACHE.Mount ~= mount then
+                        CACHE.LastMount = CACHE.Mount
                         CACHE.Mount = mount
                     end
                 else
@@ -185,6 +192,7 @@ if side == "client" then
                 local vehicle <const> = GetVehiclePedIsIn(CACHE.Ped, false)
                 if vehicle ~= 0 then
                     if CACHE.Vehicle ~= vehicle then
+                        CACHE.LastVehicle = CACHE.Vehicle
                         CACHE.Vehicle = vehicle
                     end
                 else
@@ -198,6 +206,7 @@ if side == "client" then
                 local weapon <const> = GetPedCurrentHeldWeapon(CACHE.Ped)
                 if weapon ~= 0 then
                     if CACHE.Weapon ~= weapon then
+                        CACHE.LastWeapon = CACHE.Weapon
                         CACHE.Weapon = weapon
                     end
                 else
