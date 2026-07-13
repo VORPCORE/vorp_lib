@@ -189,12 +189,22 @@ if side == "client" then
                 local mount <const> = GetMount(CACHE.Ped)
                 if mount ~= 0 then
                     if CACHE.Mount ~= mount then
-                        CACHE.LastMount = CACHE.Mount
                         CACHE.Mount = mount
                     end
                 else
                     if CACHE.Mount ~= 0 then
                         CACHE.Mount = 0
+                    end
+                end
+
+                local lastMount <const> = GetLastMount(CACHE.Ped)
+                if lastMount ~= 0 then
+                    if CACHE.LastMount ~= lastMount then
+                        CACHE.LastMount = lastMount
+                    end
+                else
+                    if CACHE.LastMount ~= 0 then
+                        CACHE.LastMount = 0
                     end
                 end
             end
