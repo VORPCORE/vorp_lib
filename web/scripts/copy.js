@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.createElement('textarea');
         el.value = text;
         document.body.appendChild(el);
+        el.focus();
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
