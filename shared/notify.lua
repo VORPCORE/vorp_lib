@@ -260,7 +260,7 @@ if not IsDuplicityVersion() then
             print("^2Displaying: NotifySimpleTop")
             Wait(testWaitDuration)
             self:RightAdvanced(testText, testDict, testIcon, testColor, testDuration)
-            print("^2Displaying: NotifyAvanced")
+            print("^2Displaying: NotifyAdvanced")
             Wait(testWaitDuration)
             self:BasicTop(testText, testDuration)
             print("^2Displaying: NotifyBasicTop")

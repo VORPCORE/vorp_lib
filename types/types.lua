@@ -1,8 +1,5 @@
 ---@meta
 
---- CLIENT SIDE NUI
----@param text string text to copy to the clipboard
-function exports.vorp_lib:copyToClipBoard(text) end
 
 ---@class ENTITY
 ---@field private TrackEntity fun(self: ENTITY)
@@ -205,8 +202,8 @@ function exports.vorp_lib:copyToClipBoard(text) end
 ---@class POLYZONE_PARAMS
 ---@field public id? string
 ---@field public type? POLYZONE_TYPE
----@field public points? (vector3 | {x: number, y: number, z: number})[]
----@field public center? vector3 | {x: number, y: number, z: number}
+---@field public points? (vector2 | vector3)[]
+---@field public center? vector3
 ---@field public radius? number
 ---@field public length? number
 ---@field public width? number
@@ -231,9 +228,9 @@ function exports.vorp_lib:copyToClipBoard(text) end
 ---@field public IsRunning fun(self: POLYZONE_INSTANCE): boolean
 ---@field public IsInside fun(self: POLYZONE_INSTANCE): boolean
 ---@field public SetCallbacks fun(self: POLYZONE_INSTANCE, onEnter: fun(zone: POLYZONE_INSTANCE, coords: vector3)?, onExit: fun(zone: POLYZONE_INSTANCE, coords: vector3)?, onInside: fun(zone: POLYZONE_INSTANCE, coords: vector3)?)
----@field public UpdatePolygon fun(self: POLYZONE_INSTANCE, points: (vector3 | {x: number, y: number, z: number})[])
----@field public UpdateCircle fun(self: POLYZONE_INSTANCE, center: vector3 | {x: number, y: number, z: number}, radius: number)
----@field public UpdateBox fun(self: POLYZONE_INSTANCE, center: vector3 | {x: number, y: number, z: number}, length: number, width: number, heading: number?)
+---@field public UpdatePolygon fun(self: POLYZONE_INSTANCE, points: (vector2 | vector3)[])
+---@field public UpdateCircle fun(self: POLYZONE_INSTANCE, center: vector3, radius: number)
+---@field public UpdateBox fun(self: POLYZONE_INSTANCE, center: vector3, length: number, width: number, heading: number?)
 ---@field public SetHeight fun(self: POLYZONE_INSTANCE, minZ: number?, maxZ: number?)
 ---@field public SetDebug fun(self: POLYZONE_INSTANCE, enabled: boolean)
 ---@field public SetTickRates fun(self: POLYZONE_INSTANCE, outsideMs: number?, insideMs: number?)

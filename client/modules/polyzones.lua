@@ -20,35 +20,11 @@ local PolyZones = {}
 
 local REGISTERED_ZONES <const> = {}
 
-local function toVector3(value, fallbackZ)
-    if value == nil then
-        error("polyzone: expected vector3, got nil")
+local function polyCenterZ(minZ, maxZ)
+    if minZ and maxZ then
+        return (minZ + maxZ) * 0.5
     end
-
-    local valueType <const> = type(value)
-    if valueType == "vector3" then
-        return value
-    end
-
-    if valueType ~= "table" then
-        error(("polyzone: expected table or vector3, received %s"):format(valueType))
-    end
-
-    local x = value.x or value[1]
-    local y = value.y or value[2]
-    local z = value.z or value[3] or fallbackZ or 0.0
-
-    assert(x and y, "polyzone: vector3 definition requires x and y")
-
-    return vector3(x + 0.0, y + 0.0, z + 0.0)
-end
-
-local function clonePoints(points, defaultZ)
-    local buffer <const> = {}
-    for i = 1, #points do
-        buffer[i] = toVector3(points[i], defaultZ)
-    end
-    return buffer
+    return minZ or maxZ or 0.0
 end
 
 local function pointInPolygon(point, polygon)
@@ -143,21 +119,21 @@ local zone <const> = CLASS:Create({
 
         UpdatePolygon = function(self, newPoints)
             assert(self.zoneType == "poly", "UpdatePolygon is only valid for polygon zones")
-            self.points = clonePoints(newPoints, self.minZ or self.maxZ)
+            self.points = newPoints
             self.center = self:CalculateCentroid(self.points)
             self:ComputeBounds()
         end,
 
         UpdateCircle = function(self, center, radius)
             assert(self.zoneType == "circle", "UpdateCircle is only valid for circle zones")
-            self.center = toVector3(center, self.center and self.center.z or 0.0)
+            self.center = center
             self.radius = radius
             self:ComputeBounds()
         end,
 
         UpdateBox = function(self, center, length, width, heading)
             assert(self.zoneType == "box", "UpdateBox is only valid for box zones")
-            self.center = toVector3(center, self.center and self.center.z or 0.0)
+            self.center = center
             self.length = length
             self.width = width
             self.heading = heading or self.heading or 0.0
@@ -172,7 +148,7 @@ local zone <const> = CLASS:Create({
         SetDebug = function(self, enabled)
             self.debug = enabled
             if enabled and self.isActive then
-                self:StartDebugLoop()
+                self:StartDebug()
             end
         end,
 
@@ -189,7 +165,7 @@ local zone <const> = CLASS:Create({
             if self.isActive then return end
             self.isActive = true
             if self.debug then
-                self:StartDebugLoop()
+                self:StartDebug()
             end
 
             CreateThread(function()
@@ -247,14 +223,16 @@ local zone <const> = CLASS:Create({
     InitialiseShape = function(self, data)
         if self.zoneType == "poly" then
             assert(data.points and #data.points >= 3, "polyzone: polygon requires at least 3 points")
-            self.points = clonePoints(data.points, data.minZ or data.maxZ or (data.center and data.center.z))
-            self.center = data.center and toVector3(data.center, data.minZ) or self:CalculateCentroid(self.points)
+            self.points = data.points
+            self.center = data.center or self:CalculateCentroid(self.points)
         elseif self.zoneType == "circle" then
-            self.center = toVector3(data.center, data.minZ or data.maxZ)
+            assert(data.center, "polyzone: circle requires a center")
+            self.center = data.center
             self.radius = data.radius or data.size
             assert(self.radius, "polyzone: circle requires a radius")
         elseif self.zoneType == "box" then
-            self.center = toVector3(data.center, data.minZ or data.maxZ)
+            assert(data.center, "polyzone: box requires a center")
+            self.center = data.center
             self.length = data.length or (data.size and (data.size.y or data.size[2]))
             self.width = data.width or (data.size and (data.size.x or data.size[1]))
             self.heading = data.heading or 0.0
@@ -277,7 +255,7 @@ local zone <const> = CLASS:Create({
             local center <const> = self.center
             local maxDistance = 0.0
             for _, point in ipairs(self.points) do
-                local distance <const> = #(point - center)
+                local distance <const> = #(vector3(point.x, point.y, center.z) - center)
                 if distance > maxDistance then
                     maxDistance = distance
                 end
@@ -286,7 +264,7 @@ local zone <const> = CLASS:Create({
         end
     end,
 
-    CalculateCentroid = function(_, points)
+    CalculateCentroid = function(self, points)
         local area = 0.0
         local cx = 0.0
         local cy = 0.0
@@ -303,25 +281,33 @@ local zone <const> = CLASS:Create({
             cy = cy + (current.y + nextPoint.y) * cross
         end
 
+        local z <const> = polyCenterZ(self.minZ, self.maxZ)
+
         area = area * 0.5
         if area == 0.0 then
-            return points[1]
+            return vector3(points[1].x, points[1].y, z)
         end
 
         local factor <const> = 1 / (6 * area)
         local centroidX <const> = cx * factor
         local centroidY <const> = cy * factor
 
-        return vector3(centroidX, centroidY, points[1].z)
+        return vector3(centroidX, centroidY, z)
     end,
 
     WithinHeight = function(self, coords)
-        if self.minZ and coords.z < self.minZ then
-            return false
+        local minZ <const> = self.minZ
+        local maxZ <const> = self.maxZ
+
+        if minZ or maxZ then
+            local zMin <const> = (minZ and maxZ) and math.min(minZ, maxZ) or minZ or maxZ
+            local zMax <const> = (minZ and maxZ) and math.max(minZ, maxZ) or minZ or maxZ
+
+            if coords.z < zMin or coords.z > zMax then
+                return false
+            end
         end
-        if self.maxZ and coords.z > self.maxZ then
-            return false
-        end
+
         return true
     end,
 
@@ -345,17 +331,12 @@ local zone <const> = CLASS:Create({
         return pointInPolygon(coords, self.points)
     end,
 
-    StartDebugLoop = function(self)
-        if self.debugThread then
-            return
-        end
-
-        self.debugThread = CreateThread(function()
+    StartDebug = function(self)
+        CreateThread(function()
             while self.isActive and self.debug do
                 self:DrawDebug()
                 Wait(0)
             end
-            self.debugThread = nil
         end)
     end,
 
@@ -407,7 +388,7 @@ local zone <const> = CLASS:Create({
             return
         end
 
-        local minZ = self.minZ or (self.points[1] and self.points[1].z) or 0.0
+        local minZ = self.minZ or polyCenterZ(self.minZ, self.maxZ)
         local maxZ = self.maxZ or (minZ + DEBUG_HEIGHT)
 
         for i = 1, #self.points do

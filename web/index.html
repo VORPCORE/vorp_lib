@@ -7,10 +7,21 @@
     <link rel="stylesheet" href="styles/selector.css">
     <link rel="stylesheet" href="styles/progressbar.css">
     <link rel="stylesheet" href="styles/gizmo.css">
+    <link rel="stylesheet" href="styles/copy.css">
     <title>vorp lib</title>
 </head>
 
 <body>
+    <div id="copy-clipboard" class="hidden">
+        <div class="copy-panel">
+            <p>Click Copy to put this on your clipboard</p>
+            <pre id="copy-preview"></pre>
+            <div class="copy-actions">
+                <button type="button" id="copy-cancelBtn">Cancel</button>
+                <button type="button" id="copy-copyBtn">Copy</button>
+            </div>
+        </div>
+    </div>
     <script src="scripts/selector.js"></script>
     <script src="scripts/progressbar.js"></script>
     <script src="scripts/copy.js"></script>

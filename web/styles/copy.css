@@ -1,0 +1,70 @@
+#copy-clipboard {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 2000;
+}
+
+#copy-clipboard.hidden {
+    display: none;
+}
+
+#copy-clipboard .copy-panel {
+    width: min(420px, 90vw);
+    padding: 20px 22px;
+    background: #1a1714;
+    color: #f0e6d8;
+    border: 1px solid #6b5a45;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+#copy-clipboard .copy-panel p {
+    margin-bottom: 10px;
+    font-size: 15px;
+    letter-spacing: 0.02em;
+}
+
+#copy-preview {
+    max-height: 120px;
+    overflow: auto;
+    margin-bottom: 14px;
+    padding: 10px;
+    background: #0f0d0b;
+    border: 1px solid #3d3429;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+#copy-clipboard .copy-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+#copy-clipboard button {
+    padding: 8px 16px;
+    border: 1px solid #6b5a45;
+    background: #2a241c;
+    color: #f0e6d8;
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+}
+
+#copy-clipboard button:hover {
+    background: #3a3228;
+}
+
+#copy-copyBtn {
+    background: #4a3b28 !important;
+    border-color: #8a734f !important;
+}
+
+#copy-copyBtn:hover {
+    background: #5c4a32 !important;
+}

@@ -22,6 +22,7 @@ local GameEvents = {
 
         }
     },
+
     [`EVENT_NETWORK_SESSION_EVENT`] = {
         name = "EVENT_NETWORK_SESSION_EVENT",
         hash = "0x62D903F9",
