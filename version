@@ -1,3 +1,10 @@
+<0.5>
+- added clipboard export
+- added GetLastMount to CACHE getter
+- fixed game event params for EVENT_LOOT_PLANT_START
+- added callback OnPlayerDeath to CACHE which will be called when player dies
+- added callback OnPedChange to CACHE which will be called when player ped id changes
+- added missing game event EVENT_SHOCKING_ITEM_STOLEN
 <0.4>
 - fixed selector
 - added more variables to CACHE
