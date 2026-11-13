@@ -57,6 +57,7 @@ local function executeSkillbar(data, callback)
         },
     })
 
+    PlaySoundFrontend("enter", "RDRO_Winners_Screen_Sounds", true, 0)
     listenForKey(data.key or KEY_SPACE)
 
     local p <const> = promises
