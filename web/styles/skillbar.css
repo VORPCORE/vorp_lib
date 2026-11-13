@@ -1,0 +1,91 @@
+/*SKILL BAR*/
+.skillbar-container {
+    position: fixed;
+    top: 90%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+.skillbar-text {
+    width: 100%;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: crock;
+    font-size: 19px;
+    text-shadow: 0 0 4px black;
+}
+
+.skillbar-bar {
+    position: relative;
+    width: 100%;
+    height: 50px;
+}
+
+.skillbar-grey,
+.skillbar-white {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 100% 100%;
+}
+
+.skillbar-grey {
+    filter: grayscale(100%) brightness(20%);
+}
+
+.skillbar-white {
+    clip-path: inset(0 100% 0 0);
+}
+
+.skillbar-needle {
+    position: absolute;
+    top: 3px;
+    bottom: 9px;
+    left: 7%;
+    width: 4px;
+    margin-left: -2px;
+    background-color: #b3261e;
+    box-shadow: 0 0 0 1px black;
+}
+
+.skillbar-container.bump {
+    animation: bump 300ms ease forwards;
+}
+
+.skillbar-container.miss {
+    animation: miss 300ms ease forwards;
+}
+
+.skillbar-container.miss .skillbar-white {
+    filter: grayscale(100%) brightness(50%) sepia(100%) hue-rotate(-50deg) saturate(4);
+}
+
+
+/* ANIMATIONS */
+@keyframes miss {
+    0% {
+        transform: translate(-50%, -50%);
+    }
+
+    25% {
+        transform: translate(-52%, -50%);
+    }
+
+    75% {
+        transform: translate(-48%, -50%);
+    }
+
+    100% {
+        transform: translate(-50%, -50%);
+    }
+}
